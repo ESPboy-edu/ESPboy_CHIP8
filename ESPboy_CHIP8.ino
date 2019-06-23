@@ -7,13 +7,10 @@ Special thanks to Igor (corax69), DmitryL (Plague) and John Earnest (https://git
 
 /*
 2do:
-<<<<<<< Updated upstream
 DONE- timers correct attach/detach
 DONE implememnt load and set from ".k" game file:
-=======
 DONE - timers correct attach/detach
 DONE - implememnt load and set from ".k" game file: 
->>>>>>> Stashed changes
 DONE - optimize TFT output
 DONE - implement return keeping key pressed time
 DONW - implement reset/exit pressing side buttons
@@ -89,7 +86,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 //0b01000011 for SpaceIviders
 //0b11110111 for BLITZ
 //0b01000000 for BRIX
-#define DEFAULTCOMPATIBILITY    0b01000000 //bit bit8,bit7...bit1;
+#define DEFAULTCOMPATIBILITY    0b01000011 //bit bit8,bit7...bit1;
 #define DEFAULTOPCODEPERFRAME   40
 #define DEFAULTTIMERSFREQ       60 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
@@ -695,7 +692,7 @@ uint8_t do_cpu()
 	return (0);
 }
 
-void do_emuation()
+void do_emulation()
 {
 	uint16_t c = 0;
 	timers.attach_ms((uint8_t)(1000.0f / (float)timers_emu), chip8timers);
@@ -716,10 +713,11 @@ void do_emuation()
       
 			c = 0;
 		}
+    checkbuttons();
 		if (LFT_BUTTON && RGT_BUTTON)
 		{
 			chip8_reset();
-			if (waitkeyunpressed() > 200)
+			if (waitkeyunpressed() > 300)
 				break;
 		}
 	}
@@ -905,7 +903,7 @@ void loop()
 		break;
 	case APP_EMULATE: //chip8 emulation
 		tft.fillScreen(TFT_BLACK);
-		do_emuation();
+		do_emulation();
 		emustate = APP_SHOW_DIR;
 		break;
 	}
