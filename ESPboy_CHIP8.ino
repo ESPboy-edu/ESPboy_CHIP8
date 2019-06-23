@@ -888,7 +888,7 @@ void loop()
 			emustate = EMUSTATE::APP_SHOW_DIR;
 		waitkeyunpressed();
 		break;
-	case 3: //chip8 emulation
+	case EMUSTATE::APP_EMULATE: //chip8 emulation
 		tft.fillScreen(TFT_BLACK);
 		do_emuation();
 		emustate = EMUSTATE::APP_SHOW_DIR;
