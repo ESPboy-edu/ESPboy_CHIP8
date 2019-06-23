@@ -771,7 +771,7 @@ enum EMUSTATE {
 	APP_CHECK_KEY,
 	APP_EMULATE
 };
-EMUSTATE emustate = EMUSTATE::APP_HELP;
+EMUSTATE emustate = APP_HELP;
 
 void loop()
 {
@@ -814,7 +814,7 @@ void loop()
 		waitkeyunpressed();
 		selectedfilech8 = 1;
 		if (maxfilesch8)
-			emustate = EMUSTATE::APP_SHOW_DIR;
+			emustate = APP_SHOW_DIR;
 		break;
 	case APP_SHOW_DIR:
 		dir = SPIFFS.openDir("/");
@@ -860,7 +860,7 @@ void loop()
 				countfilesonpage++;
 			}
 		}
-		emustate = EMUSTATE::APP_CHECK_KEY;
+		emustate = APP_CHECK_KEY;
 		break;
 	case APP_CHECK_KEY:
 		waitkeyunpressed();
@@ -882,16 +882,16 @@ void loop()
 			waitkeyunpressed();
 			waitanykey();
 			waitkeyunpressed();
-			emustate = EMUSTATE::APP_EMULATE;
+			emustate = APP_EMULATE;
 		}
 		else
-			emustate = EMUSTATE::APP_SHOW_DIR;
+			emustate = APP_SHOW_DIR;
 		waitkeyunpressed();
 		break;
-	case EMUSTATE::APP_EMULATE: //chip8 emulation
+	case APP_EMULATE: //chip8 emulation
 		tft.fillScreen(TFT_BLACK);
 		do_emuation();
-		emustate = EMUSTATE::APP_SHOW_DIR;
+		emustate = APP_SHOW_DIR;
 		break;
 	}
 }
