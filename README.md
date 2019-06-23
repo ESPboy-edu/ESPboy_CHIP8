@@ -1,4 +1,5 @@
 ESPboy chip8/schip accurate emulator by RomanS based on ideas of Alvaro Alea Fernandez Chip-8 emulator.
+================
 
 Special thanks to Igor (corax69), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo/tree/gh-pages/docs) for help
 
@@ -16,8 +17,9 @@ https://www.youtube.com/watch?v=25eLIdLKgHs
 You is able to make <gamename.k> configuration file and upload them to the SPIFFS togather with games.
 It looks like simple txt file. Check below
 
+
 The name of the configuration file should be the same as the game's name but with extention ".k" as <gamename.k>
-===========================================================
+-----------------------------
 4 2 8 6 5 11 4 6
 13
 0
