@@ -1,20 +1,29 @@
-//ESPboy chip8/schip emulator by RomanS
-//based on ideas of Alvaro Alea Fernandez Chip-8 emulator
+/*
+ESPboy chip8/schip emulator by RomanS
+based on ideas of Alvaro Alea Fernandez Chip-8 emulator
+Special thanks to Igor (corax69), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo/tree/gh-pages/docs) for help
+*/
+
 
 /*
 2do:
+<<<<<<< Updated upstream
 DONE- timers correct attach/detach
 DONE implememnt load and set from ".k" game file:
+=======
+DONE - timers correct attach/detach
+DONE - implememnt load and set from ".k" game file: 
+>>>>>>> Stashed changes
 DONE - optimize TFT output
 DONE - implement return keeping key pressed time
 DONW - implement reset/exit pressing side buttons
 DONE - implemet PROGMEM for fonts
 DONE - clear screen using memset
 DONE - implement help:
-DONE print game description/help
+DONE - print game description/help
 - implement super chip
 - implement "hires" emulation
--NO is regs and stack should be in ram?
+- NO is regs and stack should be in ram?
 - add games + ".k" files to each game
 DONE implement compatibility optimisation
 */
@@ -31,13 +40,13 @@ DONE implement compatibility optimisation
 #include <Ticker.h>
 
 //system
-#define fontchip_OFFSET 0x38
-#define NLINEFILES 14 //no of files in menu
-#define csTFTMCP23017pin 8
-#define LEDquantity 1
-#define MCP23017address 0 // actually it's 0x20 but in <Adafruit_MCP23017.h> lib there is (x|0x20) :)
-#define MCP4725dacresolution 8
-#define MCP4725address 0
+#define fontchip_OFFSET       0x38
+#define NLINEFILES            14 //no of files in menu
+#define csTFTMCP23017pin      8
+#define LEDquantity           1
+#define MCP23017address       0 // actually it's 0x20 but in <Adafruit_MCP23017.h> lib there is (x|0x20) :)
+#define MCP4725dacresolution  8
+#define MCP4725address        0
 
 /*compatibility_emu var
 8XY6/8XYE opcode
@@ -80,36 +89,36 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 //0b01000011 for SpaceIviders
 //0b11110111 for BLITZ
 //0b01000000 for BRIX
-#define DEFAULTCOMPATIBILITY 0b11110111 //bit bit8,bit7...bit1;
-#define DEFAULTOPCODEPERFRAME 40
-#define DEFAULTTIMERSFREQ 60 // freq herz
-#define DEFAULTBACKGROUND 0  // check colors []
-#define DEFAULTDELAY 1
-#define DEFAULTSOUNDTONE 300
-#define LORESDISPLAY 0
-#define HIRESDISPLAY 1
+#define DEFAULTCOMPATIBILITY    0b01000000 //bit bit8,bit7...bit1;
+#define DEFAULTOPCODEPERFRAME   40
+#define DEFAULTTIMERSFREQ       60 // freq herz
+#define DEFAULTBACKGROUND       0  // check colors []
+#define DEFAULTDELAY            1
+#define DEFAULTSOUNDTONE        300
+#define LORESDISPLAY            0
+#define HIRESDISPLAY            1
 
 //buttons
-#define LEFT_BUTTON (buttonspressed & 1)
-#define UP_BUTTON (buttonspressed & 2)
-#define DOWN_BUTTON (buttonspressed & 4)
-#define RIGHT_BUTTON (buttonspressed & 8)
-#define ACT_BUTTON (buttonspressed & 16)
-#define ESC_BUTTON (buttonspressed & 32)
-#define LFT_BUTTON (buttonspressed & 64)
-#define RGT_BUTTON (buttonspressed & 128)
-#define LEFT_BUTTONn 0
-#define UP_BUTTONn 1
-#define DOWN_BUTTONn 2
+#define LEFT_BUTTON   (buttonspressed & 1)
+#define UP_BUTTON     (buttonspressed & 2)
+#define DOWN_BUTTON   (buttonspressed & 4)
+#define RIGHT_BUTTON  (buttonspressed & 8)
+#define ACT_BUTTON    (buttonspressed & 16)
+#define ESC_BUTTON    (buttonspressed & 32)
+#define LFT_BUTTON    (buttonspressed & 64)
+#define RGT_BUTTON    (buttonspressed & 128)
+#define LEFT_BUTTONn  0
+#define UP_BUTTONn    1
+#define DOWN_BUTTONn  2
 #define RIGHT_BUTTONn 3
-#define ACT_BUTTONn 4
-#define ESC_BUTTONn 5
-#define LFT_BUTTONn 6
-#define RGT_BUTTONn 7
+#define ACT_BUTTONn   4
+#define ESC_BUTTONn   5
+#define LFT_BUTTONn   6
+#define RGT_BUTTONn   7
 
 //pins
-#define LEDPIN D4
-#define SOUNDPIN D3
+#define LEDPIN    D4
+#define SOUNDPIN  D3
 
 //lib colors
 uint16_t colors[] = { TFT_BLACK, TFT_NAVY, TFT_DARKGREEN, TFT_DARKCYAN, TFT_MAROON,
@@ -135,26 +144,36 @@ static const uint8_t PROGMEM fontchip[16 * 5] = {
 	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
-uint8_t mem[0x1000];
-uint8_t reg[0x10];   // ram 0x0 - 0xF
-int16_t stack[0x10]; // ram 0x16 - 0x36???  EA0h-EFFh
-uint8_t sp;
-volatile uint8_t stimer, dtimer;
-uint16_t pc, i;
-uint8_t display[128 * 64]; // ram F00h-FFFh
-uint8_t displaytype;
 
-static uint8_t keys[8] = { 0 };
-static uint8_t foreground_emu;
-static uint8_t background_emu;
-static uint8_t compatibility_emu;   // look above
-static uint8_t delay_emu;           // delay in microseconds before next opcode done
-static uint8_t opcodesperframe_emu; // how many opcodes should be done before screen updates
-static uint8_t timers_emu;          // freq of timers. standart 60hz
-String description_emu;             // file description
-static uint16_t soundtone_emu;
+uint8_t   mem[0x1000]; 
+uint8_t   reg[0x10];    // ram 0x0 - 0xF
+uint8_t   stack[0x10];  // ram 0x16 - 0x36???  EA0h-EFFh
+uint8_t   sp; 
+volatile uint8_t stimer, dtimer;
+uint16_t  pc,i;
+uint8_t   display[128*64];// ram F00h-FFFh
+
+static uint8_t   keys[8]={0};
+static uint8_t   foreground_emu;
+static uint8_t   background_emu;
+static uint8_t   compatibility_emu;   // look above
+static uint8_t   delay_emu;           // delay in microseconds before next opcode done
+static uint8_t   opcodesperframe_emu; // how many opcodes should be done before screen updates
+static uint8_t   timers_emu;          // freq of timers. standart 60hz
+String           description_emu;     // file description
+static uint16_t  soundtone_emu;
 
 static uint16_t buttonspressed;
+
+
+enum EMUSTATE {
+  APP_HELP,
+  APP_SHOW_DIR,
+  APP_CHECK_KEY,
+  APP_EMULATE
+};
+EMUSTATE emustate = APP_HELP;
+
 
 TFT_eSPI tft = TFT_eSPI();
 Adafruit_MCP23017 mcp;
@@ -694,12 +713,13 @@ void do_emuation()
 		{
 			if (!(compatibility_emu & 64))
 				updatedisplay();
+      
 			c = 0;
 		}
 		if (LFT_BUTTON && RGT_BUTTON)
 		{
 			chip8_reset();
-			if (waitkeyunpressed() > 300)
+			if (waitkeyunpressed() > 200)
 				break;
 		}
 	}
@@ -765,13 +785,8 @@ void setup()
 	tft.fillScreen(TFT_BLACK);
 }
 
-enum EMUSTATE {
-	APP_HELP,
-	APP_SHOW_DIR,
-	APP_CHECK_KEY,
-	APP_EMULATE
-};
-EMUSTATE emustate = APP_HELP;
+
+
 
 void loop()
 {
@@ -783,7 +798,7 @@ void loop()
 	while (dir.next())
 	{
 		filename = String(dir.fileName());
-		if (filename.lastIndexOf(String(".CH8")))
+		if (filename.lastIndexOf(String(".ch8")))
 			maxfilesch8++;
 	}
 
@@ -824,7 +839,7 @@ void loop()
 		{
 			dir.next();
 			filename = String(dir.fileName());
-			if (filename.lastIndexOf(String(".CH8")))
+			if (filename.lastIndexOf(String(".ch8")))
 				countfilesch8++;
 		}
 		tft.fillScreen(TFT_BLACK);
@@ -836,7 +851,7 @@ void loop()
 		while (dir.next() && (countfilesonpage < NLINEFILES))
 		{
 			filename = String(dir.fileName());
-			if (filename.lastIndexOf(String(".CH8")))
+			if (filename.lastIndexOf(String(".ch8")))
 			{
 				if (filename.indexOf(".") < 17)
 					filename = filename.substring(1, filename.indexOf("."));
