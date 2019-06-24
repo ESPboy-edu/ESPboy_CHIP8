@@ -30,9 +30,7 @@ It looks like simple txt file. Check below
 
 
 The name of the configuration file should be the same as the game's name but with extention ".k" as <gamename.k>
-
-start of config file <gamename.k> ---------------------------------]
-
+__________________
 4 2 8 6 5 11 4 6
 13
 0
@@ -42,8 +40,7 @@ start of config file <gamename.k> ---------------------------------]
 60
 200
 Here could be description of the game about 300 symbols
-
-end of config file <gamename.k> ---------------------------------]
+__________________
 
 
 //INSTRUCTIONS
