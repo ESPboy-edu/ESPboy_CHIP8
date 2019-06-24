@@ -215,8 +215,7 @@ void updatedisplay()
 
 uint8_t iskeypressed(uint8_t key)
 {
-	uint8_t ret;
-	ret = 0;
+	uint8_t ret = 0;
 	checkbuttons();
 	if (LEFT_BUTTON && keys[LEFT_BUTTONn] == key)
 		ret++;
@@ -239,7 +238,7 @@ uint8_t iskeypressed(uint8_t key)
 
 uint8_t waitanykey()
 {
-	uint8_t ret;
+	uint8_t ret = 0;
 	while (!checkbuttons())
 		delay(5);
 	if (LEFT_BUTTON)
@@ -290,6 +289,7 @@ uint8_t readkey()
 		return RGT_BUTTONn;
 	if (!buttonspressed)
 		return 255;
+	return 0;
 }
 
 void loadrom(String filename)
@@ -486,7 +486,7 @@ enum
 
 uint8_t do_cpu()
 {
-	int16_t inst, in2, c, r;
+	int16_t inst, in2, r;
 	uint8_t in1, x, y, zz;
 
 	inst = (mem[pc] << 8) + mem[pc+1];
@@ -791,7 +791,7 @@ void setup()
 
 void loop()
 {
-	static uint16_t selectedfilech8, countfilesonpage, countfilesch8, c, maxfilesch8;
+	static uint16_t selectedfilech8, countfilesonpage, countfilesch8, maxfilesch8;
 	Dir dir;
 	static String filename, selectedfilech8name;
 	dir = SPIFFS.openDir("/");
@@ -799,7 +799,9 @@ void loop()
 	while (dir.next())
 	{
 		filename = String(dir.fileName());
-		if (filename.lastIndexOf(String(".ch8")))
+		filename.toLowerCase();
+
+		if (filename.lastIndexOf(String(".ch8")) > 0)
 			maxfilesch8++;
 	}
 
@@ -835,12 +837,13 @@ void loop()
 	case APP_SHOW_DIR:
 		dir = SPIFFS.openDir("/");
 		countfilesch8 = 0;
-		c = 0;
 		while (countfilesch8 < (selectedfilech8 / (NLINEFILES + 1)) * (NLINEFILES + 1) - 1)
 		{
 			dir.next();
 			filename = String(dir.fileName());
-			if (filename.lastIndexOf(String(".ch8")))
+			filename.toLowerCase();
+
+			if (filename.lastIndexOf(String(".ch8")) > 0)
 				countfilesch8++;
 		}
 		tft.fillScreen(TFT_BLACK);
@@ -852,11 +855,14 @@ void loop()
 		while (dir.next() && (countfilesonpage < NLINEFILES))
 		{
 			filename = String(dir.fileName());
-			if (filename.lastIndexOf(String(".ch8")))
+			String tfilename = filename;
+			tfilename.toLowerCase();
+
+			if (tfilename.lastIndexOf(String(".ch8")) > 0)
 			{
-				//if (filename.indexOf(".") < 17)
-				//	filename = filename.substring(1, filename.indexOf("."));
-				//else
+				if (filename.indexOf(".") < 17)
+					filename = filename.substring(1, filename.indexOf("."));
+				else
 					filename = filename.substring(1, 16);
 				filename = "  " + filename;
 				countfilesch8++;
