@@ -48,7 +48,7 @@ DONE implement compatibility optimisation
 /*compatibility_emu var
 8XY6/8XYE opcode
 Bit shifts a register by 1, VIP: shifts rY by one and places in rX, SCHIP: ignores rY field, shifts existing value in rX.
-bit1 = 1    <<= amd >>= takes vx, shifts, puts to vx, ignore vy
+bit1 = 1    <<= and >>= takes vx, shifts, puts to vx, ignore vy
 bit1 = 0    <<= and >>= takes vy, shifts, puts to vx
 
 FX55/FX65 opcode
@@ -86,7 +86,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 //0b01000011 for SpaceIviders
 //0b11110111 for BLITZ
 //0b01000000 for BRIX
-#define DEFAULTCOMPATIBILITY    0b01000011 //bit bit8,bit7...bit1;
+#define DEFAULTCOMPATIBILITY    0b01000000 //bit bit8,bit7...bit1;
 #define DEFAULTOPCODEPERFRAME   40
 #define DEFAULTTIMERSFREQ       60 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
@@ -408,9 +408,9 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 					if ((y + c) > 31)
 						addrdisplay -= (32 << 6);
 					if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
-						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[foreground_emu]);
+						tft.fillRect(((x + d) << 1) - 128, ((y + c) << 1) + 16 -64, 2, 2, colors[foreground_emu]);
 					else
-						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[background_emu]);
+						tft.fillRect(((x + d) << 1) - 128, ((y + c) << 1) + 16 -64, 2, 2, colors[background_emu]);
 					display[addrdisplay] ^= (data & mask);
 				}
 			}
@@ -481,7 +481,6 @@ enum
 	CHIP8_SK = 0xe,
 	CHIP8_SK_RP = 0x9e,
 	CHIP8_SK_UP = 0xa1,
-
 };
 
 uint8_t do_cpu()
