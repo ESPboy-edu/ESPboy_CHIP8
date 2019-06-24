@@ -144,7 +144,7 @@ static const uint8_t PROGMEM fontchip[16 * 5] = {
 
 uint8_t   mem[0x1000]; 
 uint8_t   reg[0x10];    // ram 0x0 - 0xF
-uint8_t   stack[0x10];  // ram 0x16 - 0x36???  EA0h-EFFh
+int16_t   stack[0x10];  // ram 0x16 - 0x36???  EA0h-EFFh
 uint8_t   sp; 
 volatile uint8_t stimer, dtimer;
 uint16_t  pc,i;
@@ -215,8 +215,7 @@ void updatedisplay()
 
 uint8_t iskeypressed(uint8_t key)
 {
-	uint8_t ret;
-	ret = 0;
+	uint8_t ret = 0;
 	checkbuttons();
 	if (LEFT_BUTTON && keys[LEFT_BUTTONn] == key)
 		ret++;
@@ -239,7 +238,7 @@ uint8_t iskeypressed(uint8_t key)
 
 uint8_t waitanykey()
 {
-	uint8_t ret;
+	uint8_t ret = 0;
 	while (!checkbuttons())
 		delay(5);
 	if (LEFT_BUTTON)
@@ -290,6 +289,7 @@ uint8_t readkey()
 		return RGT_BUTTONn;
 	if (!buttonspressed)
 		return 255;
+	return 0;
 }
 
 void loadrom(String filename)
@@ -312,7 +312,7 @@ void loadrom(String filename)
 			keys[c] = data.toInt();
 		}
 		data = f.readStringUntil('\n');
-		keys[8] = data.toInt();
+		keys[7] = data.toInt();
 		data = f.readStringUntil('\n');
 		foreground_emu = data.toInt();
 		data = f.readStringUntil('\n');
@@ -391,10 +391,12 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 				if ((data & mask) && display[addrdisplay])
 					preret++;
 				if (compatibility_emu & 64)
+				{
 					if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
 						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[foreground_emu]);
 					else
 						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[background_emu]);
+				}
 				display[addrdisplay] ^= (data & mask);
 			}
 			else
@@ -484,10 +486,11 @@ enum
 
 uint8_t do_cpu()
 {
-	int16_t inst, in2, c, r;
+	int16_t inst, in2, r;
 	uint8_t in1, x, y, zz;
 
-	inst = (mem[pc++] << 8) + mem[pc++];
+	inst = (mem[pc] << 8) + mem[pc+1];
+	pc += 2;
 	in1 = (inst >> 12) & 0xF;
 	x = (inst >> 8) & 0xF;
 	y = (inst >> 4) & 0xF;
@@ -496,7 +499,7 @@ uint8_t do_cpu()
 	{
 	case CHIP8_JSR: // jsr xyz
 		stack[sp] = pc;
-		sp = ++sp & 0x0F;
+		sp = (sp+1) & 0x0F;
 		pc = inst & 0xFFF;
 		break;
 
@@ -537,7 +540,7 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_JMI: // jmi xxx
-		if (!compatibility_emu & 16)
+		if (!(compatibility_emu & 16))
 			pc = (inst & 0xFFF) + reg[0];
 		else
 			pc = (inst & 0xFFF) + reg[(inst >> 8) & 0xF];
@@ -560,7 +563,7 @@ uint8_t do_cpu()
 				tft.fillRect(0, 16, 128, 64, colors[background_emu]);
 			break;
 		case CHIP8_EXT0_RTS: // ret
-			sp = --sp & 0xF;
+			sp = (sp-1) & 0xF;
 			pc = stack[sp] & 0xFFF;
 			break;
 		}
@@ -607,7 +610,7 @@ uint8_t do_cpu()
 				r = reg[y] & 0x1;
 				reg[x] = reg[y] >> 1;
 			}
-			if (x == 0xf && !compatibility_emu & 4)
+			if (x == 0xf && !(compatibility_emu & 4))
 				reg[0xf] = r & 0xff;
 			break;
 		case CHIP8_MATH_RSB: //rsb
@@ -615,7 +618,7 @@ uint8_t do_cpu()
 			reg[x] = r & 0xFF;
 			;
 			reg[0xf] = ((r < 0) ? 0 : 1);
-			if (x == 0xf && compatibility_emu & 4)
+			if (x == 0xf && (compatibility_emu & 4))
 				reg[0xf] = r & 0xff;
 			break;
 		case CHIP8_MATH_SHL: //shl
@@ -629,7 +632,7 @@ uint8_t do_cpu()
 				r = (reg[y] & 0x80) >> 8;
 				reg[x] = (reg[y] << 1) & 0xFF;
 			}
-			if (x == 0xf && !compatibility_emu & 4)
+			if (x == 0xf && !(compatibility_emu & 4))
 				reg[0xf] = r & 0xff;
 			break;
 		}
@@ -788,7 +791,7 @@ void setup()
 
 void loop()
 {
-	static uint16_t selectedfilech8, countfilesonpage, countfilesch8, c, maxfilesch8;
+	static uint16_t selectedfilech8, countfilesonpage, countfilesch8, maxfilesch8;
 	Dir dir;
 	static String filename, selectedfilech8name;
 	dir = SPIFFS.openDir("/");
@@ -796,7 +799,9 @@ void loop()
 	while (dir.next())
 	{
 		filename = String(dir.fileName());
-		if (filename.lastIndexOf(String(".ch8")))
+		filename.toLowerCase();
+
+		if (filename.lastIndexOf(String(".ch8")) > 0)
 			maxfilesch8++;
 	}
 
@@ -832,12 +837,13 @@ void loop()
 	case APP_SHOW_DIR:
 		dir = SPIFFS.openDir("/");
 		countfilesch8 = 0;
-		c = 0;
 		while (countfilesch8 < (selectedfilech8 / (NLINEFILES + 1)) * (NLINEFILES + 1) - 1)
 		{
 			dir.next();
 			filename = String(dir.fileName());
-			if (filename.lastIndexOf(String(".ch8")))
+			filename.toLowerCase();
+
+			if (filename.lastIndexOf(String(".ch8")) > 0)
 				countfilesch8++;
 		}
 		tft.fillScreen(TFT_BLACK);
@@ -849,7 +855,10 @@ void loop()
 		while (dir.next() && (countfilesonpage < NLINEFILES))
 		{
 			filename = String(dir.fileName());
-			if (filename.lastIndexOf(String(".ch8")))
+			String tfilename = filename;
+			tfilename.toLowerCase();
+
+			if (tfilename.lastIndexOf(String(".ch8")) > 0)
 			{
 				if (filename.indexOf(".") < 17)
 					filename = filename.substring(1, filename.indexOf("."));
