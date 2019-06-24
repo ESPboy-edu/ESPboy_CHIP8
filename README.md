@@ -1,7 +1,7 @@
 ESPboy chip8/schip accurate emulator by RomanS based on ideas of Alvaro Alea Fernandez Chip-8 emulator.
 ================
 
-Special thanks to Igor (corax69), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo/tree/gh-pages/docs) for help
+Special thanks to Igor (corax69), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo) for help
 
 Implemented almost all known features and "bugs"
 Super Chip implementation is on the way )
