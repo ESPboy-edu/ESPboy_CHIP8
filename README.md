@@ -14,6 +14,17 @@ https://github.com/Chromatophore/HP48-Superchip
 To upload games to SPIFFS check. The games should be with extantion ".ch8" as <gamename.ch8>
 https://www.youtube.com/watch?v=25eLIdLKgHs
 
+To correct compilatio, change settings in file «User_Setup.h» of TFT_eSPI library
+50 #define TFT_WIDTH 128
+53 #define TFT_HEIGHT 128
+67 #define ST7735_GREENTAB3
+149 #define TFT_CS -1
+150 #define TFT_DC PIN_D8
+152 #define TFT_RST -1
+224 #define LOAD_GLCD
+255 #define SPI_FREQUENCY 27000000
+
+
 You is able to make <gamename.k> configuration file and upload them to the SPIFFS togather with games.
 It looks like simple txt file. Check below
 
