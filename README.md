@@ -14,7 +14,7 @@ https://github.com/Chromatophore/HP48-Superchip
 To upload games to SPIFFS check. The games should be with extantion ".ch8" as <gamename.ch8>
 https://www.youtube.com/watch?v=25eLIdLKgHs
 
-To correct compilatio, change settings in file «User_Setup.h» of TFT_eSPI library
+For correct compilation, change settings in file «User_Setup.h» of TFT_eSPI library
 50 #define TFT_WIDTH 128
 53 #define TFT_HEIGHT 128
 67 #define ST7735_GREENTAB3
