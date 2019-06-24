@@ -1,12 +1,12 @@
-4 2 8 6 5 11 4 6
-17
+1 2 7 3 8 9 5 0
+15
 0
 1
-192
+67
 30
 60
 200
-by David Winter  This game is a BOMBER clone. You are in a plane, and you must destroy the towers of a town. Your plane is flying left to right, and goes down. Use 5 to drop a bomb. The game ends when you crash yourself on a tower...
+VIP Bowling by Gooitzen van der Wal is a great game for recreation and competion requiring skill and a little bit of luck.  This program simulates bowling closely with regular scoring and the option of using three different spins on the ball.
 
 
 

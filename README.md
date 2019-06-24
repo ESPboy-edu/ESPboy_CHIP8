@@ -1,16 +1,49 @@
+ESPboy chip8/schip accurate emulator by RomanS based on ideas of Alvaro Alea Fernandez Chip-8 emulator.
+================
+
+Special thanks to Igor (corax89), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo) for help
+
+Implemented almost all known features and "bugs"
+Super Chip implementation is on the way )
+
+Used information from
+https://github.com/JohnEarnest/Octo
+http://mattmik.com/chip8.html
+https://github.com/Chromatophore/HP48-Superchip
+
+The games should be with extantion ".ch8" as <gamename.ch8> To upload games to SPIFFS check. 
+https://www.youtube.com/watch?v=25eLIdLKgHs
+
+For correct compilation, change settings in file «User_Setup.h» of TFT_eSPI library
+* 50 #define TFT_WIDTH 128
+* 53 #define TFT_HEIGHT 128
+* 67 #define ST7735_GREENTAB3
+* 149 #define TFT_CS -1
+* 150 #define TFT_DC PIN_D8
+* 152 #define TFT_RST -1
+* 224 #define LOAD_GLCD
+* 255 #define SPI_FREQUENCY 27000000
+
+
+You is able to make <gamename.k> configuration file and upload them to the SPIFFS togather with games.
+It looks like simple txt file. Check below
+
+
+The name of the configuration file should be the same as the game's name but with extention ".k" as <gamename.k>
+
+```sh
 4 2 8 6 5 11 4 6
-17
+13
 0
 1
-192
+67
 30
 60
 200
-by David Winter  This game is a BOMBER clone. You are in a plane, and you must destroy the towers of a town. Your plane is flying left to right, and goes down. Use 5 to drop a bomb. The game ends when you crash yourself on a tower...
+Here could be description of the game about 300 symbols
+```
 
-
-
-//INSTRUCTIONS
+<gamename.k> CONFIG FILE INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -37,10 +70,10 @@ A[11] 0[10] B[12] F[16]
 
 2. FOREGROUND COLOR
 no of color according to the list  
-1-BLACK  2-NAVY  3-DARKGREEN  4-DARKCYAN  5-MAROON 
-6-PURPLE  7-OLIVE  8-LIGHTGREY  9-DARKGREY  10-BLUE  
-11-GREEN  12-CYAN  13-RED  14-MAGENTA  15-YELLOW
-16-WHITE  17-ORANGE  18-GREENYELLOW  19-PINK
+0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON 
+5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE  
+10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
+15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
 
 3. BACKGROUND COLOR
 no of color according to the same list 
@@ -90,7 +123,6 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67 
 
-
 6. Quantity of opcodes runs till screen update. Works if you don't use TFT_DRAW bit7 of COMPATIBILITY FLAGS
 
 7. TIMERS FREQUENCY
@@ -101,3 +133,4 @@ the freq tone of sound
 
 9. GAME INFO
 write 314 symbols of information you'll see before the game starts 
+

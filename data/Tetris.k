@@ -1,12 +1,12 @@
-4 2 8 6 5 11 4 6
-17
+5 3 7 6 4 4 5 6
+10
 0
 1
-192
+64
 30
 60
 200
-by David Winter  This game is a BOMBER clone. You are in a plane, and you must destroy the towers of a town. Your plane is flying left to right, and goes down. Use 5 to drop a bomb. The game ends when you crash yourself on a tower...
+by Fran Dachille. This is my first release of the famous Tetris game on the HP48S. I was inspired by the lack enjoyable games for our favorite handheld. At my college, every person who picks up my calculator is immediately hooked for hours.
 
 
 
@@ -37,10 +37,10 @@ A[11] 0[10] B[12] F[16]
 
 2. FOREGROUND COLOR
 no of color according to the list  
-1-BLACK  2-NAVY  3-DARKGREEN  4-DARKCYAN  5-MAROON 
-6-PURPLE  7-OLIVE  8-LIGHTGREY  9-DARKGREY  10-BLUE  
-11-GREEN  12-CYAN  13-RED  14-MAGENTA  15-YELLOW
-16-WHITE  17-ORANGE  18-GREENYELLOW  19-PINK
+0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON 
+5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE  
+10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
+15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
 
 3. BACKGROUND COLOR
 no of color according to the same list 

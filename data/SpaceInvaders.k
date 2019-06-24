@@ -1,12 +1,13 @@
-4 2 8 6 5 11 4 6
-17
+4 3 5 6 5 5 4 6
+255
 0
 1
-192
+67
 30
 60
 200
-by David Winter  This game is a BOMBER clone. You are in a plane, and you must destroy the towers of a town. Your plane is flying left to right, and goes down. Use 5 to drop a bomb. The game ends when you crash yourself on a tower...
+Classic by David Winter. The well known game. Destroy the invaders with your ship. Shoot
+with 5, move with 4 and 6. Press 5 to begin a game.
 
 
 
