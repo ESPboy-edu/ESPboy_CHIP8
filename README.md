@@ -11,7 +11,7 @@ https://github.com/JohnEarnest/Octo
 http://mattmik.com/chip8.html
 https://github.com/Chromatophore/HP48-Superchip
 
-To upload games to SPIFFS check. The games should be with extantion ".ch8" as <gamename.ch8>
+The games should be with extantion ".ch8" as <gamename.ch8> To upload games to SPIFFS check. 
 https://www.youtube.com/watch?v=25eLIdLKgHs
 
 For correct compilation, change settings in file «User_Setup.h» of TFT_eSPI library
@@ -30,7 +30,8 @@ It looks like simple txt file. Check below
 
 
 The name of the configuration file should be the same as the game's name but with extention ".k" as <gamename.k>
------------------------------
+
+start of config file <gamename.k> ---------------------------------
 4 2 8 6 5 11 4 6
 13
 0
@@ -40,6 +41,7 @@ The name of the configuration file should be the same as the game's name but wit
 60
 200
 Here could be description of the game about 300 symbols
+end of config file <gamename.k> ---------------------------------
 
 
 //INSTRUCTIONS
