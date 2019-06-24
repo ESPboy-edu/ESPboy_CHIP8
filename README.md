@@ -43,7 +43,7 @@ The name of the configuration file should be the same as the game's name but wit
 Here could be description of the game about 300 symbols
 ```
 
-//INSTRUCTIONS
+<gamename.k> CONFIG FILE INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
