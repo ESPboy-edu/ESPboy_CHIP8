@@ -1,14 +1,12 @@
-4 3 5 6 5 5 4 6
-255
+4 1 2 6 2 3 5 6
+10
 0
 1
-65
+0
 30
 60
 200
-Classic by David Winter. The well known game. Destroy the invaders with your ship. Shoot
-with 5, move with 4 and 6. Press 5 to begin a game.
-
+by Udo Pernisz, 1979. You are descending to the floor of a 250-foot crater. Opt1: start at 250 feet, 150 pounds of fuel.  Land at 5 feet per second or less!  Opt2: Start at 250 feet, 200 pounds of fuel.  Land at 3 feet per second or less! Opt3: Start at 32 feet, 100 pounds of fuel.  Land at 3 feet per second or less.   
 
 
 //INSTRUCTIONS
@@ -38,10 +36,10 @@ A[11] 0[10] B[12] F[16]
 
 2. FOREGROUND COLOR
 no of color according to the list  
-1-BLACK  2-NAVY  3-DARKGREEN  4-DARKCYAN  5-MAROON 
-6-PURPLE  7-OLIVE  8-LIGHTGREY  9-DARKGREY  10-BLUE  
-11-GREEN  12-CYAN  13-RED  14-MAGENTA  15-YELLOW
-16-WHITE  17-ORANGE  18-GREENYELLOW  19-PINK
+0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON 
+5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE  
+10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
+15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
 
 3. BACKGROUND COLOR
 no of color according to the same list 

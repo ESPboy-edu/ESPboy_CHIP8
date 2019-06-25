@@ -2,6 +2,9 @@
 ESPboy chip8/schip emulator by RomanS
 based on ideas of Alvaro Alea Fernandez Chip-8 emulator
 Special thanks to Igor (corax69), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo/tree/gh-pages/docs) for help
+
+ESPboy project page:
+https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifihttps://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 */
 
 
@@ -610,8 +613,9 @@ uint8_t do_cpu()
 				r = reg[y] & 0x1;
 				reg[x] = reg[y] >> 1;
 			}
-			if (x == 0xf && !(compatibility_emu & 4))
-				reg[0xf] = r & 0xff;
+			if (x == 0xf && (compatibility_emu & 4))
+				r = reg[x];
+      reg[0xf] = r & 0xff;
 			break;
 		case CHIP8_MATH_RSB: //rsb
 			r = reg[y] - reg[x];
@@ -622,7 +626,7 @@ uint8_t do_cpu()
 				reg[0xf] = r & 0xff;
 			break;
 		case CHIP8_MATH_SHL: //shl
-			if (!(compatibility_emu & 1))
+			if ((compatibility_emu & 1))
 			{
 				r = (reg[x] & 0x80) >> 7;
 				reg[x] = (reg[x] << 1) & 0xFF;
@@ -633,7 +637,7 @@ uint8_t do_cpu()
 				reg[x] = (reg[y] << 1) & 0xFF;
 			}
 			if (x == 0xf && (compatibility_emu & 4))
-				r = ( reg[x] & 0x80) >> 7;
+				r = reg[x];
       reg[0xf] = r & 0xff;
 			break;
 		} 
