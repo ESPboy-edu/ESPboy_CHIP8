@@ -408,10 +408,11 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 					if ((y + c) > 31)
 						addrdisplay -= (32 << 6);
 					if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
-						tft.fillRect(((x + d) << 1) - 128, ((y + c) << 1) + 16 -64, 2, 2, colors[foreground_emu]);
-					else
-						tft.fillRect(((x + d) << 1) - 128, ((y + c) << 1) + 16 -64, 2, 2, colors[background_emu]);
-					display[addrdisplay] ^= (data & mask);
+             if((x+d)<64+16 && (y+c)<32+16)  
+						    tft.fillRect(((x + d - 64) << 1), ((y + c - 24) << 1), 2, 2, colors[foreground_emu]);
+					    else
+						    tft.fillRect(((x + d - 64) << 1), ((y + c - 24) << 1), 2, 2, colors[background_emu]);
+					 display[addrdisplay] ^= (data & mask);
 				}
 			}
 			mask >>= 1;
@@ -621,17 +622,17 @@ uint8_t do_cpu()
 				reg[0xf] = r & 0xff;
 			break;
 		case CHIP8_MATH_SHL: //shl
-			if (compatibility_emu & 1)
+			if (!(compatibility_emu & 1))
 			{
-				r = (reg[x] & 0x80) >> 8;
+				r = (reg[x] & 0x80) >> 7;
 				reg[x] = (reg[x] << 1) & 0xFF;
 			}
 			else
 			{
-				r = (reg[y] & 0x80) >> 8;
+				r = (reg[y] & 0x80) >> 7;
 				reg[x] = (reg[y] << 1) & 0xFF;
 			}
-			if (x == 0xf && !(compatibility_emu & 4))
+			if (x == 0xf && (compatibility_emu & 4))
 				reg[0xf] = r & 0xff;
 			break;
 		}
