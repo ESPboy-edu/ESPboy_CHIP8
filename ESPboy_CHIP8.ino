@@ -394,7 +394,7 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 				{
 					if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
 						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[foreground_emu]);
-					else
+					else 
 						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[background_emu]);
 				}
 				display[addrdisplay] ^= (data & mask);
@@ -633,9 +633,10 @@ uint8_t do_cpu()
 				reg[x] = (reg[y] << 1) & 0xFF;
 			}
 			if (x == 0xf && (compatibility_emu & 4))
-				reg[0xf] = r & 0xff;
+				r = ( reg[x] & 0x80) >> 7;
+      reg[0xf] = r & 0xff;
 			break;
-		}
+		} 
 		break;
 
 	case CHIP8_SK: //extended instruction
