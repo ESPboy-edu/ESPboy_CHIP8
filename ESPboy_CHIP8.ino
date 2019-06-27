@@ -86,7 +86,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 //0b01000011 for SpaceIviders
 //0b11110111 for BLITZ
 //0b01000000 for BRIX
-#define DEFAULTCOMPATIBILITY    0b01000011 //bit bit8,bit7...bit1;
+#define DEFAULTCOMPATIBILITY    0b01000010 //bit bit8,bit7...bit1;
 #define DEFAULTOPCODEPERFRAME   40
 #define DEFAULTTIMERSFREQ       60 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
@@ -141,6 +141,8 @@ static const uint8_t PROGMEM fontchip[16 * 5] = {
 	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
+
+constexpr auto VF = 0xF;
 
 uint8_t   mem[0x1000]; 
 uint8_t   reg[0x10];    // ram 0x0 - 0xF
@@ -292,6 +294,14 @@ uint8_t readkey()
 	return 0;
 }
 
+void chip8_reset()
+{
+	tft.fillScreen(TFT_BLACK);
+	memset(&display[0], 0, 64 * 32);
+	pc = 0x200;
+	sp = 0;
+}
+
 void loadrom(String filename)
 {
 	File f;
@@ -427,14 +437,6 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 		return (ret ? 1 : 0);
 }
 
-void chip8_reset()
-{
-	tft.fillScreen(TFT_BLACK);
-	memset(&display[0], 0, 64 * 32);
-	pc = 0x200;
-	sp = 0;
-}
-
 enum
 {
 	CHIP8_JMP = 0x1,
@@ -486,16 +488,19 @@ enum
 
 uint8_t do_cpu()
 {
-	int16_t inst, in2, r;
-	uint8_t in1, x, y, zz;
+	uint16_t inst, op2, wr, xxx;
+	uint8_t cr;
+	uint8_t op, x, y, zz;
 
 	inst = (mem[pc] << 8) + mem[pc+1];
 	pc += 2;
-	in1 = (inst >> 12) & 0xF;
+	op = (inst >> 12) & 0xF;
 	x = (inst >> 8) & 0xF;
 	y = (inst >> 4) & 0xF;
 	zz = inst & 0x00FF;
-	switch (in1)
+	xxx = inst & 0x0FFF;
+
+	switch (op)
 	{
 	case CHIP8_JSR: // jsr xyz
 		stack[sp] = pc;
@@ -504,7 +509,7 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_JMP: // jmp xyz
-		pc = inst & 0x0FFF;
+		pc = xxx;
 		break;
 
 	case CHIP8_SKEQx: // skeq:  skip next opcode if r(x)=zz
@@ -536,14 +541,14 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_MVI: // mvi xxx
-		i = inst & 0xFFF;
+		i = xxx;
 		break;
 
-	case CHIP8_JMI: // jmi xxx
-		if (!(compatibility_emu & 16))
-			pc = (inst & 0xFFF) + reg[0];
+	case CHIP8_JMI: // jmi xxx		
+		if (compatibility_emu & 16)
+			pc = xxx + reg[x];
 		else
-			pc = (inst & 0xFFF) + reg[(inst >> 8) & 0xF];
+			pc = xxx + reg[0];
 		break;
 
 	case CHIP8_RAND: //rand xxx
@@ -558,7 +563,7 @@ uint8_t do_cpu()
 		switch (zz)
 		{
 		case CHIP8_EXT0_CLS:
-			memset(&display[0], 0, 64 * 32);
+			memset(display, 0, 64 * 32);
 			if (compatibility_emu & 64)
 				tft.fillRect(0, 16, 128, 64, colors[background_emu]);
 			break;
@@ -570,8 +575,8 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_MATH: //extended math instruction
-		in2 = inst & 0xF;
-		switch (in2)
+		op2 = inst & 0xF;
+		switch (op2)
 		{
 		case CHIP8_MATH_MOV: //mov r(x)=r(y)
 			reg[x] = reg[y];
@@ -586,54 +591,106 @@ uint8_t do_cpu()
 			reg[x] ^= reg[y];
 			break;
 		case CHIP8_MATH_ADD: //add
-			r = reg[x] + reg[y];
-			reg[x] = r & 0xFF;
-			reg[0xf] = (((r & 0xF00) != 0) ? 1 : 0);
-			if (x == 0xf && compatibility_emu & 4)
-				reg[0xf] = r & 0xFF;
+			if (compatibility_emu & 4) 
+			{   // carry first
+				wr = reg[x];
+				wr += reg[y];
+				reg[VF] = wr > 0xFF;
+				reg[x] = reg[x] + reg[y];
+			}
+			else
+			{
+				wr = reg[x];
+				wr += reg[y];
+				reg[x] = wr;
+				reg[VF] = wr > 0xFF;
+			}
 			break;
 		case CHIP8_MATH_SUB: //sub
-			r = reg[x] - reg[y];
-			reg[x] = r & 0xff;
-			reg[0xf] = ((r < 0) ? 0 : 1);
-			if (x == 0xf && compatibility_emu & 4)
-				reg[0xf] = r & 0xff;
+			if (compatibility_emu & 4)
+			{   // carry first
+				reg[VF] = reg[y] < reg[x];
+				reg[x] = reg[x] - reg[y];
+			}
+			else
+			{
+				cr = reg[y] < reg[x];
+				reg[x] = reg[x] - reg[y];
+				reg[VF] = cr;
+			}
 			break;
 		case CHIP8_MATH_SHR: //shr
-			if (compatibility_emu & 1)
-			{
-				r = reg[x] & 0x1;
-				reg[x] = reg[x] >> 1;
+			if (compatibility_emu & 4)
+			{   // carry first
+				if (compatibility_emu & 1) 
+				{
+					reg[VF] = reg[x] & 0x1;
+					reg[x] >>= 1;
+				}
+				else 
+				{
+					reg[VF] = reg[y] & 0x1;
+					reg[x] = reg[y] >> 1;
+				}
 			}
 			else
 			{
-				r = reg[y] & 0x1;
-				reg[x] = reg[y] >> 1;
+				if (compatibility_emu & 1)
+				{
+					cr = reg[x] & 0x1;
+					reg[x] >>= 1;
+					reg[VF] = cr;
+				}
+				else
+				{
+					cr = reg[y] & 0x1;
+					reg[x] = reg[y] >> 1;
+					reg[VF] = cr;
+				}
 			}
-			if (x == 0xf && !(compatibility_emu & 4))
-				reg[0xf] = r & 0xff;
 			break;
 		case CHIP8_MATH_RSB: //rsb
-			r = reg[y] - reg[x];
-			reg[x] = r & 0xFF;
-			;
-			reg[0xf] = ((r < 0) ? 0 : 1);
-			if (x == 0xf && (compatibility_emu & 4))
-				reg[0xf] = r & 0xff;
+			if (compatibility_emu & 4)
+			{   // carry first
+				reg[VF] = reg[y] > reg[x];
+				reg[x] = reg[y] - reg[x];
+			}
+			else 
+			{
+				cr = reg[y] > reg[x];
+				reg[x] = reg[y] - reg[x];
+				reg[VF] = cr;
+			}
 			break;
 		case CHIP8_MATH_SHL: //shl
-			if (compatibility_emu & 1)
-			{
-				r = (reg[x] & 0x80) >> 8;
-				reg[x] = (reg[x] << 1) & 0xFF;
+			if (compatibility_emu & 4)
+			{   // carry first
+				if (compatibility_emu & 1)
+				{
+					reg[VF] = reg[x] >> 7;
+					reg[x] <<= 1;
+				}
+				else
+				{
+					reg[VF] = reg[y] >> 7;
+					reg[x] = reg[y] << 1;
+				}
 			}
 			else
 			{
-				r = (reg[y] & 0x80) >> 8;
-				reg[x] = (reg[y] << 1) & 0xFF;
+				if (compatibility_emu & 1)
+				{
+					cr = reg[x] >> 7;
+					reg[x] <<= 1;
+					reg[VF] = cr;
+				}
+				else
+				{
+					cr = reg[y] >> 7;
+					reg[x] = reg[y] << 1;
+					reg[VF] = cr;
+				}
 			}
-			if (x == 0xf && !(compatibility_emu & 4))
-				reg[0xf] = r & 0xff;
 			break;
 		}
 		break;
@@ -676,7 +733,7 @@ uint8_t do_cpu()
 		case CHIP8_EXTF_BCD: //bcd
 			mem[i] = reg[x] / 100;
 			mem[i + 1] = (reg[x] / 10) % 10;
-			mem[i + 2] = (reg[x]) % 10;
+			mem[i + 2] = reg[x] % 10;
 			break;
 		case CHIP8_EXTF_STR: //save
 			memcpy(&mem[i], &reg[0], x + 1);
