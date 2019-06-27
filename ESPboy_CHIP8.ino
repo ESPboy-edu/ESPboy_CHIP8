@@ -2,6 +2,9 @@
 ESPboy chip8/schip emulator by RomanS
 based on ideas of Alvaro Alea Fernandez Chip-8 emulator
 Special thanks to Igor (corax69), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo/tree/gh-pages/docs) for help
+
+ESPboy project page:
+https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifihttps://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 */
 
 
@@ -48,7 +51,7 @@ DONE implement compatibility optimisation
 /*compatibility_emu var
 8XY6/8XYE opcode
 Bit shifts a register by 1, VIP: shifts rY by one and places in rX, SCHIP: ignores rY field, shifts existing value in rX.
-bit1 = 1    <<= amd >>= takes vx, shifts, puts to vx, ignore vy
+bit1 = 1    <<= and >>= takes vx, shifts, puts to vx, ignore vy
 bit1 = 0    <<= and >>= takes vy, shifts, puts to vx
 
 FX55/FX65 opcode
@@ -404,7 +407,7 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 				{
 					if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
 						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[foreground_emu]);
-					else
+					else 
 						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[background_emu]);
 				}
 				display[addrdisplay] ^= (data & mask);
@@ -418,10 +421,11 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 					if ((y + c) > 31)
 						addrdisplay -= (32 << 6);
 					if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
-						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[foreground_emu]);
-					else
-						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[background_emu]);
-					display[addrdisplay] ^= (data & mask);
+             if((x+d)<64+16 && (y+c)<32+16)  
+						    tft.fillRect(((x + d - 64) << 1), ((y + c - 24) << 1), 2, 2, colors[foreground_emu]);
+					    else
+						    tft.fillRect(((x + d - 64) << 1), ((y + c - 24) << 1), 2, 2, colors[background_emu]);
+					 display[addrdisplay] ^= (data & mask);
 				}
 			}
 			mask >>= 1;
@@ -483,7 +487,6 @@ enum
 	CHIP8_SK = 0xe,
 	CHIP8_SK_RP = 0x9e,
 	CHIP8_SK_UP = 0xa1,
-
 };
 
 uint8_t do_cpu()
@@ -692,7 +695,7 @@ uint8_t do_cpu()
 				}
 			}
 			break;
-		}
+		} 
 		break;
 
 	case CHIP8_SK: //extended instruction
