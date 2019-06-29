@@ -238,7 +238,7 @@ void draw_block(int x, int y, displaybase_t block, displaybase_t diff);
 
 void draw_block(int x, int y, displaybase_t block, displaybase_t diff)
 {
-	for (auto k = 0u; k < BITS_PER_BLOCK; k--)
+	for (int k = BITS_PER_BLOCK; k >= 0; k--)
 	{
 		if( diff & 1)
 			tft.fillRect((x + k) * 2, y * 2 + v_shift, 2, 2, colors[block & 1 ? foreground_emu : background_emu]);
@@ -259,9 +259,10 @@ void updatedisplay()
 			if (display[blockindex] != dbuffer[blockindex])
 			{
 				draw_block(j * BITS_PER_BLOCK, i, dbuffer[blockindex], display[blockindex] ^ dbuffer[blockindex]);
+				display[blockindex] = dbuffer[blockindex];
 			}
 		}
-	memcpy(display, dbuffer, LINE_SIZE * SCREEN_HEIGHT * sizeof(displaybase_t));
+	//memcpy(display, dbuffer, LINE_SIZE * SCREEN_HEIGHT * sizeof(displaybase_t));
 	//Serial.println(millis()-tme);
 }
 
@@ -283,7 +284,7 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 			datal = data >> shift;
 			if (datal)
 			{
-				displaybase_t* scr1 = &dbuffer[(y + line) * LINE_SIZE + (x / BITS_PER_BLOCK) ];
+				displaybase_t* scr1 = &dbuffer[(y + line) * LINE_SIZE + (x / BITS_PER_BLOCK) + 0];
 				if (*scr1 & datal) ret++;
 				*scr1 ^= datal;
 			}
