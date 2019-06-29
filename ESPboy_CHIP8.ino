@@ -238,7 +238,7 @@ void draw_block(int x, int y, displaybase_t block, displaybase_t diff);
 
 void draw_block(int x, int y, displaybase_t block, displaybase_t diff)
 {
-	for (int k = BITS_PER_BLOCK; k >= 0; k--)
+	for (int k = BITS_PER_BLOCK-1; k >= 0; k--)
 	{
 		if( diff & 1)
 			tft.fillRect((x + k) * 2, y * 2 + v_shift, 2, 2, colors[block & 1 ? foreground_emu : background_emu]);
