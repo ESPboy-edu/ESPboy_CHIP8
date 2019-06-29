@@ -38,7 +38,6 @@ DONE implement compatibility optimisation
 #include "ESPboyLogo.h"
 #include <pgmspace.h>
 #include <Ticker.h>
-#include "ESPboy_CHIP8.h"
 
 //system
 #define fontchip_OFFSET       0x38
