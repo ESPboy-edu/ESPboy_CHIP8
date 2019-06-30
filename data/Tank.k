@@ -1,13 +1,12 @@
-4 3 5 6 5 5 4 6
-255
+4 8 2 6 5 11 4 6
+10
 0
 1
-65
+68
 30
 60
 200
-Classic by David Winter. The well known game. Destroy the invaders with your ship. Shoot
-with 5, move with 4 and 6. Press 5 to begin a game.
+You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs. 
 
 
 
@@ -38,10 +37,10 @@ A[11] 0[10] B[12] F[16]
 
 2. FOREGROUND COLOR
 no of color according to the list  
-1-BLACK  2-NAVY  3-DARKGREEN  4-DARKCYAN  5-MAROON 
-6-PURPLE  7-OLIVE  8-LIGHTGREY  9-DARKGREY  10-BLUE  
-11-GREEN  12-CYAN  13-RED  14-MAGENTA  15-YELLOW
-16-WHITE  17-ORANGE  18-GREENYELLOW  19-PINK
+0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON 
+5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE  
+10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
+15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
 
 3. BACKGROUND COLOR
 no of color according to the same list 

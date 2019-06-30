@@ -488,7 +488,8 @@ void loadrom(String filename)
 		f.close();
 		if (foreground_emu == 255)
 			foreground_emu = random(17) + 1;
-	//	compatibility_emu = DEFAULTCOMPATIBILITY;
+      compatibility_emu &= 191;
+//		compatibility_emu = DEFAULTCOMPATIBILITY;
 	}
 	else
 	{
@@ -528,23 +529,34 @@ void buzz()
 
 enum
 {
-	CHIP8_JMP = 0x1,
-	CHIP8_JSR = 0x2,
-	CHIP8_SKEQx = 0x3,
-	CHIP8_SKNEx = 0x4,
-	CHIP8_SKEQr = 0x5,
+	CHIP8_JP = 0x1,
+	CHIP8_CALL = 0x2,
+	CHIP8_SEx = 0x3,
+	CHIP8_SNEx = 0x4,
+	CHIP8_SExy = 0x5,
 	CHIP8_MOVx = 0x6,
 	CHIP8_ADDx = 0x7,
-	CHIP8_MOVr = 0x8,
-	CHIP8_SKNEr = 0x9,
-	CHIP8_MVI = 0xa,
-	CHIP8_JMI = 0xb,
-	CHIP8_RAND = 0xc,
-	CHIP8_DRYS = 0xd,
-
+	CHIP8_SNExy = 0x9,
+	CHIP8_MOVi = 0xa,
+	CHIP8_JMP = 0xb,
+	CHIP8_RND = 0xc,
+	CHIP8_DRW = 0xd,
+  
 	CHIP8_EXT0 = 0x0,
 	CHIP8_EXT0_CLS = 0xE0,
 	CHIP8_EXT0_RTS = 0xEE,
+  SCHIP_SCD = 0xC,
+  SCHIP_SCR = 0xFB,
+  SCHIP_SCL = 0xFC,
+  SCHIP_EXIT = 0xFD,
+  SCHIP_LOW = 0xFE,
+  SCHIP_HIGH = 0xFF,
+  SCHIP_SCD = 0xC,
+  SCHIP_SCR = 0xFB,
+  SCHIP_SCL = 0xFC,
+  SCHIP_EXIT = 0xFD,
+  SCHIP_LOW = 0xFE,
+  SCHIP_HIGH = 0xFF,
 
 	CHIP8_EXTF = 0xF,
 	CHIP8_EXTF_GDELAY = 0x07,
@@ -557,6 +569,10 @@ enum
 	CHIP8_EXTF_BCD = 0x33,
 	CHIP8_EXTF_STR = 0x55,
 	CHIP8_EXTF_LDR = 0x65,
+  SCHIP_MOV = 0xF
+  SCHIP_LDhf = 0x30,
+  SCHIP_LDr = 0x75,
+  SCHIP_LDxr = 0x85, 
 
 	CHIP8_MATH = 0x8,
 	CHIP8_MATH_MOV = 0x0,
@@ -571,8 +587,13 @@ enum
 
 	CHIP8_SK = 0xe,
 	CHIP8_SK_RP = 0x9e,
-	CHIP8_SK_UP = 0xa1,
+	CHIP8_SK_UP = 0xa1, 
+
+  HIRES_CLR = 0x0230,       // clear 64х64 screen
+  HIRES_JP0x2C0 = 0x12C0,   // jump to address 0x2c0
+  HIRES_HIRESM = 0x1260,    // Init 64x64 hires mode
 };
+
 
 uint8_t do_cpu()
 {
@@ -590,7 +611,7 @@ uint8_t do_cpu()
 
 	switch (op)
 	{
-	case CHIP8_JSR: // jsr xyz
+	case CHIP8_CALL: // call xyz
 		stack[sp] = pc;
 		sp = (sp+1) & 0x0F;
 		pc = inst & 0xFFF;
@@ -600,17 +621,17 @@ uint8_t do_cpu()
 		pc = xxx;
 		break;
 
-	case CHIP8_SKEQx: // skeq:  skip next opcode if r(x)=zz
+	case CHIP8_SEx: // sex:  skip next opcode if r(x)=zz
 		if (reg[x] == zz)
 			pc += 2;
 		break;
 
-	case CHIP8_SKNEx: //skne: skip next opcode if r(x)<>zz
+	case CHIP8_SNEx: //snex: skip next opcode if r(x)<>zz
 		if (reg[x] != zz)
 			pc += 2;
 		break;
 
-	case CHIP8_SKEQr: //skeq: skip next opcode if r(x)=r(y)
+	case CHIP8_SExy: //sexy: skip next opcode if r(x)=r(y)
 		if (reg[x] == reg[y])
 			pc += 2;
 		break;
@@ -623,7 +644,7 @@ uint8_t do_cpu()
 		reg[x] = reg[x] + zz;
 		break;
 
-	case CHIP8_SKNEr: //skne: skip next opcode if r(x)<>r(y)
+	case CHIP8_SNExy: //skne: skip next opcode if r(x)<>r(y)
 		if (reg[x] != reg[y])
 			pc += 2;
 		break;
