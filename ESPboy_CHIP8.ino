@@ -17,6 +17,9 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifihtt
 #include <pgmspace.h>
 #include <Ticker.h>
 
+#define BIT_RENDERER
+//#define SIMPLE_RENDERER
+
 //system
 #define fontchip_OFFSET       0x38
 #define NLINEFILES            14 //no of files in menu
@@ -186,8 +189,6 @@ uint16_t checkbuttons()
 	return (buttonspressed);
 }
 
-#define BIT_RENDERER
-
 #ifdef BIT_RENDERER
 
 typedef uint16_t displaybase_t;
@@ -212,6 +213,11 @@ void chip8_cls()
 void chip8_reset()
 {
 	chip8_cls();
+
+	stimer = 0;
+	dtimer = 0;
+	buzz();
+
 	pc = 0x200;
 	sp = 0;
 }
@@ -234,7 +240,6 @@ void updatedisplay()
 {
 	//static unsigned long tme;
 	//tme=millis();
-	//memcpy(display, dbuffer, LINE_SIZE * SCREEN_HEIGHT * sizeof(displaybase_t));
 	for (auto i = 0u; i < SCREEN_HEIGHT; i++)
 		for (auto j = 0u; j < LINE_SIZE - 1; j++)
 		{
@@ -245,13 +250,13 @@ void updatedisplay()
 				display[blockindex] = dbuffer[blockindex];
 			}
 		}
-	//memcpy(display, dbuffer, LINE_SIZE * SCREEN_HEIGHT * sizeof(displaybase_t));
 	//Serial.println(millis()-tme);
 }
 
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 {
 	auto ret = 0;
+	auto isOnlyClear = true;
 	displaybase_t data, datal, datah;
 	auto shift = (x % BITS_PER_BLOCK);
 	auto freebits = (BITS_PER_BLOCK - 8);
@@ -269,6 +274,7 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 			{
 				displaybase_t* scr1 = &dbuffer[(y + line) * LINE_SIZE + (x / BITS_PER_BLOCK) + 0];
 				if (*scr1 & datal) ret++;
+				if (isOnlyClear && (*scr1 & datal) != datal) isOnlyClear = false;
 				*scr1 ^= datal;
 			}
 			// In normal situations condition is not necessary. But there is a bug, when the shift is more than 
@@ -280,101 +286,87 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 				{
 					displaybase_t* scr2 = &dbuffer[(y + line) * LINE_SIZE + (x / BITS_PER_BLOCK) + 1];
 					if (*scr2 & datah) ret++;
+					if (isOnlyClear && (*scr2 & datah) != datah) isOnlyClear = false;
 					*scr2 ^= datah;
 				}
 			}
 		}
 	}
 
-	updatedisplay();
+	if(!isOnlyClear) 
+		updatedisplay();
 
-	if (compatibility_emu & 32) return ret;
+	if (BIT6CTL) return ret;
 	return !!ret;
 }
+#endif
 
-#else // old version
+#ifdef SIMPLE_RENDERER // old version
 
-uint8_t   display[128 * 64];// ram F00h-FFFh
+uint8_t   display[64 * 32];// ram F00h-FFFh
 
-void updatedisplay()
+void chip8_cls()
 {
-	static uint32_t i, j;
-	// static unsigned long tme;
-	// tme=millis();
-	for (i = 0; i < 32; i++)
-		for (j = 0; j < 64; j++)
-			if (display[(i << 6) + j])
-				tft.fillRect(j << 1, (i << 1) + 16, 2, 2, colors[foreground_emu]);
-			else
-				tft.fillRect(j << 1, (i << 1) + 16, 2, 2, colors[background_emu]);
-	// Serial.println(millis()-tme);
-}
-
-uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
-{
-	uint8_t data, mask, c, d, ret, preret;
-	uint32_t addrdisplay;
-	ret = 0;
-	preret = 0;
-	if (!size)
-		size = 16;
-	for (c = 0; c < size; c++)
-	{
-		data = mem[I + c];
-		mask = 128;
-		preret = 0;
-		for (d = 0; d < 8; d++)
-		{
-			addrdisplay = x + d + ((y + c) << 6);
-			if ((x + d) < 64 && (y + c) < 32)
-			{
-				if ((data & mask) && display[addrdisplay])
-					preret++;
-				if (compatibility_emu & 64)
-				{
-					if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
-						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[foreground_emu]);
-					else
-						tft.fillRect((x + d) << 1, ((y + c) << 1) + 16, 2, 2, colors[background_emu]);
-				}
-				display[addrdisplay] ^= (data & mask);
-			}
-			else
-			{
-				if (compatibility_emu & 8)
-				{
-					if ((x + d) > 63)
-						addrdisplay -= 64;
-					if ((y + c) > 31)
-						addrdisplay -= (32 << 6);
-					if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
-						if ((x + d) < 64 + 16 && (y + c) < 32 + 16)
-							tft.fillRect(((x + d - 64) << 1), ((y + c - 24) << 1), 2, 2, colors[foreground_emu]);
-						else
-							tft.fillRect(((x + d - 64) << 1), ((y + c - 24) << 1), 2, 2, colors[background_emu]);
-					display[addrdisplay] ^= (data & mask);
-				}
-			}
-			mask >>= 1;
-		}
-		if (preret)
-			ret++;
-		if ((y + c) > 31 && !(compatibility_emu & 64))
-			ret++;
-	}
-	if (compatibility_emu & 32)
-		return (ret);
-	else
-		return (ret ? 1 : 0);
+	tft.fillScreen(TFT_BLACK);
+	memset(display, 0, sizeof(display));
 }
 
 void chip8_reset()
 {
-	tft.fillScreen(TFT_BLACK);
-	memset(&display[0], 0, 64 * 32);
+	chip8_cls();
+	stimer = 0;
+	dtimer = 0;
+	buzz();
 	pc = 0x200;
 	sp = 0;
 }
+
+void updatedisplay()
+{
+	static uint8_t drawcolor;
+	static uint16_t i, j;
+	//static unsigned long tme;
+	//  tme=millis();
+	for (i = 0; i < 32; i++)
+		for (j = 0; j < 64; j++) {
+			if (display[(i << 6) + j])
+				drawcolor = foreground_emu;
+			else
+				drawcolor = background_emu;
+			tft.fillRect(j << 1, (i << 1) + 16, 2, 2, colors[drawcolor]);
+		}
+	//   Serial.println(millis()-tme);
+}
+
+
+//SIMPLE VERSION without compatibility and realtime drawing
+uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
+{
+	uint8_t data, mask, c, d, masked, xdisp, ydisp, ret;
+	uint16_t addrdisplay;
+	ret = 0;
+	for (c = 0; c < size; c++) {
+		data = mem[I + c];
+		mask = 0b10000000;
+		ydisp = y + c;
+		for (d = 0; d < 8; d++) {
+			xdisp = x + d;
+			masked = !!(data & mask);
+			addrdisplay = xdisp + (ydisp << 6);
+			if (xdisp < 64 && ydisp < 32) {
+				if (display[addrdisplay] && masked) ret++;
+
+				display[addrdisplay] ^= masked;
+			}
+			mask >>= 1;
+		}
+	}
+
+	if (BIT7CTL) updatedisplay();
+
+	return (ret ? 1 : 0);
+}
+
 #endif
 
 uint8_t iskeypressed(uint8_t key)
@@ -534,127 +526,6 @@ void buzz()
 	}
 }
 
-
-void updatedisplay()
-{ 
-  static uint8_t drawcolor;
-  static uint16_t i, j;
-  static unsigned long tme;
-//  tme=millis();
-  for (i = 0; i < 32; i++)
-    for (j = 0; j < 64; j++){
-      if (display[(i << 6) + j]) 
-          drawcolor = foreground_emu;
-      else  
-          drawcolor = background_emu;
-      tft.fillRect(j << 1, (i << 1) + 16, 2, 2, colors[drawcolor]);
-    }
-//   Serial.println(millis()-tme);
-}
-
-
-//SIMPLE VERSION without compatibility and realtime drawing
-uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
-{
-  uint8_t data, mask, c, d, masked, xdisp, ydisp, ret;
-  uint16_t addrdisplay;
-    ret = 0;
-    for(c=0; c<size; c++){
-      data = mem[i+c];
-      mask=128;
-      ydisp = y+c;
-      for (d=0; d<8; d++){
-        xdisp = x+d;
-        masked = data & mask;
-        addrdisplay = xdisp+(ydisp<<6);
-        if (xdisp<64 && ydisp<32){ 
-          if ((display[addrdisplay]) && masked) ret++;
-          display[addrdisplay]^=masked;      
-        }
-        mask>>=1;
-      } 
-    }
-return (ret?1:0);
-}
-
-
-/*
-uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
-{
-	uint8_t data, mask, c, d, xdisp, ydisp, drawcolor, masked;
-	uint16_t addrdisplay, ret, preret;
-	ret = 0;
-	preret = 0;
-	if (!size)
-		size = 16;
-	for (c = 0; c < size; c++)
-	{
-		data = mem[i + c];
-		mask = 128;
-		preret = 0;
-    ydisp = y + c;
-		for (d = 0; d < 8; d++)
-		{
-      masked = data & mask;
-      xdisp = x + d;
-			addrdisplay = xdisp + (ydisp << 6);
-			if (xdisp < 64 && ydisp < 32)
-			{
-				if (masked && display[addrdisplay])
-					preret++;
-				if (BIT7CTL)
-				{ 
-				  if (!display[addrdisplay] && !masked) drawcolor = background_emu;
-					else 
-					  if (display[addrdisplay] && masked) drawcolor = background_emu;
-            else drawcolor = foreground_emu;
-				  tft.fillRect(xdisp << 1, (ydisp << 1) + 16, 2, 2, colors[drawcolor]);
-				}
-				display[addrdisplay] ^= masked;
-			}
-	/*		else
-			{
-				if ((BIT4CTL) && xdisp < 72 && ydisp < 40)
-				{
-					if (xdisp > 63)
-						addrdisplay -= 64;
-					if (ydisp > 31)
-						addrdisplay -= (32 << 6);
-          if ((display[addrdisplay] && !(data & mask)) || (!display[addrdisplay] && (data & mask)))
-            drawcolor = foreground_emu;
-          else 
-            drawcolor = background_emu;
-          tft.fillRect(xdisp << 1, ((ydisp) << 1) + 16, 2, 2, colors[drawcolor]);
-        }
-        display[addrdisplay] ^= (data & mask);
-			}
-			mask >>= 1;
-		}
-		if (preret)
-			ret++;
-		if ((ydisp) > 31 && !(BIT8CTL))
-			ret++;
-	}
-	if (BIT6CTL)
-		return (ret);
-	else
-		return (ret ? 1 : 0);
-}
-
-*/
-
-void chip8_reset()
-{
-	tft.fillRect(0, 16, 128, 64, colors[background_emu]);
-	memset(&display[0], 0, 64 * 32);
-  stimer = 0;
-  dtimer = 0;
-  buzz();
-	pc = 0x200;
-	sp = 0;
-}
-
-
 enum
 {
 	CHIP8_JMP = 0x1,
@@ -762,14 +633,7 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_JMI: // jmi xxx		
-		if (compatibility_emu & 16)
-			pc = xxx + reg[x];
-		else
-			pc = xxx + reg[0];
-		break;
-
-	case CHIP8_JMI: // jmi xxx		
-		if (!BIT6CTL)
+		if (BIT5CTL)
 			pc = xxx + reg[x];
 		else
 			pc = xxx + reg[0];
@@ -814,7 +678,7 @@ uint8_t do_cpu()
 			reg[x] ^= reg[y];
 			break;
 		case CHIP8_MATH_ADD: //add
-			if (compatibility_emu & 4) 
+			if (BIT3CTL)
 			{   // carry first
 				wr = reg[x];
 				wr += reg[y];
@@ -830,7 +694,7 @@ uint8_t do_cpu()
 			}
 			break;
 		case CHIP8_MATH_SUB: //sub
-			if (compatibility_emu & 4)
+			if (BIT3CTL)
 			{   // carry first
 				reg[VF] = reg[y] < reg[x];
 				reg[x] = reg[x] - reg[y];
@@ -843,9 +707,9 @@ uint8_t do_cpu()
 			}
 			break;
 		case CHIP8_MATH_SHR: //shr
-			if (compatibility_emu & 4)
+			if (BIT3CTL)
 			{   // carry first
-				if (compatibility_emu & 1) 
+				if (BIT1CTL)
 				{
 					reg[VF] = reg[x] & 0x1;
 					reg[x] >>= 1;
@@ -858,7 +722,7 @@ uint8_t do_cpu()
 			}
 			else
 			{
-				if (compatibility_emu & 1)
+				if (BIT1CTL)
 				{
 					cr = reg[x] & 0x1;
 					reg[x] >>= 1;
@@ -873,7 +737,7 @@ uint8_t do_cpu()
 			}
 			break;
 		case CHIP8_MATH_RSB: //rsb
-			if (compatibility_emu & 4)
+			if (BIT3CTL)
 			{   // carry first
 				reg[VF] = reg[y] > reg[x];
 				reg[x] = reg[y] - reg[x];
@@ -886,9 +750,9 @@ uint8_t do_cpu()
 			}
 			break;
 		case CHIP8_MATH_SHL: //shl
-			if (compatibility_emu & 4)
+			if (BIT3CTL)
 			{   // carry first
-				if (compatibility_emu & 1)
+				if (BIT1CTL)
 				{
 					reg[VF] = reg[x] >> 7;
 					reg[x] <<= 1;
@@ -901,7 +765,7 @@ uint8_t do_cpu()
 			}
 			else
 			{
-				if (compatibility_emu & 1)
+				if (BIT1CTL)
 				{
 					cr = reg[x] >> 7;
 					reg[x] <<= 1;
@@ -919,14 +783,15 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_SK: //extended instruction
-		updatedisplay();
 		switch (zz)
 		{
 		case CHIP8_SK_RP: // skipifkey
+			//updatedisplay();
 			if (iskeypressed(reg[x]))
 				pc += 2;
 			break;
 		case CHIP8_SK_UP: // skipifnokey
+			//updatedisplay();
 			if (!iskeypressed(reg[x]))
 				pc += 2;
 			break;
@@ -938,13 +803,14 @@ uint8_t do_cpu()
 		{
 		case CHIP8_EXTF_GDELAY: // getdelay
 			reg[x] = dtimer;
+			updatedisplay();
 			break;
 		case CHIP8_EXTF_KEY: //waitkey
-			updatedisplay();
 			reg[x] = waitanykey();
 			break;
 		case CHIP8_EXTF_SDELAY: //setdelay
 			dtimer = reg[x];
+			//updatedisplay();
 			break;
 		case CHIP8_EXTF_SSOUND: //setsound
 			stimer = reg[x];
@@ -1098,12 +964,9 @@ void setup()
 	draw_loading();
 
 	//clear TFT
-	delay(500);
+	delay(1500);
 	tft.fillScreen(TFT_BLACK);
 }
-
-
-
 
 void loop()
 {
@@ -1155,7 +1018,7 @@ void loop()
         tft.setTextColor(TFT_MAGENTA);
         tft.print(" Chip8 ROMs not found");
         while (1) 
-            delay(100);
+            delay(5000);
     }
 		break;
 	case APP_SHOW_DIR:
