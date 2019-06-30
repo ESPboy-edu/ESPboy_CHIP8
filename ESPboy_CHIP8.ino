@@ -170,10 +170,10 @@ Ticker timers;
 
 //keymapping 0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
 static uint8_t default_buttons[8] = { 4, 2, 8, 6, 5, 11, 4, 6 };
-//1 2 3 C
-//4 5 6 D
-//7 8 9 E
-//A 0 B F
+//1     2     3     C[13]
+//4     5     6     D[14]
+//7     8     9     E[15]
+//A[11] 0[10] B[12] F[16]
 
 void chip8timers()
 {
@@ -551,12 +551,6 @@ enum
   SCHIP_EXIT = 0xFD,
   SCHIP_LOW = 0xFE,
   SCHIP_HIGH = 0xFF,
-  SCHIP_SCD = 0xC,
-  SCHIP_SCR = 0xFB,
-  SCHIP_SCL = 0xFC,
-  SCHIP_EXIT = 0xFD,
-  SCHIP_LOW = 0xFE,
-  SCHIP_HIGH = 0xFF,
 
 	CHIP8_EXTF = 0xF,
 	CHIP8_EXTF_GDELAY = 0x07,
@@ -569,7 +563,7 @@ enum
 	CHIP8_EXTF_BCD = 0x33,
 	CHIP8_EXTF_STR = 0x55,
 	CHIP8_EXTF_LDR = 0x65,
-  SCHIP_MOV = 0xF
+  SCHIP_MOV = 0xF,
   SCHIP_LDhf = 0x30,
   SCHIP_LDr = 0x75,
   SCHIP_LDxr = 0x85, 
@@ -617,7 +611,7 @@ uint8_t do_cpu()
 		pc = inst & 0xFFF;
 		break;
 
-	case CHIP8_JMP: // jmp xyz
+	case CHIP8_JP: // jp xyz
 		pc = xxx;
 		break;
 
@@ -649,21 +643,21 @@ uint8_t do_cpu()
 			pc += 2;
 		break;
 
-	case CHIP8_MVI: // mvi xxx
+	case CHIP8_MOVi: // mvi xxx
 		I = xxx;
 		break;
 
-	case CHIP8_JMI: // jmi xxx		
+	case CHIP8_JMP: // jmp xxx		
 		if (BIT5CTL)
 			pc = xxx + reg[x];
 		else
 			pc = xxx + reg[0];
 		break;
-	case CHIP8_RAND: //rand xxx
+	case CHIP8_RND: //rand xxx
 		reg[x] = random(256) & zz;
 		break;
 
-	case CHIP8_DRYS: //draw sprite
+	case CHIP8_DRW: //draw sprite
 		reg[VF] = drawsprite(reg[x], reg[y], inst & 0xF);
 		break;
 
@@ -1038,6 +1032,8 @@ void loop()
         tft.setCursor(0, 60);
         tft.setTextColor(TFT_MAGENTA);
         tft.print(" Chip8 ROMs not found");
+        tft.setCursor(0, 70);
+        tft.print("   upload to SPIFFS");
         while (1) 
             delay(5000);
     }
