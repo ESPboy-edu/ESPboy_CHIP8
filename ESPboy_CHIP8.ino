@@ -17,8 +17,6 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifihtt
 #include <pgmspace.h>
 #include <Ticker.h>
 
-//#define BIT_RENDERER // uncomment to use PLAGUE render, comment to use ROMANS render
-
 
 //system
 #define fontchip_OFFSET       0x38
@@ -81,8 +79,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 #define DEFAULTBACKGROUND       0  // check colors []
 #define DEFAULTDELAY            1
 #define DEFAULTSOUNDTONE        300
-#define LORESDISPLAY            0
-#define HIRESDISPLAY            1
+
 
 //buttons
 #define LEFT_BUTTON   (buttonspressed & 1)
@@ -131,12 +128,11 @@ const uint8_t PROGMEM fontchip[16 * 5] = {
 	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
-constexpr auto VF = 0xF;
 
 uint8_t   mem[0x1000]; 
 uint8_t   reg[0x10];    // ram 0x0 - 0xF
 int16_t   stack[0x10];  // ram 0x16 - 0x36???  EA0h-EFFh
-uint8_t   sp; 
+uint8_t   sp, VF = 0xF; 
 volatile uint8_t stimer, dtimer;
 uint16_t  pc, I;
 
@@ -151,6 +147,11 @@ String           description_emu;     // file description
 static uint16_t  soundtone_emu;
 
 static uint16_t buttonspressed;
+
+#define SCREEN_WIDTH 64
+#define SCREEN_HEIGHT 32
+uint8_t display1[SCREEN_WIDTH * SCREEN_HEIGHT];
+uint8_t display2[SCREEN_WIDTH * SCREEN_HEIGHT];
 
 
 enum EMUSTATE {
@@ -189,127 +190,16 @@ uint16_t checkbuttons()
 	return (buttonspressed);
 }
 
-#ifdef BIT_RENDERER // PLAGUE RENDER
-
-typedef uint16_t displaybase_t;
-
-constexpr auto SCREEN_WIDTH = 64u;
-constexpr auto SCREEN_HEIGHT = 32u;
-constexpr auto LINE_SIZE = (SCREEN_WIDTH / 8 / sizeof(displaybase_t) + 1);
-constexpr auto BITS_PER_BLOCK = 8 * sizeof(displaybase_t);
-
-constexpr auto v_shift = 16u; // shift from upper edge of the screen
-
-displaybase_t display[LINE_SIZE * SCREEN_HEIGHT]; // 64x32 bit == 8*8x32 bit (+2 for memcpy simplification)
-displaybase_t dbuffer[LINE_SIZE * SCREEN_HEIGHT]; // (8 + 2 for edges)*8x32 == 32 rows 10 cols
-
-void chip8_cls()
-{
-	tft.fillScreen(TFT_BLACK);
-	memset(display, 0, LINE_SIZE * SCREEN_HEIGHT * sizeof(displaybase_t));
-	memset(dbuffer, 0, LINE_SIZE * SCREEN_HEIGHT * sizeof(displaybase_t));
-}
-
-
-// function declaration before definition to avoid compiler bug
-void draw_block(int x, int y, displaybase_t block, displaybase_t diff);
-
-void draw_block(int x, int y, displaybase_t block, displaybase_t diff)
-{
-	for (int k = BITS_PER_BLOCK-1; k >= 0; k--)
-	{
-		if( diff & 1)
-			tft.fillRect((x + k) * 2, y * 2 + v_shift, 2, 2, colors[block & 1 ? foreground_emu : background_emu]);
-		diff >>= 1;
-		block >>= 1;
-	}
-}
-
-void updatedisplay()
-{
-	//static unsigned long tme;
-	//tme=millis();
-	for (auto i = 0u; i < SCREEN_HEIGHT; i++)
-		for (auto j = 0u; j < LINE_SIZE - 1; j++)
-		{
-			auto blockindex = i * LINE_SIZE + j;
-			if (display[blockindex] != dbuffer[blockindex])
-			{
-				draw_block(j * BITS_PER_BLOCK, i, dbuffer[blockindex], display[blockindex] ^ dbuffer[blockindex]);
-				display[blockindex] = dbuffer[blockindex];
-			}
-		}
-	//Serial.println(millis()-tme);
-}
-
-uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
-{
- auto ret = 0;
-  auto isOnlyClear = true;
-  uint32_t vline, xline;
-  displaybase_t data, datal, datah;
-  auto shift = (x % BITS_PER_BLOCK);
-  auto freebits = (BITS_PER_BLOCK - 8);
-  if (!size) size = 16;
-  
-   x = x % SCREEN_WIDTH;
-   y = y % SCREEN_HEIGHT;
-  
-  for (auto line = 0u; line < size; line++)
-  {
-    data = mem[I + line];
-    data <<= freebits;
-
-    vline = ((y + line) % SCREEN_HEIGHT) * LINE_SIZE;
-
-    datal = data >> shift;
-    if (datal)
-    {
-      xline = (x / BITS_PER_BLOCK) % LINE_SIZE;
-      displaybase_t* scr1 = &dbuffer[vline + xline];
-      if (*scr1 & datal) ret++;
-      if (isOnlyClear && (*scr1 & datal) != datal) isOnlyClear = false;
-      *scr1 ^= datal;
-    }
-
-    // In normal situations condition is not necessary. But there is a bug, when the shift is more than 
-    // the width of the variable then the variable does not change, appear only with the type uint32_t
-    if (shift > freebits)
-    {
-      datah = data << (BITS_PER_BLOCK - shift);
-      if (datah)
-      {
-        xline = (x / BITS_PER_BLOCK + 1) % LINE_SIZE;
-        displaybase_t* scr2 = &dbuffer[vline + xline];
-        if (*scr2 & datah) ret++;
-        if (isOnlyClear && (*scr2 & datah) != datah) isOnlyClear = false;
-        *scr2 ^= datah;
-      }
-    }
-  }
-
-  if(!isOnlyClear) 
-    updatedisplay();
-
-  if (BIT6CTL) return ret;
-  return !!ret;
-}
-
-#else // ROMANS RENDER
-
-#define SCREEN_WIDTH 64
-#define SCREEN_HEIGHT 32
-
-uint8_t display1[SCREEN_WIDTH * SCREEN_HEIGHT];
-uint8_t display2[SCREEN_WIDTH * SCREEN_HEIGHT];
 
 
 void chip8_cls()
 {
-  tft.fillScreen(TFT_BLACK);
+  if (BIT7CTL)
+     tft.fillRect(0, 16, 128, 64, colors[background_emu]);
   memset(display1, colors[background_emu], sizeof(display1));
   memset(display2, colors[background_emu], sizeof(display2));
 }
+
 
 void updatedisplay()
 {
@@ -334,7 +224,7 @@ void updatedisplay()
 }
 
 
-//ROMANS RENDER
+
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 {
   static uint8_t data, mask, masked, xs, ys, c, d, ret, preret;
@@ -342,18 +232,18 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
     ret=0; 
     preret=0;
     if (!size) size = 16;
-    if (BIT4CTL){
-       x = x % SCREEN_WIDTH;
-       y = y % SCREEN_HEIGHT;
-    }
     for(c=0; c<size; c++){
       data = mem[I+c];
       mask=128;
       preret=0;
       ys = y+c;
-      if(ys > 31 && BIT6CTL && !BIT8CTL && !BIT4CTL) ret++;
+      if (BIT4CTL)
+        ys %= SCREEN_HEIGHT;
+      if(ys > 31 && BIT6CTL && !BIT8CTL) ret++;
       for (d = 0; d < 8; d++){
         xs = x + d;
+        if (BIT4CTL)
+          xs %= SCREEN_WIDTH;
         addrdisplay = (ys << 6) + xs;
         masked = !!(data & mask);
         if ((xs < 64) && (ys < 32)){
@@ -368,7 +258,7 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
 }
-#endif
+
 
 
 void chip8_reset()
@@ -680,8 +570,6 @@ uint8_t do_cpu()
 		{
 		case CHIP8_EXT0_CLS:
 			chip8_cls();
-			if (BIT7CTL)
-				tft.fillRect(0, 16, 128, 64, colors[background_emu]);
 			break;
 		case CHIP8_EXT0_RTS: // ret
 			sp = (sp-1) & 0xF;
