@@ -109,7 +109,7 @@ uint16_t colors[] = { TFT_BLACK, TFT_NAVY, TFT_DARKGREEN, TFT_DARKCYAN, TFT_MARO
 					 TFT_RED, TFT_MAGENTA, TFT_YELLOW, TFT_WHITE, TFT_ORANGE, TFT_GREENYELLOW, TFT_PINK };
 
 
-const uint8_t PROGMEM fontchip[16 * 5] = {
+static const uint8_t PROGMEM fontchip[16 * 5] = {
 	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 	0x20, 0x60, 0x20, 0x20, 0x70, // 1
 	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -127,6 +127,26 @@ const uint8_t PROGMEM fontchip[16 * 5] = {
 	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
 	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
+
+
+static const uint8_t PROGMEM fontschip[16 * 10] = {
+  0x00, 0x3C, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3C, 0x00, //0
+  0x00, 0x08, 0x38, 0x08, 0x08, 0x08, 0x08, 0x08, 0x3E, 0x00, //1
+  0x00, 0x38, 0x44, 0x04, 0x08, 0x10, 0x20, 0x44, 0x7C, 0x00, //2
+  0x00, 0x38, 0x44, 0x04, 0x18, 0x04, 0x04, 0x44, 0x38, 0x00, //3
+  0x00, 0x0C, 0x14, 0x24, 0x24, 0x7E, 0x04, 0x04, 0x0E, 0x00, //4
+  0x00, 0x3E, 0x20, 0x20, 0x3C, 0x02, 0x02, 0x42, 0x3C, 0x00, //5
+  0x00, 0x0E, 0x10, 0x20, 0x3C, 0x22, 0x22, 0x22, 0x1C, 0x00, //6
+  0x00, 0x7E, 0x42, 0x02, 0x04, 0x04, 0x08, 0x08, 0x08, 0x00, //7
+  0x00, 0x3C, 0x42, 0x42, 0x3C, 0x42, 0x42, 0x42, 0x3C, 0x00, //8
+  0x00, 0x3C, 0x42, 0x42, 0x42, 0x3E, 0x02, 0x04, 0x78, 0x00, //9
+  0x00, 0x18, 0x08, 0x14, 0x14, 0x14, 0x1C, 0x22, 0x77, 0x00, //A
+  0x00, 0x7C, 0x22, 0x22, 0x3C, 0x22, 0x22, 0x22, 0x7C, 0x00, //B
+  0x00, 0x1E, 0x22, 0x40, 0x40, 0x40, 0x40, 0x22, 0x1C, 0x00, //C
+  0x00, 0x78, 0x24, 0x22, 0x22, 0x22, 0x22, 0x24, 0x78, 0x00, //D
+  0x00, 0x7E, 0x22, 0x28, 0x38, 0x28, 0x20, 0x22, 0x7E, 0x00, //E
+  0x00, 0x7E, 0x22, 0x28, 0x38, 0x28, 0x20, 0x20, 0x70, 0x00  //F
+ };
 
 
 uint8_t   mem[0x1000]; 
@@ -162,6 +182,13 @@ enum EMUSTATE {
 };
 EMUSTATE emustate = APP_HELP;
 
+enum EMUMODE {
+  CHIP8,
+  HIRES,
+  SCHIP,
+};
+EMUMODE emumode = CHIP8;
+
 
 TFT_eSPI tft = TFT_eSPI();
 Adafruit_MCP23017 mcp;
@@ -176,6 +203,7 @@ static uint8_t default_buttons[8] = { 4, 2, 8, 6, 5, 11, 4, 6 };
 //7     8     9     E[15]
 //A[11] 0[10] B[12] F[16]
 
+
 void chip8timers()
 {
 	if (dtimer)
@@ -183,6 +211,7 @@ void chip8timers()
 	if (stimer)
 		stimer--;
 }
+
 
 uint16_t checkbuttons()
 {
@@ -194,10 +223,9 @@ uint16_t checkbuttons()
 
 void chip8_cls()
 {
-  if (BIT7CTL)
-     tft.fillRect(0, 16, 128, 64, colors[background_emu]);
-  memset(display1, colors[background_emu], sizeof(display1));
-  memset(display2, colors[background_emu], sizeof(display2));
+  tft.fillRect(0, 16, 128, 64, colors[background_emu]);
+  memset(display1, 0, sizeof(display1));
+  memset(display2, 0, sizeof(display2));
 }
 
 
@@ -227,10 +255,11 @@ void updatedisplay()
 
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 {
-  static uint8_t data, mask, masked, xs, ys, c, d, ret, preret;
+  static uint8_t data, mask, masked, xs, ys, c, d, ret, preret, drw;
   static uint16_t addrdisplay;
     ret=0; 
     preret=0;
+    drw=0;
     if (!size) size = 16;
     for(c=0; c<size; c++){
       data = mem[I+c];
@@ -248,13 +277,14 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
         masked = !!(data & mask);
         if ((xs < 64) && (ys < 32)){
           if (masked && display2[addrdisplay]) preret++;
+          else drw++;
           display2[addrdisplay] ^= masked;
         }
         mask >>= 1;
       }
       if (preret) ret++;
     }
-    if (BIT7CTL) updatedisplay();
+    if (BIT7CTL && drw) updatedisplay();
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
 }
@@ -433,63 +463,63 @@ void buzz()
 
 enum
 {
-	CHIP8_JP = 0x1,
-	CHIP8_CALL = 0x2,
-	CHIP8_SEx = 0x3,
-	CHIP8_SNEx = 0x4,
-	CHIP8_SExy = 0x5,
-	CHIP8_MOVx = 0x6,
-	CHIP8_ADDx = 0x7,
-	CHIP8_SNExy = 0x9,
-	CHIP8_MOVi = 0xa,
-	CHIP8_JMP = 0xb,
-	CHIP8_RND = 0xc,
-	CHIP8_DRW = 0xd,
+	CHIP8_JP =          0x1,
+	CHIP8_CALL =        0x2,
+	CHIP8_SEx =         0x3,
+	CHIP8_SNEx =        0x4,
+	CHIP8_SExy =        0x5,
+	CHIP8_MOVx =        0x6,
+	CHIP8_ADDx =        0x7,
+	CHIP8_SNExy =       0x9,
+	CHIP8_MOVi =        0xa,
+	CHIP8_JMP =         0xb,
+	CHIP8_RND =         0xc,
+	CHIP8_DRW =         0xd,
   
-	CHIP8_EXT0 = 0x0,
-	CHIP8_EXT0_CLS = 0xE0,
-	CHIP8_EXT0_RTS = 0xEE,
-  SCHIP_SCD = 0xC,
-  SCHIP_SCR = 0xFB,
-  SCHIP_SCL = 0xFC,
-  SCHIP_EXIT = 0xFD,
-  SCHIP_LOW = 0xFE,
-  SCHIP_HIGH = 0xFF,
+	CHIP8_EXT0 =        0x0,
+	CHIP8_EXT0_CLS =    0xE0,
+	CHIP8_EXT0_RTS =    0xEE,
+  SCHIP_SCD =         0xC,
+  SCHIP_SCR =         0xFB,
+  SCHIP_SCL =         0xFC,
+  SCHIP_EXIT =        0xFD,
+  SCHIP_LOW =         0xFE,
+  SCHIP_HIGH =        0xFF,
 
-	CHIP8_EXTF = 0xF,
+	CHIP8_EXTF =        0xF,
 	CHIP8_EXTF_GDELAY = 0x07,
-	CHIP8_EXTF_KEY = 0x0a,
+	CHIP8_EXTF_KEY =    0x0a,
 	CHIP8_EXTF_SDELAY = 0x15,
 	CHIP8_EXTF_SSOUND = 0x18,
-	CHIP8_EXTF_ADI = 0x1e,
-	CHIP8_EXTF_FONT = 0x29,
-	CHIP8_EXTF_XFONT = 0x30,
-	CHIP8_EXTF_BCD = 0x33,
-	CHIP8_EXTF_STR = 0x55,
-	CHIP8_EXTF_LDR = 0x65,
-  SCHIP_MOV = 0xF,
-  SCHIP_LDhf = 0x30,
-  SCHIP_LDr = 0x75,
-  SCHIP_LDxr = 0x85, 
+	CHIP8_EXTF_ADI =    0x1e,
+	CHIP8_EXTF_FONT =   0x29,
+	CHIP8_EXTF_XFONT =  0x30,
+	CHIP8_EXTF_BCD =    0x33,
+	CHIP8_EXTF_STR =    0x55,
+	CHIP8_EXTF_LDR =    0x65,
+  SCHIP_MOV =         0xF,
+  SCHIP_LDhf =        0x30,
+  SCHIP_LDr =         0x75,
+  SCHIP_LDxr =        0x85, 
 
-	CHIP8_MATH = 0x8,
-	CHIP8_MATH_MOV = 0x0,
-	CHIP8_MATH_OR = 0x1,
-	CHIP8_MATH_AND = 0x2,
-	CHIP8_MATH_XOR = 0x3,
-	CHIP8_MATH_ADD = 0x4,
-	CHIP8_MATH_SUB = 0x5,
-	CHIP8_MATH_SHR = 0x6,
-	CHIP8_MATH_RSB = 0x7,
-	CHIP8_MATH_SHL = 0xe,
+	CHIP8_MATH =        0x8,
+	CHIP8_MATH_MOV =    0x0,
+	CHIP8_MATH_OR =     0x1,
+	CHIP8_MATH_AND =    0x2,
+	CHIP8_MATH_XOR =    0x3,
+	CHIP8_MATH_ADD =    0x4,
+	CHIP8_MATH_SUB =    0x5,
+	CHIP8_MATH_SHR =    0x6,
+	CHIP8_MATH_RSB =    0x7,
+	CHIP8_MATH_SHL =    0xe,
 
-	CHIP8_SK = 0xe,
-	CHIP8_SK_RP = 0x9e,
-	CHIP8_SK_UP = 0xa1, 
+	CHIP8_SK =          0xe,
+	CHIP8_SK_RP =       0x9e,
+	CHIP8_SK_UP =       0xa1, 
 
-  HIRES_CLR = 0x0230,       // clear 64х64 screen
-  HIRES_JP0x2C0 = 0x12C0,   // jump to address 0x2c0
-  HIRES_HIRESM = 0x1260,    // Init 64x64 hires mode
+  HIRES_CLR =         0x0230,       // clear 64х64 screen
+  HIRES_JP0x2C0 =     0x12C0,   // jump to address 0x2c0
+  HIRES_HIRESM =      0x1260,    // Init 64x64 hires mode
 };
 
 
@@ -508,7 +538,8 @@ uint8_t do_cpu()
 	xxx = inst & 0x0FFF;
 
 	switch (op)
-	{
+
+{
 	case CHIP8_CALL: // call xyz
 		stack[sp] = pc;
 		sp = (sp+1) & 0x0F;
@@ -795,28 +826,24 @@ void draw_loading(bool reset = false)
 	static bool firstdraw = true;
 	static uint8_t index = 0;
 	int32_t pos, next_pos;
-
-	constexpr auto x = 29, y = 96, w = 69, h = 10, cnt = 5, padding = 3;
-
+	constexpr auto x = 29, y = 96, w = 69, h = 8, cnt = 5, padding = 3;
 	if (reset)
 	{
 		firstdraw = true;
 		index = 0;
 	}
-
 	if (firstdraw)
 	{
 		tft.fillRect(x+1, y+1, w-2, h-2, TFT_BLACK);
 		tft.drawRect(x, y, w, h, TFT_YELLOW);
 		firstdraw = false;
 	}
-
 	pos = ((index * (w - padding - 1)) / cnt);
 	index++;
 	next_pos = ((index * (w - padding - 1)) / cnt);
-
 	tft.fillRect(x + padding + pos, y + padding, next_pos - pos - padding + 1, h - padding*2, TFT_YELLOW);
 }
+
 
 void setup()
 {

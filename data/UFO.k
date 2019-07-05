@@ -1,12 +1,13 @@
-4 8 2 5 5 11 4 6
-11
+4 5 8 6 5 11 4 6
+17
 0
 1
-203
+195
 30
 60
 200
-Press to fire depth charges at the subs below.  You score 15 points for a small sub and 5 points for the larger. You get 25 depth charges to start.
+by Lutz V, 1992 You can shoot in three directions. You try to hit one of two objects flying by.  at apparently varying speeds..  Your score is displayed on your left, the number of missles you have left is displayed on your right. (You get 15).
+
 
 
 //INSTRUCTIONS
