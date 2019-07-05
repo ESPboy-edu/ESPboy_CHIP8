@@ -320,7 +320,7 @@ void updatedisplay()
   for (i = 0; i < 32; i++)
     for (j = 0; j < 64; j++) {
       addr = (i << 6) + j;
-      if (display1[addr] != display2[addr])
+      if (display1[addr] ^= display2[addr])
       {
        if (display2[addr])
           drawcolor = foreground_emu;
@@ -334,16 +334,15 @@ void updatedisplay()
 }
 
 
-//old render
+//ROMANS RENDER
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 {
-  uint8_t data, mask, masked, xs, ys, c, d, ret, preret, color;
-  uint16_t addrdisplay;
+  static uint8_t data, mask, masked, xs, ys, c, d, ret, preret;
+  static uint16_t addrdisplay;
     ret=0; 
     preret=0;
     if (!size) size = 16;
-    if (BIT4CTL)
-    {
+    if (BIT4CTL){
        x = x % SCREEN_WIDTH;
        y = y % SCREEN_HEIGHT;
     }
@@ -352,16 +351,16 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
       mask=128;
       preret=0;
       ys = y+c;
-      if(ys>31 && BIT6CTL && !BIT8CTL && !BIT4CTL) ret++;
-      for (d=0; d<8; d++){
-        xs = x+d;
+      if(ys > 31 && BIT6CTL && !BIT8CTL && !BIT4CTL) ret++;
+      for (d = 0; d < 8; d++){
+        xs = x + d;
         addrdisplay = (ys << 6) + xs;
         masked = !!(data & mask);
         if ((xs < 64) && (ys < 32)){
           if (masked && display2[addrdisplay]) preret++;
-          display2[addrdisplay]^=masked;
+          display2[addrdisplay] ^= masked;
         }
-        mask>>=1;
+        mask >>= 1;
       }
       if (preret) ret++;
     }
