@@ -168,10 +168,10 @@ static uint16_t  soundtone_emu;
 
 static uint16_t buttonspressed;
 
-#define SCREEN_WIDTH 64
-#define SCREEN_HEIGHT 32
-uint8_t display1[SCREEN_WIDTH * SCREEN_HEIGHT];
-uint8_t display2[SCREEN_WIDTH * SCREEN_HEIGHT];
+uint8_t screen_width = 64;
+uint8_t screen_height = 32;
+uint8_t display1[128 * 64];
+uint8_t display2[128 * 64];
 
 
 enum EMUSTATE {
@@ -223,7 +223,23 @@ uint16_t checkbuttons()
 
 void chip8_cls()
 {
-  tft.fillRect(0, 16, 128, 64, colors[background_emu]);
+  switch (emumode){
+    case CHIP8:
+      screen_width = 64;
+      screen_height = 32;
+      tft.fillRect(0, 16, 128, 64, colors[background_emu]);
+      break;
+    case HIRES:
+      screen_width = 64;
+      screen_height = 64;
+      tft.fillScreen(colors[background_emu]);
+      break;
+    case SCHIP:
+      screen_width = 128;
+      screen_height = 64;
+      tft.fillRect(0, 16, 128, 64, colors[background_emu]);
+      break;
+  }  
   memset(display1, 0, sizeof(display1));
   memset(display2, 0, sizeof(display2));
 }
@@ -235,8 +251,8 @@ void updatedisplay()
   static uint16_t i, j, addr;
   //static unsigned long tme;
   //  tme=millis();
-  for (i = 0; i < 32; i++)
-    for (j = 0; j < 64; j++) {
+  for (i = 0; i < screen_height; i++)
+    for (j = 0; j < screen_width; j++) {
       addr = (i << 6) + j;
       if (display1[addr] ^= display2[addr])
       {
@@ -244,7 +260,17 @@ void updatedisplay()
           drawcolor = foreground_emu;
         else
           drawcolor = background_emu;
-        tft.fillRect(j << 1, (i << 1) + 16, 2, 2, colors[drawcolor]);
+        switch (emumode){
+          case CHIP8:
+            tft.fillRect(j << 1, (i << 1) + 16, 2, 2, colors[drawcolor]);
+            break;
+          case HIRES:
+            tft.fillRect(j << 1, i << 1, 2, 2, colors[drawcolor]);
+            break;
+          case SCHIP:
+            tft.drawPixel(j, i+16, colors[drawcolor]);
+            break;
+        }
       }
     }
     memcpy(display1, display2, sizeof(display1));
@@ -267,15 +293,15 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
       preret=0;
       ys = y+c;
       if (BIT4CTL)
-        ys %= SCREEN_HEIGHT;
-      if(ys > 31 && BIT6CTL && !BIT8CTL) ret++;
+        ys %= screen_height;
+      if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
       for (d = 0; d < 8; d++){
         xs = x + d;
         if (BIT4CTL)
-          xs %= SCREEN_WIDTH;
+          xs %= screen_width;
         addrdisplay = (ys << 6) + xs;
         masked = !!(data & mask);
-        if ((xs < 64) && (ys < 32)){
+        if ((xs < screen_width) && (ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
           else drw++;
           display2[addrdisplay] ^= masked;
@@ -293,6 +319,7 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 
 void chip8_reset()
 {
+  emumode = CHIP8;
   chip8_cls();
   stimer = 0;
   dtimer = 0;
@@ -479,6 +506,7 @@ enum
 	CHIP8_EXT0 =        0x0,
 	CHIP8_EXT0_CLS =    0xE0,
 	CHIP8_EXT0_RTS =    0xEE,
+  HIRES_CLS =         0x30,
   SCHIP_SCD =         0xC,
   SCHIP_SCR =         0xFB,
   SCHIP_SCL =         0xFC,
@@ -516,10 +544,6 @@ enum
 	CHIP8_SK =          0xe,
 	CHIP8_SK_RP =       0x9e,
 	CHIP8_SK_UP =       0xa1, 
-
-  HIRES_CLR =         0x0230,       // clear 64х64 screen
-  HIRES_JP0x2C0 =     0x12C0,   // jump to address 0x2c0
-  HIRES_HIRESM =      0x1260,    // Init 64x64 hires mode
 };
 
 
@@ -537,8 +561,8 @@ uint8_t do_cpu()
 	zz = inst & 0x00FF;
 	xxx = inst & 0x0FFF;
 
-	switch (op)
 
+	switch (op)
 {
 	case CHIP8_CALL: // call xyz
 		stack[sp] = pc;
@@ -606,6 +630,9 @@ uint8_t do_cpu()
 			sp = (sp-1) & 0xF;
 			pc = stack[sp] & 0xFFF;
 			break;
+     case HIRES_CLS:
+      chip8_cls();
+      break;
 		}
 		break;
 
@@ -795,6 +822,11 @@ void do_emulation()
 	uint16_t c = 0;
 	timers.attach_ms((uint8_t)(1000.0f / (float)timers_emu), chip8timers);
 	memcpy_P(&mem[fontchip_OFFSET], &fontchip[0], 16 * 5);
+  if (((mem[0x200] << 8) + mem[0x200+1]) == 0x1260){
+    emumode = HIRES;
+    chip8_cls();
+    pc += 2;    
+  }
 	while (1)
 	{
 		if (c < opcodesperframe_emu)
@@ -1026,6 +1058,7 @@ void loop()
 			selectedfilech8++;
 		if (ACT_BUTTON)
 		{
+			chip8_reset();
 			selectedfilech8name.trim();
 			loadrom("/" + selectedfilech8name + ".ch8");
       tft.fillScreen(TFT_BLACK);
