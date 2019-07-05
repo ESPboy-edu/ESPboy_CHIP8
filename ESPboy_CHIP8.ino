@@ -17,8 +17,8 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifihtt
 #include <pgmspace.h>
 #include <Ticker.h>
 
-#define BIT_RENDERER
-//#define SIMPLE_RENDERER
+//#define BIT_RENDERER // uncomment to use PLAGUE render, comment to use ROMANS render
+
 
 //system
 #define fontchip_OFFSET       0x38
@@ -189,7 +189,7 @@ uint16_t checkbuttons()
 	return (buttonspressed);
 }
 
-#ifdef BIT_RENDERER
+#ifdef BIT_RENDERER // PLAGUE RENDER
 
 typedef uint16_t displaybase_t;
 
@@ -210,17 +210,6 @@ void chip8_cls()
 	memset(dbuffer, 0, LINE_SIZE * SCREEN_HEIGHT * sizeof(displaybase_t));
 }
 
-void chip8_reset()
-{
-	chip8_cls();
-
-	stimer = 0;
-	dtimer = 0;
-	buzz();
-
-	pc = 0x200;
-	sp = 0;
-}
 
 // function declaration before definition to avoid compiler bug
 void draw_block(int x, int y, displaybase_t block, displaybase_t diff);
@@ -255,119 +244,144 @@ void updatedisplay()
 
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 {
-	auto ret = 0;
-	auto isOnlyClear = true;
-	displaybase_t data, datal, datah;
-	auto shift = (x % BITS_PER_BLOCK);
-	auto freebits = (BITS_PER_BLOCK - 8);
-	if (!size) size = 16;
+ auto ret = 0;
+  auto isOnlyClear = true;
+  uint32_t vline, xline;
+  displaybase_t data, datal, datah;
+  auto shift = (x % BITS_PER_BLOCK);
+  auto freebits = (BITS_PER_BLOCK - 8);
+  if (!size) size = 16;
+  
+   x = x % SCREEN_WIDTH;
+   y = y % SCREEN_HEIGHT;
+  
+  for (auto line = 0u; line < size; line++)
+  {
+    data = mem[I + line];
+    data <<= freebits;
 
-	for (auto line = 0u; line < size; line++)
-	{
-		if ((x < SCREEN_WIDTH) && ((line + y) < SCREEN_HEIGHT))
-		{
-			data = mem[I + line];
-			data <<= freebits;
+    vline = ((y + line) % SCREEN_HEIGHT) * LINE_SIZE;
 
-			datal = data >> shift;
-			if (datal)
-			{
-				displaybase_t* scr1 = &dbuffer[(y + line) * LINE_SIZE + (x / BITS_PER_BLOCK) + 0];
-				if (*scr1 & datal) ret++;
-				if (isOnlyClear && (*scr1 & datal) != datal) isOnlyClear = false;
-				*scr1 ^= datal;
-			}
-			// In normal situations condition is not necessary. But there is a bug, when the shift is more than 
-			// the width of the variable then the variable does not change, appear only with the type uint32_t
-			if (shift > freebits)
-			{
-				datah = data << (BITS_PER_BLOCK - shift);
-				if (datah)
-				{
-					displaybase_t* scr2 = &dbuffer[(y + line) * LINE_SIZE + (x / BITS_PER_BLOCK) + 1];
-					if (*scr2 & datah) ret++;
-					if (isOnlyClear && (*scr2 & datah) != datah) isOnlyClear = false;
-					*scr2 ^= datah;
-				}
-			}
-		}
-	}
+    datal = data >> shift;
+    if (datal)
+    {
+      xline = (x / BITS_PER_BLOCK) % LINE_SIZE;
+      displaybase_t* scr1 = &dbuffer[vline + xline];
+      if (*scr1 & datal) ret++;
+      if (isOnlyClear && (*scr1 & datal) != datal) isOnlyClear = false;
+      *scr1 ^= datal;
+    }
 
-	if(!isOnlyClear) 
-		updatedisplay();
+    // In normal situations condition is not necessary. But there is a bug, when the shift is more than 
+    // the width of the variable then the variable does not change, appear only with the type uint32_t
+    if (shift > freebits)
+    {
+      datah = data << (BITS_PER_BLOCK - shift);
+      if (datah)
+      {
+        xline = (x / BITS_PER_BLOCK + 1) % LINE_SIZE;
+        displaybase_t* scr2 = &dbuffer[vline + xline];
+        if (*scr2 & datah) ret++;
+        if (isOnlyClear && (*scr2 & datah) != datah) isOnlyClear = false;
+        *scr2 ^= datah;
+      }
+    }
+  }
 
-	if (BIT6CTL) return ret;
-	return !!ret;
+  if(!isOnlyClear) 
+    updatedisplay();
+
+  if (BIT6CTL) return ret;
+  return !!ret;
 }
-#endif
 
-#ifdef SIMPLE_RENDERER // old version
+#else // ROMANS RENDER
 
-uint8_t   display[64 * 32];// ram F00h-FFFh
+#define SCREEN_WIDTH 64
+#define SCREEN_HEIGHT 32
+
+uint8_t display1[SCREEN_WIDTH * SCREEN_HEIGHT];
+uint8_t display2[SCREEN_WIDTH * SCREEN_HEIGHT];
+
 
 void chip8_cls()
 {
-	tft.fillScreen(TFT_BLACK);
-	memset(display, 0, sizeof(display));
-}
-
-void chip8_reset()
-{
-	chip8_cls();
-	stimer = 0;
-	dtimer = 0;
-	buzz();
-	pc = 0x200;
-	sp = 0;
+  tft.fillScreen(TFT_BLACK);
+  memset(display1, colors[background_emu], sizeof(display1));
+  memset(display2, colors[background_emu], sizeof(display2));
 }
 
 void updatedisplay()
 {
-	static uint8_t drawcolor;
-	static uint16_t i, j;
-	//static unsigned long tme;
-	//  tme=millis();
-	for (i = 0; i < 32; i++)
-		for (j = 0; j < 64; j++) {
-			if (display[(i << 6) + j])
-				drawcolor = foreground_emu;
-			else
-				drawcolor = background_emu;
-			tft.fillRect(j << 1, (i << 1) + 16, 2, 2, colors[drawcolor]);
-		}
-	//   Serial.println(millis()-tme);
+  static uint8_t drawcolor;
+  static uint16_t i, j, addr;
+  //static unsigned long tme;
+  //  tme=millis();
+  for (i = 0; i < 32; i++)
+    for (j = 0; j < 64; j++) {
+      addr = (i << 6) + j;
+      if (display1[addr] != display2[addr])
+      {
+       if (display2[addr])
+          drawcolor = foreground_emu;
+        else
+          drawcolor = background_emu;
+        tft.fillRect(j << 1, (i << 1) + 16, 2, 2, colors[drawcolor]);
+      }
+    }
+    memcpy(display1, display2, sizeof(display1));
+  //   Serial.println(millis()-tme);
 }
 
 
-//SIMPLE VERSION without compatibility and realtime drawing
+//old render
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 {
-	uint8_t data, mask, c, d, masked, xdisp, ydisp, ret;
-	uint16_t addrdisplay;
-	ret = 0;
-	for (c = 0; c < size; c++) {
-		data = mem[I + c];
-		mask = 0b10000000;
-		ydisp = y + c;
-		for (d = 0; d < 8; d++) {
-			xdisp = x + d;
-			masked = !!(data & mask);
-			addrdisplay = xdisp + (ydisp << 6);
-			if (xdisp < 64 && ydisp < 32) {
-				if (display[addrdisplay] && masked) ret++;
+  uint8_t data, mask, masked, xs, ys, c, d, ret, preret, color;
+  uint16_t addrdisplay;
+    ret=0; 
+    preret=0;
+    if (!size) size = 16;
+    if (BIT4CTL)
+    {
+       x = x % SCREEN_WIDTH;
+       y = y % SCREEN_HEIGHT;
+    }
+    for(c=0; c<size; c++){
+      data = mem[I+c];
+      mask=128;
+      preret=0;
+      ys = y+c;
+      if(ys>31 && BIT6CTL && !BIT8CTL && !BIT4CTL) ret++;
+      for (d=0; d<8; d++){
+        xs = x+d;
+        addrdisplay = (ys << 6) + xs;
+        masked = !!(data & mask);
+        if ((xs < 64) && (ys < 32)){
+          if (masked && display2[addrdisplay]) preret++;
+          display2[addrdisplay]^=masked;
+        }
+        mask>>=1;
+      }
+      if (preret) ret++;
+    }
+    if (BIT7CTL) updatedisplay();
+    if (BIT6CTL) return (ret);
+    else return (ret?1:0);
+}
+#endif
 
-				display[addrdisplay] ^= masked;
-			}
-			mask >>= 1;
-		}
-	}
 
-	if (BIT7CTL) updatedisplay();
-
-	return (ret ? 1 : 0);
+void chip8_reset()
+{
+  chip8_cls();
+  stimer = 0;
+  dtimer = 0;
+  buzz();
+  pc = 0x200;
+  sp = 0;
 }
 
-#endif
 
 uint8_t iskeypressed(uint8_t key)
 {
@@ -488,8 +502,9 @@ void loadrom(String filename)
 		f.close();
 		if (foreground_emu == 255)
 			foreground_emu = random(17) + 1;
-      compatibility_emu &= 191;
 //		compatibility_emu = DEFAULTCOMPATIBILITY;
+    if (foreground_emu > 18) foreground_emu = 15;
+    if (background_emu > 18) background_emu = 0;
 	}
 	else
 	{
@@ -894,7 +909,7 @@ void draw_loading(bool reset = false)
 	static uint8_t index = 0;
 	int32_t pos, next_pos;
 
-	constexpr auto x = 29, y = 96, w = 69, h = 14, cnt = 5, padding = 3;
+	constexpr auto x = 29, y = 96, w = 69, h = 10, cnt = 5, padding = 3;
 
 	if (reset)
 	{

@@ -1,12 +1,12 @@
-4 1 2 6 2 3 5 6
-18
+4 2 7 6 5 5 4 6
+14
 0
 1
-200
+80
 30
 60
 200
-by Udo Pernisz, 1979. You are descending to the floor of a 250-foot crater. Opt1: start at 250 feet, 150 pounds of fuel.  Land at 5 feet per second or less!  Opt2: Start at 250 feet, 200 pounds of fuel.  Land at 3 feet per second or less! Opt3: Start at 32 feet, 100 pounds of fuel.  Land at 3 feet per second or less.   
+BRICK: a modified version of BRIX by Andreas Gustafsson. This one is a solid wall; no air between bricks! This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. 
 
 
 //INSTRUCTIONS
@@ -35,6 +35,7 @@ Chip8 keys
 A[11] 0[10] B[12] F[16]
 
 2. FOREGROUND COLOR
+no of color according to the list  
 0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON 
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE  
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
