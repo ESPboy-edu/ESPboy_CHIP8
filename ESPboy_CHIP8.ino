@@ -19,7 +19,7 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifihtt
 
 
 //system
-#define fontchip_OFFSET       0x38
+#define fontchip_OFFSET       30 //???0x38
 #define NLINEFILES            14 //no of files in menu
 #define csTFTMCP23017pin      8
 #define LEDquantity           1
@@ -155,6 +155,8 @@ int16_t   stack[0x10];  // ram 0x16 - 0x36???  EA0h-EFFh
 uint8_t   sp, VF = 0xF; 
 volatile uint8_t stimer, dtimer;
 uint16_t  pc, I;
+uint8_t   schip_exit_flag = false;
+uint8_t   schip_reg[15];
 
 static uint8_t   keys[8]={0};
 static uint8_t   foreground_emu;
@@ -168,8 +170,8 @@ static uint16_t  soundtone_emu;
 
 static uint16_t buttonspressed;
 
-uint8_t screen_width = 64;
-uint8_t screen_height = 32;
+uint8_t screen_width;
+uint8_t screen_height;
 uint8_t display1[128 * 64];
 uint8_t display2[128 * 64];
 
@@ -227,32 +229,38 @@ void chip8_cls()
     case CHIP8:
       screen_width = 64;
       screen_height = 32;
-      tft.fillRect(0, 16, 128, 64, colors[background_emu]);
       break;
     case HIRES:
       screen_width = 64;
       screen_height = 64;
-      tft.fillScreen(colors[background_emu]);
       break;
     case SCHIP:
       screen_width = 128;
       screen_height = 64;
-      tft.fillRect(0, 16, 128, 64, colors[background_emu]);
       break;
   }  
-  memset(display1, 0, sizeof(display1));
   memset(display2, 0, sizeof(display2));
+  updatedisplay(); 
 }
 
 
-void updatedisplay()
+void updatedisplay(){
+  if (emumode == SCHIP)
+      update_display_schip();
+  else
+      update_display_chip8();
+     
+}
+
+void update_display_chip8()
 {
   static uint8_t drawcolor;
   static uint16_t i, j, addr;
   //static unsigned long tme;
   //  tme=millis();
   for (i = 0; i < screen_height; i++)
-    for (j = 0; j < screen_width; j++) {
+    for (j = 0; j < screen_width; j++) 
+    {
       addr = (i << 6) + j;
       if (display1[addr] ^= display2[addr])
       {
@@ -267,10 +275,30 @@ void updatedisplay()
           case HIRES:
             tft.fillRect(j << 1, i << 1, 2, 2, colors[drawcolor]);
             break;
-          case SCHIP:
-            tft.drawPixel(j, i+16, colors[drawcolor]);
-            break;
         }
+      }
+    }
+    memcpy(display1, display2, sizeof(display1));
+  //   Serial.println(millis()-tme);
+}
+
+void update_display_schip()
+{
+  static uint8_t drawcolor;
+  static uint16_t i, j, addr;
+  //static unsigned long tme;
+  //  tme=millis();
+  for (i = 0; i < 64; i++)
+    for (j = 0; j < 128; j++) 
+    {
+      addr = (i << 7) + j;
+      if (display1[addr] ^= display2[addr])
+      {
+       if (display2[addr])
+          drawcolor = foreground_emu;
+        else
+          drawcolor = background_emu;
+            tft.drawPixel(j, i+16, colors[drawcolor]);
       }
     }
     memcpy(display1, display2, sizeof(display1));
@@ -315,6 +343,42 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
     else return (ret?1:0);
 }
 
+
+uint8_t drawssprite(uint8_t x, uint8_t y, uint8_t size)
+{
+  static uint8_t data, masked, xs, ys, c, d, ret, preret, drw;
+  static uint16_t addrdisplay, mask;
+    ret=0; 
+    preret=0;
+    drw=0;
+    if (!size) size = 16;
+    for(c=0; c<size; c++){
+      data = mem[I+c];
+      mask=32768;
+      preret=0;
+      ys = y+c;
+      if (BIT4CTL)
+        ys %= screen_height;
+      if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
+      for (d = 0; d < 16; d++){
+        xs = x + d;
+        if (BIT4CTL)
+          xs %= screen_width;
+        addrdisplay = (ys << 7) + xs;
+        masked = !!(data & mask);
+        if ((xs < screen_width) && (ys < screen_height)){
+          if (masked && display2[addrdisplay]) preret++;
+          else drw++;
+          display2[addrdisplay] ^= masked;
+        }
+        mask >>= 1;
+      }
+      if (preret) ret++;
+    }
+    if (BIT7CTL && drw) updatedisplay();
+    if (BIT6CTL) return (ret);
+    else return (ret?1:0);
+}
 
 
 void chip8_reset()
@@ -491,6 +555,8 @@ void buzz()
 enum
 {
 	CHIP8_JP =          0x1,
+  HIRES_ON =          0x260,
+  
 	CHIP8_CALL =        0x2,
 	CHIP8_SEx =         0x3,
 	CHIP8_SNEx =        0x4,
@@ -504,8 +570,8 @@ enum
 	CHIP8_DRW =         0xd,
   
 	CHIP8_EXT0 =        0x0,
-	CHIP8_EXT0_CLS =    0xE0,
-	CHIP8_EXT0_RTS =    0xEE,
+	CHIP8_CLS =         0xE0,
+	CHIP8_RTS =         0xEE,
   HIRES_CLS =         0x30,
   SCHIP_SCD =         0xC,
   SCHIP_SCR =         0xFB,
@@ -525,10 +591,9 @@ enum
 	CHIP8_EXTF_BCD =    0x33,
 	CHIP8_EXTF_STR =    0x55,
 	CHIP8_EXTF_LDR =    0x65,
-  SCHIP_MOV =         0xF,
-  SCHIP_LDhf =        0x30,
-  SCHIP_LDr =         0x75,
-  SCHIP_LDxr =        0x85, 
+  SCHIP_EXTF_MOV =    0xF,
+  SCHIP_EXTF_LDr =    0x75,
+  SCHIP_EXTF_LDxr =   0x85, 
 
 	CHIP8_MATH =        0x8,
 	CHIP8_MATH_MOV =    0x0,
@@ -561,7 +626,6 @@ uint8_t do_cpu()
 	zz = inst & 0x00FF;
 	xxx = inst & 0x0FFF;
 
-
 	switch (op)
 {
 	case CHIP8_CALL: // call xyz
@@ -571,7 +635,13 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_JP: // jp xyz
-		pc = xxx;
+    if (xxx != HIRES_ON)
+		  pc = xxx;
+    else 
+    {
+      emumode = HIRES;
+      chip8_cls();
+    }
 		break;
 
 	case CHIP8_SEx: // sex:  skip next opcode if r(x)=zz
@@ -617,26 +687,67 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_DRW: //draw sprite
-		reg[VF] = drawsprite(reg[x], reg[y], inst & 0xF);
+    if (emumode == SCHIP)
+		    reg[VF] = drawssprite(reg[x], reg[y], inst & 0xF);
+    else
+        reg[VF] = drawsprite(reg[x], reg[y], inst & 0xF);
 		break;
 
-	case CHIP8_EXT0: //extended instruction
+    
+	case CHIP8_EXT0: //extended instructions chip8/schip
+	{ 
 		switch (zz)
 		{
-		case CHIP8_EXT0_CLS:
+		case CHIP8_CLS:
 			chip8_cls();
 			break;
-		case CHIP8_EXT0_RTS: // ret
+		case CHIP8_RTS: 
 			sp = (sp-1) & 0xF;
 			pc = stack[sp] & 0xFFF;
 			break;
-     case HIRES_CLS:
+    case HIRES_CLS:
       chip8_cls();
       break;
+    case SCHIP_SCR:
+      for (cr=0; cr<screen_height; cr++)
+        {
+          memmove(&display2[cr*screen_width+4], &display2[cr*screen_width], screen_width-4);
+          memset(&display2[cr*screen_width], 0, 4);
+        }
+      if (BIT7CTL) updatedisplay();  
+      break;  
+    case SCHIP_SCL:
+      for (cr=0; cr<screen_height; cr++)
+      {
+          memmove(&display2[cr*screen_width], &display2[cr*screen_width+4], screen_width-4);
+          memset(&display2[cr*screen_width+screen_width-4], 0, 4);
+      }
+      if (BIT7CTL) updatedisplay();   
+      break;  
+    case SCHIP_EXIT:
+      schip_exit_flag = true;
+      break;  
+    case SCHIP_LOW:
+      emumode = CHIP8;
+      chip8_cls();
+      break;  
+    case SCHIP_HIGH:
+      emumode = SCHIP;
+      chip8_cls();
+      break;  
 		}
-		break;
+    switch (y)
+    {
+      case SCHIP_SCD: //scroll display n lines down
+        memmove (&display2[screen_width*(inst&0x000F)], display2, sizeof(display2)-screen_width*(inst&0x000F));
+        memset (display2, 0, screen_width*(inst&0x000F));
+        if (BIT7CTL) updatedisplay();
+      break;
+    }
+  }
+  break;
 
-	case CHIP8_MATH: //extended math instruction
+	case CHIP8_MATH: //extended math instructions
 		op2 = inst & 0xF;
 		switch (op2)
 		{
@@ -794,8 +905,13 @@ uint8_t do_cpu()
 			I += reg[x];
 			break;
 		case CHIP8_EXTF_FONT: //fontchip i
+      memcpy_P(&mem[fontchip_OFFSET], fontchip, 16 * 5);
 			I = fontchip_OFFSET + (reg[x] * 5);
 			break;
+    case CHIP8_EXTF_XFONT: //font schip i
+      memcpy_P(&mem[fontchip_OFFSET], fontschip, 16 * 10);
+      I = fontchip_OFFSET + (reg[x] * 10);
+      break;  
 		case CHIP8_EXTF_BCD: //bcd
 			mem[I] = reg[x] / 100;
 			mem[I + 1] = (reg[x] / 10) % 10;
@@ -811,22 +927,23 @@ uint8_t do_cpu()
 			if (!BIT2CTL)
 				I = I + x + 1;
 			break;
+     case SCHIP_EXTF_LDr:
+      memcpy (schip_reg, reg, x);
+      break;
+     case SCHIP_EXTF_LDxr:
+      memcpy (reg, schip_reg, x);
+      break;
 		}
 		break;
 	}
-	return (0);
+    return (0);
 }
+
 
 void do_emulation()
 {
 	uint16_t c = 0;
 	timers.attach_ms((uint8_t)(1000.0f / (float)timers_emu), chip8timers);
-	memcpy_P(&mem[fontchip_OFFSET], &fontchip[0], 16 * 5);
-  if (((mem[0x200] << 8) + mem[0x200+1]) == 0x1260){
-    emumode = HIRES;
-    chip8_cls();
-    pc += 2;    
-  }
 	while (1)
 	{
 		if (c < opcodesperframe_emu)
@@ -849,6 +966,11 @@ void do_emulation()
 			if (waitkeyunpressed() > 300)
 				break;
 		}
+    if (schip_exit_flag)
+    {
+      schip_exit_flag = false;
+      break;
+    }
 	}
 	timers.detach();
 }
