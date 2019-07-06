@@ -63,10 +63,6 @@ DXYN OUT OF SCREEN checkbit6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
 
-FORCING CHIP8 HIRES 64х64
-bit9 = 1    hires forcing on
-bit9 = 0    hires forcing off
-
 */
 
 
@@ -80,7 +76,7 @@ bit9 = 0    hires forcing off
 #define BIT8CTL (compatibility_emu & 128)
 #define BIT9CTL (compatibility_emu & 256)
 
-#define DEFAULTCOMPATIBILITY    0b0000000101000011 //bit bit8,bit7...bit1;
+#define DEFAULTCOMPATIBILITY    0b0000000001000011 //bit bit8,bit7...bit1;
 #define DEFAULTOPCODEPERFRAME   40
 #define DEFAULTTIMERSFREQ       60 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
@@ -196,7 +192,7 @@ enum EMUMODE {
   HIRES,
   SCHIP,
 };
-EMUMODE emumode;
+EMUMODE emumode = CHIP8;
 
 
 TFT_eSPI tft = TFT_eSPI();
@@ -399,6 +395,7 @@ uint8_t drawsprite16x16(uint8_t x, uint8_t y)
 
 void chip8_reset()
 {
+  emumode = CHIP8;
   chip8_cls();
   stimer = 0;
   dtimer = 0;
@@ -650,13 +647,13 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_JP: // jp xyz
- //   if (xxx != HIRES_ON)
-		  pc = xxx;
-//    else 
- //   {
- //     emumode = HIRES;
- //     chip8_cls();
- //   }
+    if (xxx == HIRES_ON && emumode == CHIP8) 
+    {
+      emumode = HIRES;
+      chip8_cls();
+    }
+    else
+      pc = xxx;
 		break;
 
 	case CHIP8_SEx: // sex:  skip next opcode if r(x)=zz
@@ -956,12 +953,6 @@ void do_emulation()
 {
 	uint16_t c = 0;
 	timers.attach_ms((uint8_t)(1000.0f / (float)timers_emu), chip8timers);
-  Serial.println(compatibility_emu);
-  Serial.println(BIT9CTL);
-  if (BIT9CTL)
-    emumode = HIRES;
-	else
-    emumode = CHIP8;
 	chip8_cls();
 	while (1)
 	{
