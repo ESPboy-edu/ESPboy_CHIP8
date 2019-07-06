@@ -156,7 +156,7 @@ uint8_t   mem[0x1000];
 uint8_t   reg[0x10];    // ram 0x0 - 0xF
 int16_t   stack[0x10];  // ram 0x16 - 0x36???  EA0h-EFFh
 uint8_t   sp, VF = 0xF; 
-volatile uint8_t stimer, dtimer;
+volatile static uint8_t stimer, dtimer;
 uint16_t  pc, I;
 uint8_t   schip_exit_flag = false;
 uint8_t   schip_reg[15];
@@ -245,22 +245,11 @@ void chip8_cls()
   memset(display2, 0, sizeof(display2));
   memset(display1, 0, sizeof(display2));
   tft.fillScreen(TFT_BLACK);
-//  updatedisplay(); 
 }
 
 
-void updatedisplay(){
-  if (emumode == SCHIP)
-      update_display_schip();
-  else
-      update_display_chip8();
-     
-}
-
-
-
-void update_display_chip8()
-{
+void updatedisplay()
+{    
   static uint8_t drawcolor, i, j;
   static uint16_t addr;
   //static unsigned long tme;
@@ -268,7 +257,10 @@ void update_display_chip8()
   for (i = 0; i < screen_height; i++)
     for (j = 0; j < screen_width; j++) 
     {
-      addr = (i << 6) + j;
+      if (emumode == SCHIP)
+          addr = (i << 7) + j;
+      else
+          addr = (i << 6) + j;
       if (display1[addr] ^= display2[addr])
       {
        if (display2[addr])
@@ -282,6 +274,9 @@ void update_display_chip8()
           case HIRES:
             tft.fillRect(j << 1, i << 1, 2, 2, colors[drawcolor]);
             break;
+          case SCHIP:
+            tft.drawPixel(j, i+16, colors[drawcolor]);
+            break;
         }
       }
     }
@@ -291,42 +286,17 @@ void update_display_chip8()
 
 
 
-void update_display_schip()
-{
-  static uint8_t drawcolor, i, j;
-  static uint16_t addr;
-  //static unsigned long tme;
-  //  tme=millis();
-  for (i = 0; i < 64; i++)
-    for (j = 0; j < 128; j++) 
-    {
-      addr = (i << 7) + j;
-      if (display1[addr] ^= display2[addr])
-      {
-       if (display2[addr])
-          drawcolor = foreground_emu;
-        else
-          drawcolor = background_emu;
-            tft.drawPixel(j, i+16, colors[drawcolor]);
-      }
-    }
-    memcpy(display1, display2, sizeof(display1));
-  //   Serial.println(millis()-tme);
-}
-
-
 
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 {
- static uint8_t data, mask, masked, xs, ys, c, d, ret, preret, drw;
+ static uint8_t data, mask, masked, xs, ys, c, d, ret, preret;
  static uint16_t addrdisplay;
  if (!size && emumode == SCHIP)
-    return (drawsprite16x16(x, y));
+      return (drawsprite16x16(x, y));
  else   
   {
     ret=0; 
     preret=0;
-    drw=0;
     if (!size) size = 16;
     for(c=0; c<size; c++){
       data = mem[I+c];
@@ -347,14 +317,13 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
         masked = !!(data & mask);
         if ((xs < screen_width) && (ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
-          else drw++;
           display2[addrdisplay] ^= masked;
         }
         mask >>= 1;
       }
       if (preret) ret++;
     }
-    if (BIT7CTL && drw) updatedisplay();
+    if (BIT7CTL) updatedisplay();
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
   }
@@ -363,31 +332,33 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 
 uint8_t drawsprite16x16(uint8_t x, uint8_t y)
 {
-  static uint8_t xs, ys, c, d, ret, preret, drw;
+  static uint8_t xs, ys, c, d, ret, preret;
   static uint16_t addrdisplay, mask, masked, data;
     ret=0; 
     preret=0;
-    drw=0;
     for(c=0; c<16; c++){
       data = (((mem[I+(c<<1)])<<8) + mem[I+(c<<1)+1]);
       mask=32768;
       preret=0;
       ys = y+c;
+      if (BIT4CTL)
+          ys %= screen_height;
       if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
       for (d = 0; d < 16; d++){
         xs = x + d;
+        if (BIT4CTL)
+            xs %= screen_width;
         addrdisplay = (ys << 7) + xs;
         masked = !!(data & mask);
         if ((xs < screen_width) && (ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
-          else drw++;
           display2[addrdisplay] ^= masked;
         }
         mask >>= 1;
       }
       if (preret) ret++;
     }
-    if (BIT7CTL && drw) updatedisplay();
+    if (BIT7CTL) updatedisplay();
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
 }
@@ -881,12 +852,10 @@ uint8_t do_cpu()
 		switch (zz)
 		{
 		case CHIP8_SK_RP: // skipifkey
-			//updatedisplay();
 			if (iskeypressed(reg[x]))
 				pc += 2;
 			break;
 		case CHIP8_SK_UP: // skipifnokey
-			//updatedisplay();
 			if (!iskeypressed(reg[x]))
 				pc += 2;
 			break;
@@ -898,14 +867,12 @@ uint8_t do_cpu()
 		{
 		case CHIP8_EXTF_GDELAY: // getdelay
 			reg[x] = dtimer;
-			updatedisplay();
 			break;
 		case CHIP8_EXTF_KEY: //waitkey
 			reg[x] = waitanykey();
 			break;
 		case CHIP8_EXTF_SDELAY: //setdelay
 			dtimer = reg[x];
-			//updatedisplay();
 			break;
 		case CHIP8_EXTF_SSOUND: //setsound
 			stimer = reg[x];
@@ -965,8 +932,7 @@ void do_emulation()
 		}
 		else
 		{
-			if (!BIT7CTL)
-				updatedisplay();
+			if (!BIT7CTL) updatedisplay();
 			c = 0;
 		}
     checkbuttons();
