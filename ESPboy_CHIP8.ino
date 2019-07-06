@@ -63,9 +63,9 @@ DXYN OUT OF SCREEN checkbit6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
 
-FORCING SCHIP
-bit9 = 1    super chip forcing on
-bit9 = 0    super chip forcing off
+FORCING CHIP8 HIRES 64х64
+bit9 = 1    hires forcing on
+bit9 = 0    hires forcing off
 
 */
 
@@ -247,7 +247,9 @@ void chip8_cls()
       break;
   }  
   memset(display2, 0, sizeof(display2));
-  updatedisplay(); 
+  memset(display1, 0, sizeof(display2));
+  tft.fillScreen(TFT_BLACK);
+//  updatedisplay(); 
 }
 
 
@@ -259,10 +261,12 @@ void updatedisplay(){
      
 }
 
+
+
 void update_display_chip8()
 {
-  static uint8_t drawcolor;
-  static uint16_t i, j, addr;
+  static uint8_t drawcolor, i, j;
+  static uint16_t addr;
   //static unsigned long tme;
   //  tme=millis();
   for (i = 0; i < screen_height; i++)
@@ -289,10 +293,12 @@ void update_display_chip8()
   //   Serial.println(millis()-tme);
 }
 
+
+
 void update_display_schip()
 {
-  static uint8_t drawcolor;
-  static uint16_t i, j, addr;
+  static uint8_t drawcolor, i, j;
+  static uint16_t addr;
   //static unsigned long tme;
   //  tme=millis();
   for (i = 0; i < 64; i++)
@@ -371,13 +377,9 @@ uint8_t drawsprite16x16(uint8_t x, uint8_t y)
       mask=32768;
       preret=0;
       ys = y+c;
-      if (BIT4CTL)
-        ys %= screen_height;
       if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
       for (d = 0; d < 16; d++){
         xs = x + d;
-        if (BIT4CTL)
-          xs %= screen_width;
         addrdisplay = (ys << 7) + xs;
         masked = !!(data & mask);
         if ((xs < screen_width) && (ys < screen_height)){
@@ -648,13 +650,13 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_JP: // jp xyz
-    if (xxx != HIRES_ON)
+ //   if (xxx != HIRES_ON)
 		  pc = xxx;
-    else 
-    {
-      emumode = HIRES;
-      chip8_cls();
-    }
+//    else 
+ //   {
+ //     emumode = HIRES;
+ //     chip8_cls();
+ //   }
 		break;
 
 	case CHIP8_SEx: // sex:  skip next opcode if r(x)=zz
@@ -957,7 +959,7 @@ void do_emulation()
   Serial.println(compatibility_emu);
   Serial.println(BIT9CTL);
   if (BIT9CTL)
-    emumode = SCHIP;
+    emumode = HIRES;
 	else
     emumode = CHIP8;
 	chip8_cls();
