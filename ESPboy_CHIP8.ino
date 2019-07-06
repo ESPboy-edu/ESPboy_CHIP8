@@ -62,7 +62,13 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN checkbit6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
+
+FORCING SCHIP
+bit9 = 1    super chip forcing on
+bit9 = 0    super chip forcing off
+
 */
+
 
 #define BIT1CTL (compatibility_emu & 1)
 #define BIT2CTL (compatibility_emu & 2)
@@ -72,8 +78,9 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 #define BIT6CTL (compatibility_emu & 32)
 #define BIT7CTL (compatibility_emu & 64)
 #define BIT8CTL (compatibility_emu & 128)
+#define BIT9CTL (compatibility_emu & 256)
 
-#define DEFAULTCOMPATIBILITY    0b01000011 //bit bit8,bit7...bit1;
+#define DEFAULTCOMPATIBILITY    0b0000000101000011 //bit bit8,bit7...bit1;
 #define DEFAULTOPCODEPERFRAME   40
 #define DEFAULTTIMERSFREQ       60 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
@@ -161,7 +168,7 @@ uint8_t   schip_reg[15];
 static uint8_t   keys[8]={0};
 static uint8_t   foreground_emu;
 static uint8_t   background_emu;
-static uint8_t   compatibility_emu;   // look above
+static uint16_t  compatibility_emu;   // look above
 static uint8_t   delay_emu;           // delay in microseconds before next opcode done
 static uint8_t   opcodesperframe_emu; // how many opcodes should be done before screen updates
 static uint8_t   timers_emu;          // freq of timers. standart 60hz
@@ -189,7 +196,7 @@ enum EMUMODE {
   HIRES,
   SCHIP,
 };
-EMUMODE emumode = CHIP8;
+EMUMODE emumode;
 
 
 TFT_eSPI tft = TFT_eSPI();
@@ -309,8 +316,12 @@ void update_display_schip()
 
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 {
-  static uint8_t data, mask, masked, xs, ys, c, d, ret, preret, drw;
-  static uint16_t addrdisplay;
+ static uint8_t data, mask, masked, xs, ys, c, d, ret, preret, drw;
+ static uint16_t addrdisplay;
+ if (!size && emumode == SCHIP)
+    return (drawsprite16x16(x, y));
+ else   
+  {
     ret=0; 
     preret=0;
     drw=0;
@@ -327,7 +338,10 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
         xs = x + d;
         if (BIT4CTL)
           xs %= screen_width;
-        addrdisplay = (ys << 6) + xs;
+        if (emumode == SCHIP)
+            addrdisplay = (ys << 7) + xs;
+        else
+            addrdisplay = (ys << 6) + xs;
         masked = !!(data & mask);
         if ((xs < screen_width) && (ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
@@ -341,19 +355,19 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
     if (BIT7CTL && drw) updatedisplay();
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
+  }
 }
 
 
-uint8_t drawssprite(uint8_t x, uint8_t y, uint8_t size)
+uint8_t drawsprite16x16(uint8_t x, uint8_t y)
 {
-  static uint8_t data, masked, xs, ys, c, d, ret, preret, drw;
-  static uint16_t addrdisplay, mask;
+  static uint8_t xs, ys, c, d, ret, preret, drw;
+  static uint16_t addrdisplay, mask, masked, data;
     ret=0; 
     preret=0;
     drw=0;
-    if (!size) size = 16;
-    for(c=0; c<size; c++){
-      data = mem[I+c];
+    for(c=0; c<16; c++){
+      data = (((mem[I+(c<<1)])<<8) + mem[I+(c<<1)+1]);
       mask=32768;
       preret=0;
       ys = y+c;
@@ -383,7 +397,6 @@ uint8_t drawssprite(uint8_t x, uint8_t y, uint8_t size)
 
 void chip8_reset()
 {
-  emumode = CHIP8;
   chip8_cls();
   stimer = 0;
   dtimer = 0;
@@ -687,10 +700,7 @@ uint8_t do_cpu()
 		break;
 
 	case CHIP8_DRW: //draw sprite
-    if (emumode == SCHIP)
-		    reg[VF] = drawssprite(reg[x], reg[y], inst & 0xF);
-    else
-        reg[VF] = drawsprite(reg[x], reg[y], inst & 0xF);
+    reg[VF] = drawsprite(reg[x], reg[y], inst & 0xF);
 		break;
 
     
@@ -944,6 +954,13 @@ void do_emulation()
 {
 	uint16_t c = 0;
 	timers.attach_ms((uint8_t)(1000.0f / (float)timers_emu), chip8timers);
+  Serial.println(compatibility_emu);
+  Serial.println(BIT9CTL);
+  if (BIT9CTL)
+    emumode = SCHIP;
+	else
+    emumode = CHIP8;
+	chip8_cls();
 	while (1)
 	{
 		if (c < opcodesperframe_emu)
@@ -974,6 +991,8 @@ void do_emulation()
 	}
 	timers.detach();
 }
+
+
 
 void draw_loading(bool reset = false)
 {
