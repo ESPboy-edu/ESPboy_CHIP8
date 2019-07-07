@@ -1,12 +1,12 @@
-4 2 7 6 5 5 4 6
-15
-0
+7 10 13 8 10 10 7 8
+16
 2
-80
+1
+64
 30
 60
 200
-Breakout (Brix hack), by: David Winter. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
+Car - driving game by K. v. Sengbusch (C)1994. This game simulates a racing car. The other cars are a big dumb, though. They seem to have all stalled.
 
 
 
@@ -33,7 +33,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]   B[11]  F[15]
+A[10] 0[0]  B[11]   F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

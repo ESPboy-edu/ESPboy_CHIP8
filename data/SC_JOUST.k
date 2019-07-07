@@ -1,13 +1,12 @@
-4 2 7 6 5 5 4 6
-15
-0
-2
-80
+3 10 10 12 10 10 3 12
+17
+8
+1
+64
 30
 60
 200
-Breakout (Brix hack), by: David Winter. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
-
+Joust - arcade game by Erin S Catto <catto@ecn.perdue.edu>, 1991. Jump to the head of all enemies to win.
 
 
 //INSTRUCTIONS
@@ -41,6 +40,7 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
+
 
 3. BACKGROUND COLOR
 no of color according to the same list

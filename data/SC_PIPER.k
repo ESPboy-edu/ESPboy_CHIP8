@@ -1,12 +1,12 @@
-4 2 7 6 5 5 4 6
-15
+7 3 6 8 1 4 15 15
+10
 0
-2
-80
+7
+67
 30
 60
 200
-Breakout (Brix hack), by: David Winter. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
+Hpiper - plumbing game by Paul Raines <vapsppr@prism.gatech.edu>, 1991.
 
 
 
@@ -33,7 +33,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]   B[11]  F[15]
+A[10] 0[0]  B[11]   F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

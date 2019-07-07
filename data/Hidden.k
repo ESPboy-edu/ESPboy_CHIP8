@@ -6,7 +6,7 @@
 30
 60
 200
-by David Winter, 1996. It's a "memory" game. It is very simple to play. You are playing in a 4*4 card grid. You can see only two cards at the same time. Once this time passed, these two cards will remain shown if they are identical, otherwise they will be hidden again.
+Hidden − find pairs of cards by David Winter, 1991. It's a "memory" game. It is very simple to play. You are playing in a 4*4 card grid. You can see only two cards at the same time. Once this time passed, these two cards will remain shown if they are identical, otherwise they will be hidden again.
 
 
 //INSTRUCTIONS
@@ -29,20 +29,20 @@ ESPboy keys
 0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
 
 Chip8 keys
-1     2     3     C[13]
-4     5     6     D[14]
-7     8     9     E[15]
-A[11] 0[10] B[12] F[16]
+1     2     3       C[12]
+4     5     6       D[13]
+7     8     9       E[14]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
-no of color according to the list  
-0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON 
-5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE  
+no of color according to the list
+0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON
+5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
 
 3. BACKGROUND COLOR
-no of color according to the same list 
+no of color according to the same list
 
 4. DELAY
 delay in microseconds before each instruction
@@ -83,11 +83,11 @@ bit7 = 1    draw to TFT just after changing pixel by drawsprite() not on timer
 bit7 = 0    redraw all TFT from display on timer
 
 DXYN OUT OF SCREEN check bit 6
-bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value 
-bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value 
+bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
+bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
 */
 
-for example for AstroDodge game should be set as (binary)01000011 = (decimal)67 
+for example for AstroDodge game should be set as (binary)01000011 = (decimal)67
 
 
 6. Quantity of opcodes runs till screen update. Works if you don't use TFT_DRAW bit7 of COMPATIBILITY FLAGS
@@ -99,4 +99,4 @@ Setting up the frequency of CHIP8 timers. Standart is 60Hz
 the freq tone of sound
 
 9. GAME INFO
-write 314 symbols of information you'll see before the game starts 
+write 314 symbols of information you'll see before the game starts

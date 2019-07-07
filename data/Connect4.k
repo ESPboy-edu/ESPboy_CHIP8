@@ -1,12 +1,12 @@
-4 2 7 6 5 5 4 6
+4 11 5 6 5 11 4 6
 15
 0
-2
-80
+10
+192
 30
 60
 200
-Breakout (Brix hack), by: David Winter. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
+Connect4 - two player join the dots by David Winter <winter@worldnet.net>. The goal is to align 4 coins in the game area. Each player’s coins are colored. When you drop a coin, it is paced on the latest dropped coin in the same column, or at the bottom if the column is empty.
 
 
 

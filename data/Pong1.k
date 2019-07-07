@@ -1,12 +1,12 @@
-4 2 7 6 5 5 4 6
+1 1 4 4 12 13 1 4
 15
-0
+1
 2
-80
+192
 30
 60
 200
-Breakout (Brix hack), by: David Winter. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
+Pong by Paul Vervalin, 1990. For one player.
 
 
 

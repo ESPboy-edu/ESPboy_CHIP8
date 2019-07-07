@@ -1,13 +1,12 @@
-4 2 7 6 5 5 4 6
-15
-0
+3 10 10 12 10 10 3 12
+14
 2
-80
+1
+227
 30
 60
 200
-Breakout (Brix hack), by: David Winter. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
-
+ANT - In search of Coke by Erin S Catto <catto@ecn.purdue.edu> (C)1991. Your mission as Bink to find a safe path to the Coke can so that others may follow. Beware, however, for Zoom has set many treacherous obsticles to block you and booby traps to zap you.
 
 
 //INSTRUCTIONS
@@ -33,7 +32,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]   B[11]  F[15]
+A[10] 0[0]  B[11]   F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list
@@ -41,6 +40,7 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
+
 
 3. BACKGROUND COLOR
 no of color according to the same list

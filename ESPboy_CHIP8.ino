@@ -203,10 +203,10 @@ Ticker timers;
 
 //keymapping 0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
 static uint8_t default_buttons[8] = { 4, 2, 8, 6, 5, 11, 4, 6 };
-//1     2     3     C[13]
-//4     5     6     D[14]
-//7     8     9     E[15]
-//A[11] 0[10] B[12] F[16]
+//1     2    3     C[12]
+//4     5    6     D[13]
+//7     8    9     E[14]
+//A[10] 0    B[11] F[15]
 
 
 void chip8timers()
@@ -243,8 +243,10 @@ void chip8_cls()
       break;
   }  
   memset(display2, 0, sizeof(display2));
-  memset(display1, 0, sizeof(display2));
+  memset(display1, 1, sizeof(display2));
   tft.fillScreen(TFT_BLACK);
+  updatedisplay();
+  
 }
 
 
@@ -311,9 +313,10 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
         if (BIT4CTL)
           xs %= screen_width;
         if (emumode == SCHIP)
-            addrdisplay = (ys << 7) + xs;
+            addrdisplay = (ys << 7);
         else
-            addrdisplay = (ys << 6) + xs;
+            addrdisplay = (ys << 6);
+        addrdisplay += xs;    
         masked = !!(data & mask);
         if ((xs < screen_width) && (ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;

@@ -1,12 +1,13 @@
-4 2 7 6 5 5 4 6
-15
-0
-2
-80
+7 8 14 9 14 12 7 8
+14
+1
+1
+67
 30
 60
 200
-Breakout (Brix hack), by: David Winter. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
+UBoat - Sink the submarines by Michael D. Kemper, 1994. The premise of the game is fairly simple. You are the Captain of a sub hunting destroyer, and your objective is to sink as many enemy U-Boats as you can. Your only weapon against the U-Boats is your ship’s supply of depth charges.
+
 
 
 
@@ -33,7 +34,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]   B[11]  F[15]
+A[10] 0[0]  B[11]   F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list
@@ -41,6 +42,7 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
+
 
 3. BACKGROUND COLOR
 no of color according to the same list
