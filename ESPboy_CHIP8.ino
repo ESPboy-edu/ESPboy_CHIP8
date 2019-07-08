@@ -153,13 +153,13 @@ static const uint8_t PROGMEM fontschip[16 * 10] = {
 
 
 uint8_t   mem[0x1000]; 
-uint8_t   reg[0x10];    // ram 0x0 - 0xF
-int16_t   stack[0x10];  // ram 0x16 - 0x36???  EA0h-EFFh
+int16_t   stack[0x10]; 
 uint8_t   sp, VF = 0xF; 
 volatile static uint8_t stimer, dtimer;
 uint16_t  pc, I;
 uint8_t   schip_exit_flag = false;
-uint8_t   schip_reg[15];
+uint8_t   reg[0x10];    
+uint8_t   schip_reg[0x10];
 
 static uint8_t   keys[8]={0};
 static uint8_t   foreground_emu;
@@ -694,16 +694,16 @@ uint8_t do_cpu()
     case SCHIP_SCR:
       for (cr=0; cr<screen_height; cr++)
         {
-          memmove(&display2[cr*screen_width+4], &display2[cr*screen_width], screen_width-4);
-          memset(&display2[cr*screen_width], 0, 4);
+          memmove(&display2[cr*screen_width+4], &display2[cr*screen_width], sizeof(uint8_t)*screen_width-4);
+          memset(&display2[cr*screen_width], 0, sizeof(uint8_t)*4);
         }
       if (BIT7CTL) updatedisplay();  
       break;  
     case SCHIP_SCL:
       for (cr=0; cr<screen_height; cr++)
       {
-          memmove(&display2[cr*screen_width], &display2[cr*screen_width+4], screen_width-4);
-          memset(&display2[cr*screen_width+screen_width-4], 0, 4);
+          memmove(&display2[cr*screen_width], &display2[cr*screen_width+4], sizeof(uint8_t)*screen_width-4);
+          memset(&display2[cr*screen_width+screen_width-4], 0, sizeof(uint8_t)*4);
       }
       if (BIT7CTL) updatedisplay();   
       break;  
@@ -722,8 +722,8 @@ uint8_t do_cpu()
     switch (y)
     {
       case SCHIP_SCD: //scroll display n lines down
-        memmove (&display2[screen_width*(inst&0x000F)], display2, sizeof(display2)-screen_width*(inst&0x000F));
-        memset (display2, 0, screen_width*(inst&0x000F));
+        memmove (&display2[screen_width*(inst&0x000F)], display2, sizeof(display2)-sizeof(uint8_t)*screen_width*(inst&0x000F));
+        memset (display2, 0, sizeof(uint8_t)*screen_width*(inst&0x000F));
         if (BIT7CTL) updatedisplay();
       break;
     }
@@ -765,12 +765,12 @@ uint8_t do_cpu()
 		case CHIP8_MATH_SUB: //sub
 			if (BIT3CTL)
 			{   // carry first
-				reg[VF] = reg[y] < reg[x];
+				reg[VF] = reg[y] <= reg[x];
 				reg[x] = reg[x] - reg[y];
 			}
 			else
 			{
-				cr = reg[y] < reg[x];
+				cr = reg[y] <= reg[x];
 				reg[x] = reg[x] - reg[y];
 				reg[VF] = cr;
 			}
@@ -808,12 +808,12 @@ uint8_t do_cpu()
 		case CHIP8_MATH_RSB: //rsb
 			if (BIT3CTL)
 			{   // carry first
-				reg[VF] = reg[y] > reg[x];
+				reg[VF] = reg[y] >= reg[x];
 				reg[x] = reg[y] - reg[x];
 			}
 			else 
 			{
-				cr = reg[y] > reg[x];
+				cr = reg[y] >= reg[x];
 				reg[x] = reg[y] - reg[x];
 				reg[VF] = cr;
 			}
@@ -882,6 +882,13 @@ uint8_t do_cpu()
 			break;
 		case CHIP8_EXTF_ADI: //add i+r(x)
 			I += reg[x];
+      if( I > 0xFFF)
+      {
+        I %= 0xFFF;
+        reg[VF] = 1;
+      }
+      else 
+        reg[VF] = 0;
 			break;
 		case CHIP8_EXTF_FONT: //fontchip i
       memcpy_P(&mem[fontchip_OFFSET], fontchip, 16 * 5);
@@ -897,20 +904,20 @@ uint8_t do_cpu()
 			mem[I + 2] = reg[x] % 10;
 			break;
 		case CHIP8_EXTF_STR: //save
-			memcpy(&mem[I], reg, x + 1);
+			memcpy(&mem[I], reg, sizeof(uint8_t) * x + 1);
 			if (!BIT2CTL)
 				I = I + x + 1;
 			break;
 		case CHIP8_EXTF_LDR: //load
-			memcpy(reg, &mem[I], x + 1);
+			memcpy(reg, &mem[I], sizeof(uint8_t) * x + 1);
 			if (!BIT2CTL)
 				I = I + x + 1;
 			break;
      case SCHIP_EXTF_LDr:
-      memcpy (schip_reg, reg, x);
+      memcpy (schip_reg, reg, sizeof(uint8_t) * ((x&7)+1));
       break;
      case SCHIP_EXTF_LDxr:
-      memcpy (reg, schip_reg, x);
+      memcpy (reg, schip_reg, sizeof(uint8_t) * ((x&7)+1));
       break;
 		}
 		break;
