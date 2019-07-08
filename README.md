@@ -1,7 +1,7 @@
-ESPboy chip8/schip accurate emulator by RomanS based on ideas of Alvaro Alea Fernandez Chip-8 emulator.
+ESPboy chip8/hires/schip emulator by RomanS
 ================
 
-Special thanks to Igor (corax89), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo) for help
+Special thanks to Igor (corax89), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo) for help and Alvaro Alea Fernandez for his Chip-8 emulator
 
 Implemented almost all known features and "bugs"
 Super Chip implementation is on the way )
@@ -63,10 +63,10 @@ ESPboy keys
 0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
 
 Chip8 keys
-1     2     3     C[13]
-4     5     6     D[14]
-7     8     9     E[15]
-A[11] 0[10] B[12] F[16]
+1     2     3     C[12]
+4     5     6     D[13]
+7     8     9     E[14]
+A[10] 0[0] B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list  
