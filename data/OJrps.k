@@ -1,12 +1,12 @@
-4 8 2 5 5 11 4 6
+10 11 11 0 11 11 10 11
 14
-1
+0
 2
-203
+72
 30
 60
 200
-Press to fire depth charges at the subs below.  You score 15 points for a small sub and 5 points for the larger. You get 25 depth charges to start.
+Chip8 25.10.2015 classic [Rock-Paper-Scissors] game by SystemLogoff https://systemlogoff.com  Use keys <   >  ^
 
 
 //INSTRUCTIONS
@@ -32,7 +32,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

@@ -1,12 +1,13 @@
-4 8 2 5 5 11 4 6
-14
+7 5 8 9 6 13 7 9
+8
+7
 1
-2
-203
+147
 30
 60
 200
-Press to fire depth charges at the subs below.  You score 15 points for a small sub and 5 points for the larger. You get 25 depth charges to start.
+Schip 01.11.2016 [Black Rainbow] by John Earnest. Plumb the depths of your subconscious and bring back the motherlode... Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/blackrainbow
+
 
 
 //INSTRUCTIONS
@@ -32,7 +33,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

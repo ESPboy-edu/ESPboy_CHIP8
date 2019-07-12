@@ -1,12 +1,12 @@
-4 8 2 5 5 11 4 6
-14
-1
-2
-203
+7 5 8 9 6 13 7 9
+0
+16
+7
+64
 30
 60
 200
-Press to fire depth charges at the subs below.  You score 15 points for a small sub and 5 points for the larger. You get 25 depth charges to start.
+Schip 01.09.2014 [Ultimate Tic-tac-toe] by ???? Source: https://github.com/JohnEarnest/chip8Archive/tree/master/src/ultimatetictactoe
 
 
 //INSTRUCTIONS
@@ -32,7 +32,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list
