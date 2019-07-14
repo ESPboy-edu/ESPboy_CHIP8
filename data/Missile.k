@@ -1,12 +1,12 @@
 4 8 7 6 8 8 4 5
 16
 5
-1
+1000
 195
 30
 60
 200
-Missile - shoot the target by David Winter <winter@worldnet.net>, 1991. You must shoot the 8 targets on the screen. Your shooter moves a little bit faster each time you shoot. You have 12 missiles to shoot all the targets, and you win 5 points per target shot.
+Missile by David Winter <winter@worldnet.net>, 1991. Shoot the target. You must shoot the 8 targets on the screen. Your shooter moves a little bit faster each time you shoot. You have 12 missiles to shoot all the targets, and you win 5 points per target shot.
 
 
 //INSTRUCTIONS

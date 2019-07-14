@@ -1,12 +1,12 @@
 4 2 8 6 5 0 3 1
 15
 0
-1
+1000
 195
 30
 60
 200
-by John Fort. Position up to 10 mirrors on the display screen. The object of the game is to deflect a ball of the mirrors a maximum number of times before hitting the target.
+Deflection by John Fort. Position up to 10 mirrors on the display screen. The object of the game is to deflect a ball of the mirrors a maximum number of times before hitting the target.
 
 
 //INSTRUCTIONS

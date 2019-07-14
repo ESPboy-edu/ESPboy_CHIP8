@@ -1,12 +1,12 @@
 7 3 6 8 15 15 7 8
 18
 0
-1
+500
 67
 30
 60
 200
-By Hans Christian Egeberg 1991. Classical Pac-Man
+Blinky by Hans Christian Egeberg, 1991. Classic Pac-Man port. 
 
 
 

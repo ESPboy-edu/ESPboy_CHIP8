@@ -1,12 +1,12 @@
 5 3 7 6 4 4 5 6
 10
 0
-1
+1000
 200
 30
 60
 200
-by Fran Dachille. This is my first release of the famous Tetris game on the HP48S. I was inspired by the lack enjoyable games for our favorite handheld. At my college, every person who picks up my calculator is immediately hooked for hours.
+Tetris clone by Fran Dachille, 1991. This is my first release of the famous Tetris game on the HP48S. I was inspired by the lack enjoyable games for our favorite handheld. At my college, every person who picks up my calculator is immediately hooked for hours.
 
 
 

@@ -1,12 +1,12 @@
 3 10 10 12 10 10 3 12
 14
 2
-1
+0
 227
 30
 60
 200
-ANT - In search of Coke by Erin S Catto <catto@ecn.purdue.edu> (C)1991. Your mission as Bink to find a safe path to the Coke can so that others may follow. Beware, however, for Zoom has set many treacherous obsticles to block you and booby traps to zap you.
+ANT by Erin S Catto <catto@ecn.purdue.edu> 1991. In search of Coke. Your mission as Bink to find a safe path to the Coke can so that others may follow. Beware, however, for Zoom has set many treacherous obsticles to block you and booby traps to zap you.
 
 
 //INSTRUCTIONS

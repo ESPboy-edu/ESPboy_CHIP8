@@ -1,12 +1,13 @@
-7 5 8 9 6 13 7 9
-0
-14
+7 5 8 9 14 13 7 9
+16
 1
-72
+0
+64
 30
 60
 200
-Schip 31.08.2014 [Turnober'77] by ????? Roundabout re-makeю Source: https://github.com/JohnEarnest/chip8Archive/tree/master/src/turnover77
+Tank! by Rectus. CHIP8, 31.10.2018. A two player artillery game.  Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/tank
+
 
 
 //INSTRUCTIONS

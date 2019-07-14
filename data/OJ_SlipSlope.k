@@ -1,12 +1,12 @@
 7 5 8 9 6 13 7 9
-8
-7
 1
-147
+11
+500
+72
 30
 60
 200
-Schip 01.11.2016 [Black Rainbow] by John Earnest. Plumb the depths of your subconscious and bring back the motherlode... Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/blackrainbow
+Slippery Slope by John Earnest. CHIP8, 31.10.2018. The ice we skate is getting pretty thin. The water's getting warm so you might as well swim.  Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/slipperyslope
 
 
 

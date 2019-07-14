@@ -1,12 +1,12 @@
 3 10 10 12 10 10 3 12
 17
 8
-1
+0
 64
 30
 60
 200
-Joust - arcade game by Erin S Catto <catto@ecn.perdue.edu>, 1991. Jump to the head of all enemies to win.
+Joust by Erin S Catto <catto@ecn.perdue.edu>, 1991. Arcade game. Jump to the head of all enemies to win.
 
 
 //INSTRUCTIONS

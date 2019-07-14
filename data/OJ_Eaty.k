@@ -1,12 +1,32 @@
 7 5 8 9 6 13 7 9
-1
-11
-1
-72
-30
+0
+16
+0
+8
+800
 60
 200
-Chip8 31.10.2018 [Slippery Slope] by John Earnest. The ice we skate is getting pretty thin. The water's getting warm so you might as well swim.  Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/slipperyslope
+Eaty The Alien by John Earnest. CHIP8, 31.10.2015. An incredible intergalactic adventure. Details and help: https://github.com/JohnEarnest/chip8Archive/tree/master/src/eaty  Icons in the lower right corner indicate when you are standing on a special area. Find all three parts of Eaty's phone, activate it at the "C" marker and be on the marker with 4 arrows by the time the countdown ends.
+
+
+Eaty The Alien
+#
+#  An incredible intergalactic adventure.
+#
+#  Use ASWD to move Eaty.
+#  Use E to activate Eaty's Magic Neck.
+#
+#  Icons in the lower right corner indicate
+#  when you are standing on a special area.
+#  Find all three parts of Eaty's phone,
+#  activate it at the "C" marker and
+#  be on the marker with 4 arrows by
+#  the time the countdown ends.
+#  Watch your life force- every step you
+#  take on this inhospitable planet drains
+#  your health. Consume Skittles(tm)
+#  candies and drain the essence of flowers
+#  to stay alive.
 
 
 

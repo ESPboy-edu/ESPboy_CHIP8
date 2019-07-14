@@ -1,13 +1,12 @@
-1 2 7 3 8 9 5 0
-14
+4 2 8 6 5 11 4 6
+13
+5
 0
-1000
-64
+66
 30
 60
 200
-VIP Bowling by Gooitzen van der Wal is a great game for recreation and competion requiring skill and a little bit of luck.  This program simulates bowling closely with regular scoring and the option of using three different spins on the ball.
-
+Super AstroDodge by Martijn Wenting / Revival Studios. SCHIP, (C) 18.12.2008. www.revival-studios.com Your goal is to make your way through the asteroids field and dodge the asteroids, scoring points for each asteroid you are able to dodge.
 
 
 //INSTRUCTIONS
@@ -41,6 +40,7 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
+
 
 3. BACKGROUND COLOR
 no of color according to the same list

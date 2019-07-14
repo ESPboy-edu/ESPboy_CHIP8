@@ -1,12 +1,12 @@
-10 11 11 0 11 11 10 11
+7 5 8 9 9 13 7 9
+0
 14
 0
-2
 72
 30
 60
 200
-Chip8 25.10.2015 classic [Rock-Paper-Scissors] game by SystemLogoff https://systemlogoff.com  Use keys <   >  ^
+Turnover77 by ?????. Roundabout re-make. SCHIP, 31.08.2014. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/turnover77
 
 
 //INSTRUCTIONS

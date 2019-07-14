@@ -1,12 +1,12 @@
 7 10 13 8 10 10 7 8
-16
+14
 2
-1
+0
 64
 30
 60
 200
-Car - driving game by K. v. Sengbusch (C)1994. This game simulates a racing car. The other cars are a big dumb, though. They seem to have all stalled.
+Car by K.v. Sengbusch, 1994. Driving game. This game simulates a racing car. The other cars are a big dumb, though. They seem to have all stalled.
 
 
 

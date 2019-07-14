@@ -1,12 +1,12 @@
 4 11 5 6 5 11 4 6
 15
 0
-10
+7000
 192
 30
 60
 200
-Connect4 - two player join the dots by David Winter <winter@worldnet.net>. The goal is to align 4 coins in the game area. Each player’s coins are colored. When you drop a coin, it is paced on the latest dropped coin in the same column, or at the bottom if the column is empty.
+Connect4 by David Winter <winter@worldnet.net>. Two players join the dots. The goal is to align 4 coins in the game area. Each player’s coins are colored. When you drop a coin, it is paced on the latest dropped coin in the same column, or at the bottom if the column is empty.
 
 
 

@@ -1,12 +1,12 @@
 4 2 8 6 5 5 4 6
 14
 0
-7
+5000
 203
 30
 60
 200
-Hidden − find pairs of cards by David Winter, 1991. It's a "memory" game. It is very simple to play. You are playing in a 4*4 card grid. You can see only two cards at the same time. Once this time passed, these two cards will remain shown if they are identical, otherwise they will be hidden again.
+Hidden by David Winter, 1991. Find pairs of cards. It's a "memory" game. It is very simple to play. You are playing in a 4*4 card grid. You can see only two cards at the same time. Once this time passed, these two cards will remain shown if they are identical, otherwise they will be hidden again.
 
 
 //INSTRUCTIONS

@@ -1,14 +1,14 @@
-8 7 9 5 6 13 7 9
-14
-5
-1
-72
+7 5 8 9 6 13 7 9
+8
+7
+0
+147
 30
 60
 200
-Schip 31.08.2017 [Sub-Terr8nia] Lander game by ????. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/sub8
+Black Rainbow by John Earnest. SCHIP, 01.11.2016. Plumb the depths of your subconscious and bring back the motherlode... Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/blackrainbow
 
-//7 5 8 9 6 13 7 9
+
 
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.

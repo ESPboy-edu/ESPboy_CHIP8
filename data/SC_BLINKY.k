@@ -1,12 +1,12 @@
 7 3 6 8 11 1 7 8
 10
 0
-1
+500
 67
 30
 60
 200
-Blinky - PacMan clone by Christian Egeberg <egeberg@solan.unit.no> (C) 1990.
+Blinky by Christian Egeberg <egeberg@solan.unit.no>, 1990. PacMan clone.
 
 
 

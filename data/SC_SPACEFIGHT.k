@@ -1,12 +1,12 @@
 3 10 10 12 10 10 3 12
 10
 5
-1
+0
 67
 30
 60
 200
-Space invaders clone by Carsten Soerensen <u920659@daimi.aau.dk>, 1992.
+Space Fight by Carsten Soerensen <u920659@daimi.aau.dk>, 1992. Space invaders clone.
 
 
 

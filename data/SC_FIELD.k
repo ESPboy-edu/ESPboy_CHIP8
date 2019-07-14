@@ -1,12 +1,12 @@
 8 12 13 7 0 0 8 7
 12
 5
-1
+0
 64
 30
 60
 200
-Field - navigate the asteroid field by Al Roland <droland@eng.auburn.edu> (C)1991. Keep pressed long ACT or ESC to start.
+Field by Al Roland <droland@eng.auburn.edu>,1991. Navigate the asteroid field. Keep pressed long ACT or ESC to start.
 
 
 

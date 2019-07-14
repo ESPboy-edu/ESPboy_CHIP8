@@ -1,12 +1,12 @@
 1 1 4 4 7 7 1 4
-0
+8
 14
-2
-64
+500
+79
 30
 60
 200
-This is a version of the classic game of knock out the bricks by Paul Robson, 1996.
+VertBrix by Paul Robson, 1996. This is a version of the classic game of knock out the bricks.
 
 
 //INSTRUCTIONS

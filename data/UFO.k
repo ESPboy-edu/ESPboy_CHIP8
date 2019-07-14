@@ -1,12 +1,12 @@
 4 5 8 6 5 11 4 6
-17
-0
+16
 1
-195
+2000
+75
 30
 60
 200
-by Lutz V, 1992 You can shoot in three directions. You try to hit one of two objects flying by.  at apparently varying speeds..  Your score is displayed on your left, the number of missles you have left is displayed on your right. (You get 15).
+UFO by Lutz V, 1992. You can shoot in three directions. You try to hit one of two objects flying by.  at apparently varying speeds..  Your score is displayed on your left, the number of missles you have left is displayed on your right. (You get 15).
 
 
 //INSTRUCTIONS

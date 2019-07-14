@@ -1,12 +1,12 @@
 4 1 2 6 2 3 5 6
 18
 0
-2
+2000
 200
 30
 60
 200
-by Udo Pernisz, 1979. You are descending to the floor of a 250-foot crater. Opt1: start at 250 feet, 150 pounds of fuel.  Land at 5 feet per second or less!  Opt2: Start at 250 feet, 200 pounds of fuel.  Land at 3 feet per second or less! Opt3: Start at 32 feet, 100 pounds of fuel.  Land at 3 feet per second or less.
+LunarLander by Udo Pernisz, 1979. You are descending to the floor of a 250-foot crater. Opt1: start at 250 feet, 150 pounds of fuel.  Land at 5 feet per second or less!  Opt2: Start at 250 feet, 200 pounds of fuel.  Land at 3 feet per second or less! Opt3: Start at 32 feet, 100 pounds of fuel.  Land at 3 feet per second or less.
 
 
 //INSTRUCTIONS

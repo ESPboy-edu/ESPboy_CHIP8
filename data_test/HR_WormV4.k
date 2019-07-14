@@ -1,12 +1,12 @@
-7 5 8 9 6 1 7 9
-0
-16
+4 2 8 6 5 11 4 6
+13
+5
 1
-147
+67
 30
 60
 200
-Schip 01.11.2014 [ROCKTO] by SupSuper. Port of famous Boulder Dash game. Details: https://github.com/SupSuper/
+WORMv4 by Martijn Wenting / Revival Studios. CHIP8-HIRES, (C) 10.08.2007. www.revival-studios.com Worm V4 is an update of the SuperChip8 game: Worm3 by RB. The original game was only for SuperChip, so i created a Chip-8 port as well.
 
 
 //INSTRUCTIONS
@@ -40,6 +40,7 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
+
 
 3. BACKGROUND COLOR
 no of color according to the same list

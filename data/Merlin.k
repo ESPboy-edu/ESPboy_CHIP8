@@ -1,12 +1,12 @@
 4 5 7 8 10 10 4 5
 14
 0
-1
+1000
 195
 30
 60
 200
-Merlin - remember the order by Unknown, 1998. This is the Simon game. The goal is to remember in which order the squares are lighted.
+Merlin by David Winter, 1998. Remember the order. This is the Simon game. The goal is to remember in which order the squares are lighted.
 
 
 

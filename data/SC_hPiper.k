@@ -1,12 +1,12 @@
-1 2 7 3 8 9 5 0
-14
+7 3 6 8 1 4 15 15
+10
 0
-1000
-64
+0
+67
 30
 60
 200
-VIP Bowling by Gooitzen van der Wal is a great game for recreation and competion requiring skill and a little bit of luck.  This program simulates bowling closely with regular scoring and the option of using three different spins on the ball.
+Hpiper by Paul Raines <vapsppr@prism.gatech.edu>, 1991. Plumbing game.
 
 
 
@@ -33,7 +33,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]   B[11]  F[15]
+A[10] 0[0]  B[11]   F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

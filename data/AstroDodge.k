@@ -1,13 +1,12 @@
 4 2 8 6 5 11 4 6
 13
 5
-1
-66
+500
+67
 30
 60
 200
-Martijn Wenting / Revival Studios  CHIP8 version  18/12/2008 Your goal is to make your way through the asteroids field and dodge the asteroids, scoring points for each asteroid you are able to dodge.
-
+AstroDodge by Martijn Wenting / Revival Studios. CHIP8, (C) 18.12.2008. www.revival-studios.com Your goal is to make your way through the asteroids field and dodge the asteroids, scoring points for each asteroid you are able to dodge.
 
 
 //INSTRUCTIONS

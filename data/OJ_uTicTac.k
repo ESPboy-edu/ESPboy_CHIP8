@@ -1,13 +1,12 @@
-1 2 7 3 8 9 5 0
-14
+7 5 8 9 6 13 7 9
 0
-1000
+16
+5000
 64
 30
 60
 200
-VIP Bowling by Gooitzen van der Wal is a great game for recreation and competion requiring skill and a little bit of luck.  This program simulates bowling closely with regular scoring and the option of using three different spins on the ball.
-
+Ultimate Tic-tac-toe by ????. SCHIP, 01.09.2014. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/ultimatetictactoe
 
 
 //INSTRUCTIONS

@@ -6,6 +6,8 @@ ESPboy project page:
 https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 */
 
+#include "ESPboyLogo.h"
+#include "ESPboyCHIP8fonts.h"
 #include <FS.h>
 #include <TFT_eSPI.h>
 #include <Wire.h>
@@ -13,7 +15,6 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 #include <Adafruit_MCP23017.h>
 #include <Adafruit_MCP4725.h>
 #include <ESP8266WiFi.h>
-#include "ESPboyLogo.h"
 #include <pgmspace.h>
 
 
@@ -22,8 +23,8 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 #define SOUNDPIN  D3
 
 //system
-#define FONTCHIP_OFFSET       0x38 
-#define FONTSUPERCHIP_OFFSET      0x88
+#define FONTCHIP_OFFSET       0x38 //small chip8 font 8x5
+#define FONTSUPERCHIP_OFFSET  0x88 //large super chip font 8x10
 #define NLINEFILES            14 //no of files in menu
 #define csTFTMCP23017pin      8
 #define LEDquantity           1
@@ -31,14 +32,22 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 #define MCP4725dacresolution  8
 #define MCP4725address        0
 
-
-#define DEFAULTCOMPATIBILITY    0b0000000001001000 //bit bit8,bit7...bit1;
+//default emu parameters
+#define DEFAULTCOMPATIBILITY    0b0000000001000011 //bit bit8,bit7...bit1;
 #define DEFAULTOPCODEPERFRAME   40
 #define DEFAULTTIMERSFREQ       60 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
 #define DEFAULTDELAY            1
 #define DEFAULTSOUNDTONE        300
-#define DEFAULTMAXREFRASHRATE   30
+//#define DEFAULTMAXREFRASHRATE  100
+
+//default keymapping
+//0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
+static uint8_t default_buttons[8] = { 4, 2, 8, 6, 5, 11, 4, 6 };
+//1     2    3     C[12]
+//4     5    6     D[13]
+//7     8    9     E[14]
+//A[10] 0    B[11] F[15]
 
 
 /*compatibility_emu var
@@ -79,7 +88,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 
 */
 
-
+//compatibility bits
 #define BIT1CTL (compatibility_emu & 1)
 #define BIT2CTL (compatibility_emu & 2)
 #define BIT3CTL (compatibility_emu & 4)
@@ -88,7 +97,6 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 #define BIT6CTL (compatibility_emu & 32)
 #define BIT7CTL (compatibility_emu & 64)
 #define BIT8CTL (compatibility_emu & 128)
-
 
 //buttons
 #define LEFT_BUTTON   (buttonspressed & 1)
@@ -99,6 +107,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 #define ESC_BUTTON    (buttonspressed & 32)
 #define LFT_BUTTON    (buttonspressed & 64)
 #define RGT_BUTTON    (buttonspressed & 128)
+
 #define LEFT_BUTTONn  0
 #define UP_BUTTONn    1
 #define DOWN_BUTTONn  2
@@ -109,81 +118,44 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 #define RGT_BUTTONn   7
 
 
-
 //lib colors
-uint16_t colors[] = { TFT_BLACK, TFT_NAVY, TFT_DARKGREEN, TFT_DARKCYAN, TFT_MAROON,
-					 TFT_PURPLE, TFT_OLIVE, TFT_LIGHTGREY, TFT_DARKGREY, TFT_BLUE, TFT_GREEN, TFT_CYAN,
-					 TFT_RED, TFT_MAGENTA, TFT_YELLOW, TFT_WHITE, TFT_ORANGE, TFT_GREENYELLOW, TFT_PINK };
-
-
-static const uint8_t PROGMEM fontchip[16 * 5] = {
-	0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-	0x20, 0x60, 0x20, 0x20, 0x70, // 1
-	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-	0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-	0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-	0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-	0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-	0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-	0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-	0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-	0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-	0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-	0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-	0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-	0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-	0xF0, 0x80, 0xF0, 0x80, 0x80, // F
+uint16_t colors[] = { 
+            TFT_BLACK, TFT_NAVY, TFT_DARKGREEN, TFT_DARKCYAN, TFT_MAROON,
+					  TFT_PURPLE, TFT_OLIVE, TFT_LIGHTGREY, TFT_DARKGREY, TFT_BLUE, TFT_GREEN, TFT_CYAN,
+					  TFT_RED, TFT_MAGENTA, TFT_YELLOW, TFT_WHITE, TFT_ORANGE, TFT_GREENYELLOW, TFT_PINK 
 };
 
-
-static const uint8_t PROGMEM fontschip[16 * 10] = {
-  0x00, 0x3C, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x3C, 0x00, //0
-  0x00, 0x08, 0x38, 0x08, 0x08, 0x08, 0x08, 0x08, 0x3E, 0x00, //1
-  0x00, 0x38, 0x44, 0x04, 0x08, 0x10, 0x20, 0x44, 0x7C, 0x00, //2
-  0x00, 0x38, 0x44, 0x04, 0x18, 0x04, 0x04, 0x44, 0x38, 0x00, //3
-  0x00, 0x0C, 0x14, 0x24, 0x24, 0x7E, 0x04, 0x04, 0x0E, 0x00, //4
-  0x00, 0x3E, 0x20, 0x20, 0x3C, 0x02, 0x02, 0x42, 0x3C, 0x00, //5
-  0x00, 0x0E, 0x10, 0x20, 0x3C, 0x22, 0x22, 0x22, 0x1C, 0x00, //6
-  0x00, 0x7E, 0x42, 0x02, 0x04, 0x04, 0x08, 0x08, 0x08, 0x00, //7
-  0x00, 0x3C, 0x42, 0x42, 0x3C, 0x42, 0x42, 0x42, 0x3C, 0x00, //8
-  0x00, 0x3C, 0x42, 0x42, 0x42, 0x3E, 0x02, 0x04, 0x78, 0x00, //9
-  0x00, 0x18, 0x08, 0x14, 0x14, 0x14, 0x1C, 0x22, 0x77, 0x00, //A
-  0x00, 0x7C, 0x22, 0x22, 0x3C, 0x22, 0x22, 0x22, 0x7C, 0x00, //B
-  0x00, 0x1E, 0x22, 0x40, 0x40, 0x40, 0x40, 0x22, 0x1C, 0x00, //C
-  0x00, 0x78, 0x24, 0x22, 0x22, 0x22, 0x22, 0x24, 0x78, 0x00, //D
-  0x00, 0x7E, 0x22, 0x28, 0x38, 0x28, 0x20, 0x22, 0x7E, 0x00, //E
-  0x00, 0x7E, 0x22, 0x28, 0x38, 0x28, 0x20, 0x20, 0x70, 0x00  //F
- };
-
-
-static uint8_t   mem[0x1000]; 
-static int16_t   stack[0x10]; 
-static uint8_t   reg[0x10];    
-static uint8_t   schip_reg[0x10];
+//emulator vars
+static uint8_t        mem[0x1000]; 
+static int16_t        stack[0x10]; 
+static uint8_t        reg[0x10];    
+static uint8_t        schip_reg[0x10];
 static uint_fast8_t   sp, VF = 0xF; 
 static uint_fast8_t   stimer, dtimer;
 static uint_fast64_t  emutimer, drawtimer;
 static uint_fast16_t  pc, I;
 static uint_fast8_t   schip_exit_flag = false;
 
+//loaded parameters
 static uint_fast8_t   keys[8]={0};
 static uint_fast8_t   foreground_emu;
 static uint_fast8_t   background_emu;
 static uint_fast16_t  compatibility_emu;   // look above
-static uint_fast8_t   delay_emu;           // delay in microseconds before next opcode done
 static uint_fast8_t   opcodesperframe_emu; // how many opcodes should be done before screen updates
 static uint_fast8_t   timers_emu;          // freq of timers. standart 60hz
+static uint_fast16_t  soundtone_emu;       // sound base tone check buzz();
+static uint_fast16_t  delay_emu;           // delay in microseconds before next opcode done
+
 String                description_emu;     // file description
-static uint16_t       soundtone_emu;
 
-static uint_fast16_t buttonspressed;
+//diff vars button
+static uint_fast16_t  buttonspressed;
 
-static uint_fast8_t     screen_width;
-static uint_fast8_t     screen_height;
-static uint8_t          display1[128 * 64];
-static uint8_t          display2[128 * 64];
-static uint_fast8_t     issomethingdrawn = true;
-
+//diff vars display
+static uint8_t        display1[128 * 64];
+static uint8_t        display2[128 * 64];
+static uint_fast8_t   screen_width;
+static uint_fast8_t   screen_height;
 
 
 enum EMUSTATE {
@@ -202,18 +174,76 @@ enum EMUMODE {
 };
 EMUMODE emumode = CHIP8;
 
+//interpr.errors
+enum DOCPU_RET_CODES: int_fast8_t{
+    DOCPU_NOTHING =              0,
+    DOCPU_HALT =                 1,
+    DOCPU_UNKNOWN_OPCODE =      -1,
+    DOCPU_UNKNOWN_OPCODE_0 =    -2,
+    DOCPU_UNKNOWN_OPCODE_00E =  -3,
+    DOCPU_UNKNOWN_OPCODE_00F =  -4,
+    DOCPU_UNKNOWN_OPCODE_8 =    -5,
+    DOCPU_UNKNOWN_OPCODE_E =    -6,
+    DOCPU_UNKNOWN_OPCODE_F =    -7,
+};
 
-enum DOCPU_RET_CODES: int_fast8_t
-{
-    DOCPU_NOTHING = 0,
-    DOCPU_HALT = 1,
-    DOCPU_UNKNOWN_OPCODE = -1,
-    DOCPU_UNKNOWN_OPCODE_0 = -2,
-    DOCPU_UNKNOWN_OPCODE_00E = -3,
-    DOCPU_UNKNOWN_OPCODE_00F = -4,
-    DOCPU_UNKNOWN_OPCODE_8 = -5,
-    DOCPU_UNKNOWN_OPCODE_E = -6,
-    DOCPU_UNKNOWN_OPCODE_F = -7,
+//opcodes
+enum{
+  CHIP8_JP =          0x1,
+  HIRES_ON =          0x260,
+  
+  CHIP8_CALL =        0x2,
+  CHIP8_SEx =         0x3,
+  CHIP8_SNEx =        0x4,
+  CHIP8_SExy =        0x5,
+  CHIP8_MOVx =        0x6,
+  CHIP8_ADDx =        0x7,
+  CHIP8_SNExy =       0x9,
+  CHIP8_MOVi =        0xa,
+  CHIP8_JMP =         0xb,
+  CHIP8_RND =         0xc,
+  CHIP8_DRW =         0xd,
+  
+  CHIP8_EXT0 =        0x0,
+  CHIP8_CLS =         0xE0,
+  CHIP8_RTS =         0xEE,
+  HIRES_CLS =         0x30,
+  SCHIP_SCD =         0xC,
+  SCHIP_SCR =         0xFB,
+  SCHIP_SCL =         0xFC,
+  SCHIP_EXIT =        0xFD,
+  SCHIP_LOW =         0xFE,
+  SCHIP_HIGH =        0xFF,
+
+  CHIP8_EXTF =        0xF,
+  CHIP8_EXTF_GDELAY = 0x07,
+  CHIP8_EXTF_KEY =    0x0a,
+  CHIP8_EXTF_SDELAY = 0x15,
+  CHIP8_EXTF_SSOUND = 0x18,
+  CHIP8_EXTF_ADI =    0x1e,
+  CHIP8_EXTF_FONT =   0x29,
+  CHIP8_EXTF_XFONT =  0x30,
+  CHIP8_EXTF_BCD =    0x33,
+  CHIP8_EXTF_STR =    0x55,
+  CHIP8_EXTF_LDR =    0x65,
+  SCHIP_EXTF_MOV =    0xF,
+  SCHIP_EXTF_LDr =    0x75,
+  SCHIP_EXTF_LDxr =   0x85, 
+
+  CHIP8_MATH =        0x8,
+  CHIP8_MATH_MOV =    0x0,
+  CHIP8_MATH_OR =     0x1,
+  CHIP8_MATH_AND =    0x2,
+  CHIP8_MATH_XOR =    0x3,
+  CHIP8_MATH_ADD =    0x4,
+  CHIP8_MATH_SUB =    0x5,
+  CHIP8_MATH_SHR =    0x6,
+  CHIP8_MATH_RSB =    0x7,
+  CHIP8_MATH_SHL =    0xe,
+
+  CHIP8_SK =          0xe,
+  CHIP8_SK_RP =       0x9e,
+  CHIP8_SK_UP =       0xa1, 
 };
 
 
@@ -225,17 +255,7 @@ Adafruit_MCP4725 dac;
 
 
 
-//keymapping 0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
-static uint8_t default_buttons[8] = { 4, 2, 8, 6, 5, 11, 4, 6 };
-//1     2    3     C[12]
-//4     5    6     D[13]
-//7     8    9     E[14]
-//A[10] 0    B[11] F[15]
-
-
-
-void update_timers()
-{
+void update_timers(){
     if ((millis()-emutimer) > (1000 / timers_emu))
     {
       emutimer = millis();
@@ -245,15 +265,8 @@ void update_timers()
 }
 
 
-uint16_t checkbuttons()
-{
-	buttonspressed = ~mcp.readGPIOAB() & 255;
-	return (buttonspressed);
-}
 
-
-void init_display()
-{
+void init_display(){
   switch (emumode){
     case CHIP8:
       screen_width = 64;
@@ -269,30 +282,38 @@ void init_display()
       break;
   }  
   memset(display2, 0, sizeof(display2));
-  memset(display1, 1, sizeof(display2));
-  updatedisplay();
+  memset(display1, 0, sizeof(display2));
+  switch (emumode){
+    case CHIP8:
+      tft.fillRect(0, 16, 128, 64, colors[background_emu]);
+      break;
+    case HIRES:
+      tft.fillRect(0, 0, 128, 128, colors[background_emu]);
+      break;
+    case SCHIP:
+      tft.fillRect(0, 16, 128, 64, colors[background_emu]);
+      break;
+  }
 }
 
 
-
-void updatedisplay()
-{    
+void updatedisplay(){    
   static uint_fast8_t drawcolor, i, j;
   static uint_fast16_t addr;
-if ((drawtimer - millis()) > (1000 / DEFAULTMAXREFRASHRATE))
-{
+//if ((millis() - drawtimer) > (1000 / DEFAULTMAXREFRASHRATE))
+//{
   drawtimer = millis();
-  issomethingdrawn = false;
   for (i = 0; i < screen_height; i++)
+  {
+    addr = i * screen_width;
     for (j = 0; j < screen_width; j++) 
     {
-       addr = i * screen_width + j;
-      if (display1[addr] != display2[addr])
+      if (display1[addr] ^ display2[addr])
       {
        if (display2[addr])
           drawcolor = foreground_emu;
         else
-          drawcolor = background_emu;
+          drawcolor = background_emu;  
         switch (emumode){
           case CHIP8:
             tft.fillRect(j*2, i*2+16, 2, 2, colors[drawcolor]);
@@ -305,15 +326,17 @@ if ((drawtimer - millis()) > (1000 / DEFAULTMAXREFRASHRATE))
             break;
         }
       }
-    }
-   memcpy(display1, display2, sizeof(display1));
-}
+    addr++;
+    }  
+  }
+  memcpy(display1, display2, sizeof(display1));
+//}
 }
 
 
-uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
-{
- static uint_fast8_t data, mask, masked, xs, ys, c, d, ret, preret;
+
+uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
+ static uint_fast8_t data, mask, masked, xs, ys, yss, c, d, ret, preret;
  static uint_fast16_t addrdisplay, drw;
  drw = 0;
  if (!size)
@@ -330,12 +353,13 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
       if (BIT4CTL)
         ys %= screen_height;
       if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
+      yss = ys * screen_width;
       for (d = 0; d < 8; d++){
         xs = x + d;
         if (BIT4CTL)
           xs %= screen_width;
-        addrdisplay = ys * screen_width + xs;    
-        masked = !!(data & mask);
+        addrdisplay = yss + xs;    
+        masked = !(!(data & mask));
         if ((xs < screen_width) && (ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
           if(display2[addrdisplay] ^= masked) drw++; 
@@ -344,7 +368,6 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
       }
       if (preret) ret++;
     }
-    if (drw) issomethingdrawn = true;
     if (BIT7CTL && drw) updatedisplay();
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
@@ -352,9 +375,8 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size)
 }
 
 
-uint8_t drawsprite16x16(uint8_t x, uint8_t y)
-{
-  static uint_fast8_t xs, ys, c, d, ret, preret, drw;
+uint8_t drawsprite16x16(uint8_t x, uint8_t y){
+  static uint_fast8_t xs, ys, yss, c, d, ret, preret, drw;
   static uint_fast16_t addrdisplay, mask, masked, data;
     ret=0; 
     preret=0;
@@ -367,12 +389,13 @@ uint8_t drawsprite16x16(uint8_t x, uint8_t y)
       if (BIT4CTL)
           ys %= screen_height;
       if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
+      yss = ys * screen_width;
       for (d = 0; d < 16; d++){
         xs = x + d;
         if (BIT4CTL)
             xs %= screen_width;
-        addrdisplay = ys * screen_width + xs;
-        masked = !!(data & mask);
+        addrdisplay = yss + xs;
+        masked = !(!(data & mask));
         if ((xs < screen_width) && (ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
           if (display2[addrdisplay] ^= masked) drw++;
@@ -381,7 +404,6 @@ uint8_t drawsprite16x16(uint8_t x, uint8_t y)
       }
       if (preret) ret++;
     }
-    if (drw) issomethingdrawn = true;
     if (BIT7CTL && drw) updatedisplay();
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
@@ -389,10 +411,8 @@ uint8_t drawsprite16x16(uint8_t x, uint8_t y)
 
 
 
-void chip8_reset()
-{
+void chip8_reset(){
   emumode = CHIP8;
-  issomethingdrawn = true;
   init_display();
   stimer = 0;
   dtimer = 0;
@@ -404,8 +424,14 @@ void chip8_reset()
 }
 
 
-uint8_t iskeypressed(uint8_t key)
-{
+
+uint_fast16_t checkbuttons(){
+  buttonspressed = ~mcp.readGPIOAB() & 255;
+  return (buttonspressed);
+}
+
+
+uint_fast8_t iskeypressed(uint8_t key){
 	uint8_t ret = 0;
 	checkbuttons();
 	if (LEFT_BUTTON && keys[LEFT_BUTTONn] == key)
@@ -427,8 +453,8 @@ uint8_t iskeypressed(uint8_t key)
 	return (ret ? 1 : 0);
 }
 
-uint8_t waitanykey()
-{
+
+uint_fast8_t waitanykey(){
 	uint8_t ret = 0;
 	while (!checkbuttons())
 		delay(5);
@@ -451,16 +477,16 @@ uint8_t waitanykey()
 	return ret;
 }
 
-uint16_t waitkeyunpressed()
-{
+
+uint_fast16_t waitkeyunpressed(){
 	unsigned long starttime = millis();
 	while (checkbuttons())
 		delay(5);
 	return (millis() - starttime);
 }
 
-uint8_t readkey()
-{
+
+uint_fast8_t readkey(){
 	checkbuttons();
 	if (LEFT_BUTTON)
 		return LEFT_BUTTONn;
@@ -483,8 +509,8 @@ uint8_t readkey()
 	return 0;
 }
 
-void loadrom(String filename)
-{
+
+void loadrom(String filename){
 	File f;
 	String data;
 	char *desc;
@@ -544,8 +570,8 @@ void loadrom(String filename)
 	chip8_reset();
 }
 
-void buzz()
-{
+
+void buzz(){
 	static uint8_t flagbuzz = 0;
 	if (stimer > 1 && !flagbuzz)
 	{
@@ -563,68 +589,8 @@ void buzz()
 	}
 }
 
-enum
-{
-	CHIP8_JP =          0x1,
-  HIRES_ON =          0x260,
-  
-	CHIP8_CALL =        0x2,
-	CHIP8_SEx =         0x3,
-	CHIP8_SNEx =        0x4,
-	CHIP8_SExy =        0x5,
-	CHIP8_MOVx =        0x6,
-	CHIP8_ADDx =        0x7,
-	CHIP8_SNExy =       0x9,
-	CHIP8_MOVi =        0xa,
-	CHIP8_JMP =         0xb,
-	CHIP8_RND =         0xc,
-	CHIP8_DRW =         0xd,
-  
-	CHIP8_EXT0 =        0x0,
-	CHIP8_CLS =         0xE0,
-	CHIP8_RTS =         0xEE,
-  HIRES_CLS =         0x30,
-  SCHIP_SCD =         0xC,
-  SCHIP_SCR =         0xFB,
-  SCHIP_SCL =         0xFC,
-  SCHIP_EXIT =        0xFD,
-  SCHIP_LOW =         0xFE,
-  SCHIP_HIGH =        0xFF,
 
-	CHIP8_EXTF =        0xF,
-	CHIP8_EXTF_GDELAY = 0x07,
-	CHIP8_EXTF_KEY =    0x0a,
-	CHIP8_EXTF_SDELAY = 0x15,
-	CHIP8_EXTF_SSOUND = 0x18,
-	CHIP8_EXTF_ADI =    0x1e,
-	CHIP8_EXTF_FONT =   0x29,
-	CHIP8_EXTF_XFONT =  0x30,
-	CHIP8_EXTF_BCD =    0x33,
-	CHIP8_EXTF_STR =    0x55,
-	CHIP8_EXTF_LDR =    0x65,
-  SCHIP_EXTF_MOV =    0xF,
-  SCHIP_EXTF_LDr =    0x75,
-  SCHIP_EXTF_LDxr =   0x85, 
-
-	CHIP8_MATH =        0x8,
-	CHIP8_MATH_MOV =    0x0,
-	CHIP8_MATH_OR =     0x1,
-	CHIP8_MATH_AND =    0x2,
-	CHIP8_MATH_XOR =    0x3,
-	CHIP8_MATH_ADD =    0x4,
-	CHIP8_MATH_SUB =    0x5,
-	CHIP8_MATH_SHR =    0x6,
-	CHIP8_MATH_RSB =    0x7,
-	CHIP8_MATH_SHL =    0xe,
-
-	CHIP8_SK =          0xe,
-	CHIP8_SK_RP =       0x9e,
-	CHIP8_SK_UP =       0xa1, 
-};
-
-
-int_fast8_t do_cpu()
-{
+int_fast8_t do_cpu(){
 	uint_fast16_t inst, op2, wr, xxx;
 	uint_fast8_t cr;
 	uint_fast8_t op, x, y, zz, z;
@@ -902,13 +868,15 @@ int_fast8_t do_cpu()
 		switch (zz)
 		{
 		case CHIP8_EXTF_GDELAY: // getdelay
+      //updatedisplay();
 			reg[x] = dtimer;
-      updatedisplay();
 			break;
 		case CHIP8_EXTF_KEY: //waitkey
+      //updatedisplay();
 			reg[x] = waitanykey();
 			break;
 		case CHIP8_EXTF_SDELAY: //setdelay
+      updatedisplay();
 			dtimer = reg[x];
 			break;
 		case CHIP8_EXTF_SSOUND: //setsound
@@ -962,44 +930,45 @@ int_fast8_t do_cpu()
 }
 
 
-void do_emulation()
-{
+void do_emulation(){
 	uint16_t c = 0;
+  uint_fast64_t tme;
+	
 	init_display();
 	while (true)
 	{
-		if (c < opcodesperframe_emu)
-		{
 			do_cpu();
       update_timers();
 			buzz();
-			delay(delay_emu);
-			c++;
-		}
-		else
-		{
-			if (!BIT7CTL) updatedisplay();
-			c = 0;
-		}
-    checkbuttons();
-		if (LFT_BUTTON && RGT_BUTTON)
-		{
-			chip8_reset();
-			if (waitkeyunpressed() > 300)
-				break;
-		}
-    if (schip_exit_flag)
-    {
-      schip_exit_flag = false;
-      break;
-    }
+      tme = micros();
+      do 
+        yield();
+      while ((micros() - tme) < delay_emu);
+			if (!BIT7CTL and c > opcodesperframe_emu)
+			{
+        c = 0;
+			  updatedisplay();
+			}
+      c++;
+     
+      checkbuttons();
+		  if (LFT_BUTTON && RGT_BUTTON)
+		  {
+			    chip8_reset();
+			    if (waitkeyunpressed() > 300)
+				  break;
+		  }
+      if (schip_exit_flag)
+      {
+          schip_exit_flag = false;
+          break;
+      }
 	}
 }
 
 
 
-void draw_loading(bool reset = false)
-{
+void draw_loading(bool reset = false){
 	static bool firstdraw = true;
 	static uint8_t index = 0;
 	int32_t pos, next_pos;
@@ -1022,9 +991,14 @@ void draw_loading(bool reset = false)
 }
 
 
-void setup()
-{
-	// DISPLAY FIRST
+void setup(){
+
+//wifi stack off
+  WiFi.mode(WIFI_OFF);
+
+  //serial init
+  Serial.begin(115200);
+  
 	//buttons on mcp23017 init
 	mcp.begin(MCP23017address);
 	//delay(10);
@@ -1034,7 +1008,6 @@ void setup()
 		mcp.pullUp(i, HIGH);
 	}
 
-	// INIT SCREEN FIRST
 	//TFT init
 	mcp.pinMode(csTFTMCP23017pin, OUTPUT);
 	mcp.digitalWrite(csTFTMCP23017pin, LOW);
@@ -1051,7 +1024,6 @@ void setup()
 	tft.setCursor(4, 118);
 	tft.print("Chip8/Schip emulator");
 
-	Serial.begin(115200); //serial init
 	if (!SPIFFS.begin())
 	{
 		SPIFFS.format();
@@ -1089,8 +1061,9 @@ void setup()
 	tft.fillScreen(TFT_BLACK);
 }
 
-void loop()
-{
+
+
+void loop(){
 	static uint16_t selectedfilech8, countfilesonpage, countfilesch8, maxfilesch8;
 	Dir dir;
 	static String filename, selectedfilech8name;

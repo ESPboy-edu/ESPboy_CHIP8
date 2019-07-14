@@ -1,12 +1,13 @@
-7 5 8 9 6 13 7 9
+8 8 9 9 7 7 8 9
+14
+8
 0
-16
-1
-72
+66
 30
 60
 200
-Chip8 31.10.2015 [Eaty The Alien] by John Earnest. An incredible intergalactic adventure. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/eaty
+Worm3 by R.B., 1991. Navigate the worm to the apples.
+
 
 
 //INSTRUCTIONS
@@ -32,7 +33,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]   B[11]  F[15]
+A[10] 0[0]  B[11]   F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list
@@ -40,6 +41,7 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
+
 
 3. BACKGROUND COLOR
 no of color according to the same list

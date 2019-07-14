@@ -1,12 +1,12 @@
 4 8 2 5 5 11 4 6
 14
 1
-2
+2000
 203
 30
 60
 200
-Press to fire depth charges at the subs below.  You score 15 points for a small sub and 5 points for the larger. You get 25 depth charges to start.
+Submarine by Carmelo Cortez, 1978. Press to fire depth charges at the subs below.  You score 15 points for a small sub and 5 points for the larger. You get 25 depth charges to start.
 
 
 //INSTRUCTIONS

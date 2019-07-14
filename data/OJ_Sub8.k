@@ -1,14 +1,14 @@
-1 2 7 3 8 9 5 0
+8 7 9 5 6 13 7 9
 14
+5
 0
-1000
-64
+72
 30
 60
 200
-VIP Bowling by Gooitzen van der Wal is a great game for recreation and competion requiring skill and a little bit of luck.  This program simulates bowling closely with regular scoring and the option of using three different spins on the ball.
+Sub-Terr8nia by ????. SCHIP, 31.08.2017. Lander game. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/sub8
 
-
+//7 5 8 9 6 13 7 9
 
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.

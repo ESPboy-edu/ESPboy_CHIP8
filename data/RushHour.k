@@ -1,12 +1,12 @@
 7 5 8 9 10 1 7 9
-13
+10
 0
-1
+1000
 64
 30
 60
 200
-By hap 08-02-08, hap.samor.nl  Originally released on 17-12-06. This game contains 170 puzzles. The goal of the game is to slide the arrow block(s) out of the 6*6 grid.
+Rush Hour by hap, 08.02.08, hap.samor.nl.  Originally released on 17-12-06. This game contains 170 puzzles. The goal of the game is to slide the arrow block(s) out of the 6*6 grid.
 
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.

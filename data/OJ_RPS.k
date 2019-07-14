@@ -1,13 +1,12 @@
-8 8 9 9 7 7 8 9
+10 11 11 0 11 11 10 11
 14
-8
-3
-66
+0
+2000
+72
 30
 60
 200
-worm3 - navigate the worm to the apples (C) 1991 Unknown
-
+Rock-Paper-Scissors game by SystemLogoff. CHIP8, 25.10.2015. Details: https://systemlogoff.com  Use keys <   >  ^
 
 
 //INSTRUCTIONS
@@ -33,7 +32,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list
@@ -41,7 +40,6 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
-
 
 3. BACKGROUND COLOR
 no of color according to the same list

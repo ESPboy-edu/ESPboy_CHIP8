@@ -1,12 +1,12 @@
-7 5 8 9 6 13 7 9
+7 5 8 9 6 1 7 9
 0
 16
-7
-64
+500
+147
 30
 60
 200
-Schip 01.09.2014 [Ultimate Tic-tac-toe] by ???? Source: https://github.com/JohnEarnest/chip8Archive/tree/master/src/ultimatetictactoe
+ROCKTO by SupSuper. SCHIP, 01.11.2014. Only 5 levels port of famous Boulder Dash game. Details: https://github.com/SupSuper/
 
 
 //INSTRUCTIONS

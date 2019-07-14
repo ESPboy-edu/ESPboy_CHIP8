@@ -1,12 +1,12 @@
 7 8 14 9 14 12 7 8
 14
 1
-1
+0
 67
 30
 60
 200
-UBoat - Sink the submarines by Michael D. Kemper, 1994. The premise of the game is fairly simple. You are the Captain of a sub hunting destroyer, and your objective is to sink as many enemy U-Boats as you can. Your only weapon against the U-Boats is your ship’s supply of depth charges.
+UBoat by Michael D. Kemper, 1994. Sink the submarines. The premise of the game is fairly simple. You are the Captain of a sub hunting destroyer, and your objective is to sink as many enemy U-Boats as you can. Your only weapon against the U-Boats is your ship’s supply of depth charges.
 
 
 

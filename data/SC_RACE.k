@@ -1,12 +1,12 @@
 7 10 13 8 10 10 7 8
-12
-0
-1
+10
+2
+2000
 64
 30
 60
 200
-This game simulates a racing car. - driving game by David Winter <winter@worldnet.net>, 1991. This game simulates a racing car. The other cars are a big dumb, though. They seem to have all stalled.
+Race by David Winter <winter@worldnet.net>, 1991. Driving game. This game simulates a racing car. The other cars are a big dumb, though. They seem to have all stalled.
 
 
 

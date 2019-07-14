@@ -1,13 +1,12 @@
-7 5 8 9 14 13 7 9
-16
-1
-1
-64
+4 2 8 6 5 11 4 6
+13
+5
+200
+67
 30
 60
 200
-Chip8 31.10.2018 [Tank!] by Rectus. A two player artillery game.  Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/tank
-
+AstroDodge by Martijn Wenting / Revival Studios. CHIP8-HIERES (C) 18.12.2008. www.revival-studios.com Your goal is to make your way through the asteroids field and dodge the asteroids, scoring points for each asteroid you are able to dodge.
 
 
 //INSTRUCTIONS
@@ -41,6 +40,7 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
+
 
 3. BACKGROUND COLOR
 no of color according to the same list

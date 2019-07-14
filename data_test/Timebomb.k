@@ -1,13 +1,12 @@
-7 3 6 8 1 4 15 15
-10
-0
-7
-67
+4 8 8 6 8 8 4 6
+2
+11
+2
+75
 30
 60
 200
-Hpiper - plumbing game by Paul Raines <vapsppr@prism.gatech.edu>, 1991.
-
+Airplane game.
 
 
 //INSTRUCTIONS
@@ -33,7 +32,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

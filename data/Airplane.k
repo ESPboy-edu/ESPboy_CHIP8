@@ -1,12 +1,13 @@
-4 8 2 6 5 11 4 6
-14
-0
-1
-203
+4 2 8 6 5 11 2 8 
+2
+11
+2000
+75
 30
 60
 200
-Airplane game
+Air plane game.
+
 
 
 //INSTRUCTIONS
