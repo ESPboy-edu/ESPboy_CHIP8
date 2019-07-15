@@ -1,21 +1,78 @@
-4 8 2 6 5 11 4 6
-14
-8
-500
+7 3 6 8 14 15 14 15
+0
+18
+700
 75
 30
 60
 200
-You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs.
+SYZYGY by Roy Trevino. SCHIP, 30.10.1990. Seek out "targets" with your syzygy.  Initially small, the syzygy will grow by some amount each time a target is hit. ACT to play without border, ESC to play with border
 
 
-============================
-You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. 
-The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs. Use 2 4 6 and 8 to move. 
-This game uses the original CHIP8 keyboard, so directions 2 and 8 are swapped.
-============================
+=============================
+SYZYGY v0.1
+
+One of the first games I remember playing on a computer was 
+called "syzygy" on a now ancient TRS-80 Model 1.  It has since
+appeared on other computers under various names.  Why it was
+called syzygy, I have no idea (consult Websters).  However, since
+the HP48SX has approximately the same memory, graphics and cpu
+power as my TRS-80 did (something like 16kB, 128x64, and a 1.2Mhz Z80),
+I thought it would be amusing to play it again.  Now, approximately
+to my recollection, and with many apologies to the original author,
+here is a CHIP48 version of SYZYGY.  Enough drivel.
+
+The object of the game is to seek out "targets".  You do this with
+your syzygy.  Initially small, the syzygy will grow by some amount
+each time a target is hit.  Eventually, your syzygy will
+be so long as to make tougher and tougher to get any points (and easier
+and easier to get killed).  Confused?  Just try it.
+
+Anyways, the syzygy is not allowed to run into anything except targets.
+It cannot run into the screen border (if present), or itself (this 
+includes backing into itself).  Fast and immediate death will result.
+Don't worry if you die quickly a few times.  The keys take a few 
+minutes to get used to.
+
+To start:     +      start/restart game with border
+              -      start/restart borderless game
+       
+To play:      9      up
+              6      down
+              1      left
+              2      right
+
+[Hint for frustrated beginners: hold left hand on 1 & 2, and right hand on
+ 6 & 9 keys.  Alternate between left hand, right hand, left hand...  -jkh-]
 
 
+Fine print (borrowed from Andreas Gustafsson, author of CHIP-48):
+
+  SYZYGY is (c) copyright 1990 by Roy Trevino (RTT)
+
+  Noncommercial distribution allowed, provided that this
+  copyright message is preserved, and any modified versions
+  are clearly marked as such.
+
+  SYZYGY, via CHIP-48, makes use of undocumented low-level features
+  of the HP48SX calculator, and may or may not cause loss of data,
+  excessive battery drainage, and/or damage to the calcultor
+  hardware.  The Author takes no responsibility whatsoever for
+  any damage caused by the use of this program.
+  
+  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+  PURPOSE.
+
+Roy
+
+  --------------------------------------------------------------
+  Roy Trevino                                        Intel Corp.
+  E-mail: rtrevino@sedona.intel.com          Tel: (602) 554 2816
+  UUCP:  decwrl!apple!oliveb!orc!inews!rtrevino@sedona.intel.com
+
+===================================
 
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
@@ -40,7 +97,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

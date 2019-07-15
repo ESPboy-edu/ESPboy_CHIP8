@@ -8,6 +8,17 @@
 200
 Pong by Paul Vervalin, 1990. For one player.
 
+===============================
+OK. here is PONG version 1.1.  The ball is a little faster in this
+version making play a little more realistic.  I know PONG 1.0 was
+just posted yesterday, but I think this version is significantly
+better, so here it is.
+
+Use keys 7 and 4 move left player and / and * move right player.
+
+Enjoy!!
+================================
+
 
 
 //INSTRUCTIONS

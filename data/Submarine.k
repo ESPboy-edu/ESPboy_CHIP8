@@ -9,6 +9,15 @@
 Submarine by Carmelo Cortez, 1978. Press to fire depth charges at the subs below.  You score 15 points for a small sub and 5 points for the larger. You get 25 depth charges to start.
 
 
+=========================
+Submarine, by: Carmelo Cortez
+
+The Sub Game is my favorlte. Press "5" key to fire depth charges at the subs below. 
+You score 15 points for a small sub and 5 points for the larger. You get 25 depth charges to start.
+=========================
+
+
+
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces

@@ -1,12 +1,12 @@
-4 8 8 6 8 8 4 6
-2
-11
-2
-75
+4 6 7 9 15 14 7 9 
+16
+14
+800
+67
 30
 60
 200
-Airplane game.
+Paddles. CHIP8. Simple Pong game for one or two players.
 
 
 //INSTRUCTIONS

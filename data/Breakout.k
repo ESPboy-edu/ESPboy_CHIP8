@@ -6,7 +6,18 @@
 30
 60
 200
-Breakout (Brix hack) by David Winter. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
+Breakout by Carmelo Cortez. CHIP8, 1979. This game is an "arkanoid" precursor. 
+
+
+
+===================================
+Breakout, by: Carmelo Cortez
+
+The game, Breakout, is a variation of the Wipe-Off game.
+You have six walls and 20 balls to start. 
+To win you must get through all walls to the top of the screen. 
+At the end of the game the program will show the number of times you hit the walls and will show "FREE!" if you get through.
+===================================
 
 
 

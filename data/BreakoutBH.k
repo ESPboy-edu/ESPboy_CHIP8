@@ -1,19 +1,21 @@
-4 8 2 6 5 11 4 6
-14
-8
-500
-75
+4 2 7 6 5 5 4 6
+15
+0
+2000
+80
 30
 60
 200
-You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs.
+Breakout (Brix hack) by David Winter. CHIP8, 1997. This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed. This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
 
 
-============================
-You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. 
-The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs. Use 2 4 6 and 8 to move. 
-This game uses the original CHIP8 keyboard, so directions 2 and 8 are swapped.
-============================
+===================================
+Breakout (Brix hack), by: David Winter
+
+This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. Use 4 and 6 to move your paddle. The game ends when all the brixs are destroyed.
+
+This game is the same than BRIX, but has graphics looking like the game on the Atari 2600 console.
+===================================
 
 
 
@@ -40,7 +42,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

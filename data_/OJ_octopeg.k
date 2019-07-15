@@ -1,19 +1,12 @@
-4 8 2 6 5 11 4 6
-14
+7 5 8 9 6 13 7 9
 8
-500
-75
+11
+1
+83
 30
 60
 200
-You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs.
-
-
-============================
-You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. 
-The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs. Use 2 4 6 and 8 to move. 
-This game uses the original CHIP8 keyboard, so directions 2 and 8 are swapped.
-============================
+Octopeg by Chromatophore. SCHIP, 29.10.2015. A peggle clone.  Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/octopeg
 
 
 
@@ -40,7 +33,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list

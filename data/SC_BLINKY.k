@@ -9,6 +9,41 @@
 Blinky by Christian Egeberg <egeberg@solan.unit.no>, 1990. PacMan clone.
 
 
+Blinky V2.00: Pac Man game for SCHIP V1.0 or newer.
+From: egeberg@solan.unit.no (Hans Christian Egeberg)
+Newsgroups: comp.sources.hp48
+Date: 15 Sep 91 22:14:29 GMT
+
+[Note: Requires SCHIP, found on Goodies Disk #3.  This BLINKY is an improved
+ version of the BLINKY also on Goodies Disk #3, which was a "low-res" game
+ for the CHIP48 interpreter.  This one's a "high-res" SCHIP game.  -jkh-]
+
+This program is for use with Super Chip-48 V1.0 or newer.
+In order to run, put downloaded binary string on stack, and start SCHIP.
+
+Blinky has two lives. Finishing a screen increases the intelligence
+of Packlett and Heward, the two ghosts. The game is at its most difficult
+on the fourth screen. The maze contains one gateway from left to right,
+and four energy pills, near the corners. Points are awarded for each pill,
+each energy pill, catching Packlett, catching Heward, and finishing a maze.
+
+My personal highscore is 1575 so far, but I am just a programmer.
+My not so little sister helped me debug, and reached 2005 in two days.
+
+[Note: Also included on this disk is BLINKY.COM, a self-extracting archive
+ containing BLINKY.SRC, the source code for the BLINKY game, written for the
+ CHIPPER compiler.  To extract BLINKY.SRC, copy BLINKY.COM to your hard disk
+ or a floppy with 100K free on it, then just type BLINKY.  It's 60,470
+ bytes long, so don't run BLINKY.COM directly from the Goodies Disk! -jkh-]
+
+Listing of archive : 'BLINKY.COM'
+
+  Name          Original    Packed  Ratio   Date     Time   Attr Type  CRC
+--------------  --------  -------- ------ -------- -------- ---- ----- ----
+  BLINKY.CHP       60470      7451  12.3% 91-11-22 14:02:44 a--w -lh1- 42F5
+--------------  --------  -------- ------ -------- --------
+
+
 
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.

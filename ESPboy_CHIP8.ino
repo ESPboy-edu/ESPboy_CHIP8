@@ -33,13 +33,12 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 #define MCP4725address        0
 
 //default emu parameters
-#define DEFAULTCOMPATIBILITY    0b0000000001000011 //bit bit8,bit7...bit1;
+#define DEFAULTCOMPATIBILITY    0b0000000001000011 //compatibility bits: bit16,...bit8,bit7...bit1;
 #define DEFAULTOPCODEPERFRAME   40
 #define DEFAULTTIMERSFREQ       60 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
-#define DEFAULTDELAY            1
+#define DEFAULTDELAY            1000
 #define DEFAULTSOUNDTONE        300
-//#define DEFAULTMAXREFRASHRATE  100
 
 //default keymapping
 //0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
@@ -98,6 +97,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 #define BIT7CTL (compatibility_emu & 64)
 #define BIT8CTL (compatibility_emu & 128)
 
+
 //buttons
 #define LEFT_BUTTON   (buttonspressed & 1)
 #define UP_BUTTON     (buttonspressed & 2)
@@ -118,12 +118,13 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 #define RGT_BUTTONn   7
 
 
-//lib colors
+//lib colors table
 uint16_t colors[] = { 
             TFT_BLACK, TFT_NAVY, TFT_DARKGREEN, TFT_DARKCYAN, TFT_MAROON,
 					  TFT_PURPLE, TFT_OLIVE, TFT_LIGHTGREY, TFT_DARKGREY, TFT_BLUE, TFT_GREEN, TFT_CYAN,
 					  TFT_RED, TFT_MAGENTA, TFT_YELLOW, TFT_WHITE, TFT_ORANGE, TFT_GREENYELLOW, TFT_PINK 
 };
+
 
 //emulator vars
 static uint8_t        mem[0x1000]; 
@@ -132,7 +133,7 @@ static uint8_t        reg[0x10];
 static uint8_t        schip_reg[0x10];
 static uint_fast8_t   sp, VF = 0xF; 
 static uint_fast8_t   stimer, dtimer;
-static uint_fast64_t  emutimer, drawtimer;
+static uint_fast64_t  emutimer;
 static uint_fast16_t  pc, I;
 static uint_fast8_t   schip_exit_flag = false;
 
@@ -147,6 +148,7 @@ static uint_fast16_t  soundtone_emu;       // sound base tone check buzz();
 static uint_fast16_t  delay_emu;           // delay in microseconds before next opcode done
 
 String                description_emu;     // file description
+static const char     *no_config_desc = (char *)"No configuration\nfile found\n\nUsing unoptimal\ndefault parameters";
 
 //diff vars button
 static uint_fast16_t  buttonspressed;
@@ -173,6 +175,7 @@ enum EMUMODE {
   SCHIP,
 };
 EMUMODE emumode = CHIP8;
+
 
 //interpr.errors
 enum DOCPU_RET_CODES: int_fast8_t{
@@ -300,9 +303,6 @@ void init_display(){
 void updatedisplay(){    
   static uint_fast8_t drawcolor, i, j;
   static uint_fast16_t addr;
-//if ((millis() - drawtimer) > (1000 / DEFAULTMAXREFRASHRATE))
-//{
-  drawtimer = millis();
   for (i = 0; i < screen_height; i++)
   {
     addr = i * screen_width;
@@ -330,7 +330,6 @@ void updatedisplay(){
     }  
   }
   memcpy(display1, display2, sizeof(display1));
-//}
 }
 
 
@@ -338,26 +337,24 @@ void updatedisplay(){
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
  static uint_fast8_t data, mask, masked, xs, ys, yss, c, d, ret, preret;
  static uint_fast16_t addrdisplay, drw;
- drw = 0;
  if (!size)
       return (drawsprite16x16(x, y));
  else   
   {
-    ret=0; 
-    preret=0;
-    for(c=0; c<size; c++){
+    drw = 0;
+    ret = 0; 
+    preret = 0;
+    for(c = 0; c < size; c++){
       data = mem[I+c];
       mask=128;
       preret=0;
       ys = y+c;
-      if (BIT4CTL)
-        ys %= screen_height;
+      if (BIT4CTL) ys %= screen_height;
       if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
       yss = ys * screen_width;
       for (d = 0; d < 8; d++){
         xs = x + d;
-        if (BIT4CTL)
-          xs %= screen_width;
+        if (BIT4CTL) xs %= screen_width;
         addrdisplay = yss + xs;    
         masked = !(!(data & mask));
         if ((xs < screen_width) && (ys < screen_height)){
@@ -378,22 +375,20 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
 uint8_t drawsprite16x16(uint8_t x, uint8_t y){
   static uint_fast8_t xs, ys, yss, c, d, ret, preret, drw;
   static uint_fast16_t addrdisplay, mask, masked, data;
-    ret=0; 
-    preret=0;
-    drw=0;
-    for(c=0; c<16; c++){
-      data = (((mem[I + c * 2])<<8) + mem[I + c * 2 + 1]);
+    ret = 0; 
+    preret = 0;
+    drw = 0;
+    for(c = 0; c < 16; c++){
+      data = (((mem[I + c * 2])<<8) | mem[I + c * 2 + 1]);
       mask=32768;
       preret=0;
       ys = y+c;
-      if (BIT4CTL)
-          ys %= screen_height;
+      if (BIT4CTL) ys %= screen_height;
       if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
       yss = ys * screen_width;
       for (d = 0; d < 16; d++){
         xs = x + d;
-        if (BIT4CTL)
-            xs %= screen_width;
+        if (BIT4CTL) xs %= screen_width;
         addrdisplay = yss + xs;
         masked = !(!(data & mask));
         if ((xs < screen_width) && (ys < screen_height)){
@@ -513,7 +508,6 @@ uint_fast8_t readkey(){
 void loadrom(String filename){
 	File f;
 	String data;
-	char *desc;
 	uint16_t c;
 	f = SPIFFS.open(filename, "r");
 	f.read(&mem[0x200], f.size());
@@ -564,8 +558,7 @@ void loadrom(String filename){
 		opcodesperframe_emu = DEFAULTOPCODEPERFRAME;
 		timers_emu = DEFAULTTIMERSFREQ;
 		soundtone_emu = DEFAULTSOUNDTONE;
-		desc = (char *)"No configuration\nfile found\n\nUsing unoptimal\ndefault parameters";
-		description_emu = desc;
+		description_emu = no_config_desc;
 	}
 	chip8_reset();
 }
@@ -885,12 +878,13 @@ int_fast8_t do_cpu(){
 		case CHIP8_EXTF_ADI: //add i+r(x)
 			I += reg[x];
       if( I > 0xFFF)
-      {
         I %= 0xFFF;
-        reg[VF] = 1;
-      }
-      else 
-        reg[VF] = 0;
+    /*  if( (I > 0xFFF) && (BIT9CTL)) //it's wrong interpretation
+        if (I > 0xFFF)
+           reg[VF] = 1;
+        else 
+           reg[VF] = 0;
+    */
 			break;
 		case CHIP8_EXTF_FONT: //fontchip i
 			I = FONTCHIP_OFFSET + (reg[x] * 5);
@@ -989,6 +983,7 @@ void draw_loading(bool reset = false){
 	next_pos = ((index * (w - padding - 1)) / cnt);
 	tft.fillRect(x + padding + pos, y + padding, next_pos - pos - padding + 1, h - padding*2, TFT_YELLOW);
 }
+
 
 
 void setup(){
@@ -1120,12 +1115,11 @@ void loop(){
 	case APP_SHOW_DIR:
 		dir = SPIFFS.openDir("/");
 		countfilesch8 = 0;
-		while (countfilesch8 < (selectedfilech8 / (NLINEFILES + 1)) * (NLINEFILES + 1) - 1)
+		while (countfilesch8+1 < ((selectedfilech8 / (NLINEFILES)) * (NLINEFILES)))
 		{
 			dir.next();
 			filename = String(dir.fileName());
 			filename.toLowerCase();
-
 			if (filename.lastIndexOf(String(".ch8")) > 0)
 				countfilesch8++;
 		}

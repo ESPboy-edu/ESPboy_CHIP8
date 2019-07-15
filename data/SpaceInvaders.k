@@ -9,6 +9,14 @@
 A space invaders clone by David Winter <winter@worldnet.net>, 1991. The well known game. Destroy the invaders with your ship.
 
 
+==================================
+Space Invaders, by: David Winter
+
+The well known game. Destroy the invaders with your ship. Shoot
+with 5, move with 4 and 6. Press 5 to begin a game.
+==================================
+
+
 
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.

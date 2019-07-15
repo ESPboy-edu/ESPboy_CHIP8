@@ -1,12 +1,29 @@
-8 4 7 9 13 14 7 9
-12
-8
-1
-64
+7 3 4 1 5 9 7 1
+14
+0
+500
+67
 30
 60
 200
-Chip8 01.11.2018 [Carbon8] by Chromatophore. A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Tetris clone by K.v.Sengbusch, SCHIP, 24.4.94.Somehow I didn't manage to find a good Tetris for my HP48GX yet so I wrote one myself. It is a S-CHIP48 Program. I think it is quite good, at least very fast and full screen!!! Every 15 lines a new level starts with more lines at the bottom
+
+
+Hello out there
+
+Somehow I didn't manage to find a good Tetris for my HP48GX yet so I wrote one
+myself. It is a S-CHIP48 Program. I think it is quite good, at least very fast
+and full screen!!!
+Every 15 lines a new level starts with more lines at the bottom.
+
+
+The Keys:
+    7   - left
+    5   - turn
+    1   - right
+    4   - drop
+    9   - begin pause
+
 
 
 

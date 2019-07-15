@@ -3,15 +3,14 @@ ESPboy chip8/hires/schip emulator by RomanS
 
 Special thanks to Igor (corax89), DmitryL (Plague) and John Earnest (https://github.com/JohnEarnest/Octo) for help and Alvaro Alea Fernandez for his Chip-8 emulator
 
-Implemented almost all known features and "bugs"
-Super Chip implementation is on the way )
+Implemented all known quirks
 
 Used information from
 https://github.com/JohnEarnest/Octo
 http://mattmik.com/chip8.html
 https://github.com/Chromatophore/HP48-Superchip
 
-The games should be with extantion ".ch8" as <gamename.ch8> To upload games to SPIFFS check. 
+The games should be with extention ".ch8" as <gamename.ch8> To upload games to SPIFFS check. 
 https://www.youtube.com/watch?v=25eLIdLKgHs
 
 For correct compilation, change settings in file «User_Setup.h» of TFT_eSPI library
@@ -25,7 +24,7 @@ For correct compilation, change settings in file «User_Setup.h» of TFT_eSPI li
 * 255 #define SPI_FREQUENCY 27000000
 
 
-You is able to make <gamename.k> configuration file and upload them to the SPIFFS togather with games.
+You is able to make <gamename.k> configuration files and upload them to the SPIFFS togather with games.
 It looks like simple txt file. Check below
 
 
@@ -53,7 +52,7 @@ It's important not to change layout of first 9 lines of this file.
 - quantity of opcodes run before TFT updates
 - timers frequency
 - sound tone frequency
-- .ch8 file description
+- .ch8 file description about 300 symbols
 
 
 1. KEY MAPPING

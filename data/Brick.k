@@ -6,7 +6,15 @@
 30
 60
 200
-BRICK: a modified version of BRIX by Andreas Gustafsson. This one is a solid wall; no air between bricks! This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed.
+BRICK: a modified version of BRIX by Andreas Gustafsson. CHIP8, 1990. This one is a solid wall; no air between bricks! This game is an "arkanoid" precursor. You have 5 lives, and your goal is the destruction of all the brixs. The game ends when all the brixs are destroyed.
+
+
+========================
+BRICK: a modified version of BRIX, a CHIP-8 game.
+Original BRIX by Andreas Gustafsson.
+This one is a solid wall; no air between bricks!
+========================
+
 
 
 //INSTRUCTIONS

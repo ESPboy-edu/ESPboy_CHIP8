@@ -10,6 +10,34 @@ Car by K.v. Sengbusch, 1994. Driving game. This game simulates a racing car. The
 
 
 
+===============================
+Date: Sat, 16 Apr 1994 14:21:08 +0200
+From: Klaus_von_Sengbusch@ks.fido.de (Klaus Von Sengbusch)
+Subject: Games for S-CHIP
+Newsgroups: comp.sys.hp48
+
+And here is another game.
+Is is quite simple. You just have to drive a car through a scrolling road and
+prevent being hit by other cars.
+One big advantage for those HP48G Users with 32K memory:
+
+                    IT IS VERY SMALL!!!!!
+
+The Keys:
+    1: left
+    2: right
+
+If someone is interested in the Sourcecodes of TETRIS.BIN or CAR.BIN just
+write me a mail and I will post them.
+
+--------------------------------------------
+begin 644      car.bin
+
+
+===============================
+
+
+
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces

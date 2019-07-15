@@ -9,6 +9,41 @@
 Joust by Erin S Catto <catto@ecn.perdue.edu>, 1991. Arcade game. Jump to the head of all enemies to win.
 
 
+
+===================================
+Joust 2.3 Documentation
+-----------------------
+
+By Erin S Catto
+
+[ Opmerking toegevoegd door STORC:
+[ Joust heeft de Super-Chip interpreter nodig, die in de Ant-library staat
+[ Deze interpreter, genaamd SCHIP staat ook in de GAMES directory van een
+[ vorige STORC disk, genaamd 'DSK48SAS', die ook bij STORC te bestellen is.
+[ Op deze disk staan nog meer Super-Chip spelletjes, waarbij Joust 2.2,
+[ dit is daar dus een nieuwe versie van. Nogmaals, het laden van de ANT
+[ library is ook voldoende. Veel plezier!
+
+Here is Joust v2.3.  No exciting changes.
+Just mitigation of the bonus round bug.
+
+The Game:             0    =    start, replay, up
+                      /    =    right
+                      9    =    left
+
+Points:               1 point per egg touched
+                      8 points for clearing bonus round
+                      1 player for clearing bonus round
+
+NOTE:  Only use SCHIP v1.1 to run this game.  How does it work?
+       Download the file, recall it to the stack;
+       You'll see a text string containing "Joust v2.3".
+       Execute SCHIP
+===================================
+
+
+
+
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces

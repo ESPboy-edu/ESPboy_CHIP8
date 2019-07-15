@@ -1,19 +1,49 @@
-4 8 2 6 5 11 4 6
-14
+10 11 12 13 14 2 4 6
+10
 8
-500
-75
+1
+64
 30
 60
 200
-You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs.
+Anymal race by Brian Astle, CHIP8. Animal Race is a fun game for one person, with an element of luck - sure to put a smile on your face.  Five different animals race against one another and you have the chance to test your expertise at picking the winner.
 
 
-============================
-You are in a tank which has 25 bombs. Your goal is to hit 25 times a mobile target. 
-The game ends when all your bombs are shot. If your tank hits the target, you lose 5 bombs. Use 2 4 6 and 8 to move. 
-This game uses the original CHIP8 keyboard, so directions 2 and 8 are swapped.
-============================
+
+=============================
+9. VIP Animal Race
+
+Animal Race is a fun game for one person, with an element of luck - sure to
+put a smile on your face.  Five different animals race against one another
+and you have the chance to test your expertise at picking the winner.
+
+
+How To Play Animal Race
+
+1. Load the CHIP-8 interpretor at 0000-01FF
+   and the game starting at 0200.
+
+2. Turn RUN switch on.
+
+3. Wait until the animals are lined up and read to start, then select an animal
+   by pressing a letter A through E.  A mark will appear to the left of the
+   animal to remind you of the one you have selected.
+
+4. Decide how much you want to bet (up to a limit of $9), then press that key.
+
+5. After the race is over, press zero (or any key) to start the next race.
+   Your winnings or losses will be computed and the new total displayed at
+   the begining of the next race.
+
+Hints for expert players
+All animals move at approximately the same speed, but they start from different
+positions.  The odds for each animal are related to the starting position but
+include a random element.  Some races favor the player and you should bet up to
+the limit on these.  Some races are unfavorable and you should bet carefully
+on these.
+
+You can win the game by accumulating $256 or more.
+================================
 
 
 
@@ -40,7 +70,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]  B[11]   F[15]
+A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list
@@ -48,6 +78,7 @@ no of color according to the list
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
 15-WHITE  16-ORANGE  17-GREENYELLOW  18-PINK
+
 
 3. BACKGROUND COLOR
 no of color according to the same list

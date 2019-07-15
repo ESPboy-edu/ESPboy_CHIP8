@@ -6,7 +6,9 @@
 30
 60
 200
-Knock out the bricks by Andreas Gustafsson <gson@niksula.hut.fi> (C) 1990. This is a version of the classic game of knock out the bricks. Not particularly exciting, but I had to include something to show how the interpreter is used. The game ends when all the brixs are destroyed.
+Knock out the bricks by Andreas Gustafsson <gson@niksula.hut.fi>. CHIP8, 1990. This is a version of the classic game of knock out the bricks. Not particularly exciting, but I had to include something to show how the interpreter is used. The game ends when all the brixs are destroyed.
+
+
 
 
 //INSTRUCTIONS

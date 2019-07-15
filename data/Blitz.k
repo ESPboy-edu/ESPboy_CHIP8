@@ -9,6 +9,13 @@
 Blitz by David Winter <winter@worldnet.net>. Bomb the bad guys. This game is a BOMBER clone. You are in a plane, and you must destroy the towers of a town. Your plane is flying left to right, and goes down. Use 5 to drop a bomb. The game ends when you crash yourself on a tower...
 
 
+=========================
+Blitz, by: David Winter
+
+This game is a BOMBER clone. You are in a plane, and you must destroy the towers of a town. Your plane is flying left to right, and goes down. Use 5 to drop a bomb. The game ends when you crash yourself on a tower...
+=========================
+
+
 
 //INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
