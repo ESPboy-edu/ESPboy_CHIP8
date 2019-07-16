@@ -85,6 +85,18 @@ DXYN OUT OF SCREEN checkbit6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
 
+opcode 0x1E ADI  I = I + VX. set overflow bit in VF or use it ordinary way
+bit9 = 1    set VF=1 in case of I ovelflow, overwise VF=0
+bit9 = 0    VX dos not changed after oveflowing I
+
+
+    case CHIP8_EXTF_ADI: //add i+r(x)
+      I += reg[x];
+      if(BIT9CTL && I > 0xFFF) reg[VF] = 1;
+      else reg[VF] = 0;
+      if( I > 0xFFF)
+        I %= 0xFFF;        
+      break;
 */
 
 //compatibility bits
@@ -96,6 +108,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 #define BIT6CTL (compatibility_emu & 32)
 #define BIT7CTL (compatibility_emu & 64)
 #define BIT8CTL (compatibility_emu & 128)
+#define BIT9CTL (compatibility_emu & 256)
 
 
 //buttons
@@ -192,9 +205,6 @@ enum DOCPU_RET_CODES: int_fast8_t{
 
 //opcodes
 enum{
-
-  HIRES_ON =          0x2AC,
-  HIRES_CLS =         0x230,
   
   CHIP8_JP =          0x1,
   CHIP8_CALL =        0x2,
@@ -210,6 +220,8 @@ enum{
   CHIP8_DRW =         0xd,
   
   CHIP8_EXT0 =        0x0,
+  HIRES_ON =          0x2AC,
+  HIRES_CLS =         0x230,
   CHIP8_CLS =         0xE0,
   CHIP8_RTS =         0xEE,
   SCHIP_SCD =         0xC,
@@ -318,12 +330,10 @@ void updatedisplay(){
           drawcolor = background_emu;  
         switch (emumode){
           case CHIP8:
-            tft.drawFastHLine(j*2, i*2+16, 2, colors[drawcolor]);
-            tft.drawFastHLine(j*2, i*2+17, 2, colors[drawcolor]);
+            tft.fillRect(j*2, i*2+16, 2, 2, colors[drawcolor]);
             break;
           case HIRES:
-            tft.drawFastHLine(j*2, i*2, 2, colors[drawcolor]);
-            tft.drawFastHLine(j*2, i*2+1, 2, colors[drawcolor]);
+            tft.fillRect(j*2, i*2, 2, 2, colors[drawcolor]);
             break;
           case SCHIP:
             tft.drawPixel(j, i+16, colors[drawcolor]);
@@ -883,8 +893,10 @@ int_fast8_t do_cpu(){
 			break;
 		case CHIP8_EXTF_ADI: //add i+r(x)
 			I += reg[x];
+      if(BIT9CTL && I > 0xFFF) reg[VF] = 1;
+      else reg[VF] = 0;
       if( I > 0xFFF)
-        I %= 0xFFF;
+        I %= 0xFFF;        
 			break;
 		case CHIP8_EXTF_FONT: //fontchip i
 			I = FONTCHIP_OFFSET + (reg[x] * 5);
