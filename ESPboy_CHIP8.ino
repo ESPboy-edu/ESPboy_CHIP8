@@ -85,18 +85,9 @@ DXYN OUT OF SCREEN checkbit6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
 
-opcode 0x1E ADI  I = I + VX. set overflow bit in VF or use it ordinary way
-bit9 = 1    set VF=1 in case of I ovelflow, overwise VF=0
-bit9 = 0    VX dos not changed after oveflowing I
-
-
-    case CHIP8_EXTF_ADI: //add i+r(x)
-      I += reg[x];
-      if(BIT9CTL && I > 0xFFF) reg[VF] = 1;
-      else reg[VF] = 0;
-      if( I > 0xFFF)
-        I %= 0xFFF;        
-      break;
+0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
+bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
+bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 //compatibility bits
@@ -893,9 +884,10 @@ int_fast8_t do_cpu(){
 			break;
 		case CHIP8_EXTF_ADI: //add i+r(x)
 			I += reg[x];
-      if(BIT9CTL && I > 0xFFF) reg[VF] = 1;
-      else reg[VF] = 0;
-      if( I > 0xFFF)
+      if(BIT9CTL) 
+        if (I > 0xFFF) reg[VF] = 1;
+        else reg[VF] = 0;
+      if (I > 0xFFF)
         I %= 0xFFF;        
 			break;
 		case CHIP8_EXTF_FONT: //fontchip i
