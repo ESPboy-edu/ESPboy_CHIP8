@@ -300,6 +300,7 @@ void init_display(){
 }
 
 
+
 void updatedisplay(){    
   static uint_fast8_t drawcolor, i, j;
   static uint_fast16_t addr;
@@ -348,16 +349,16 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
       data = mem[I+c];
       mask=128;
       preret=0;
-      ys = y+c;
-      if (BIT4CTL) ys %= screen_height;
-      if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
+      if (BIT4CTL) ys = (y+c) % screen_height;
+      else ys = (y % screen_height) + c;
+      if(ys >= screen_height && BIT6CTL && !BIT8CTL) ret++;
       yss = ys * screen_width;
       for (d = 0; d < 8; d++){
-        xs = x + d;
-        if (BIT4CTL) xs %= screen_width;
+        if (BIT4CTL) xs = (x + d) % screen_width;
+        else xs = (x % screen_width) + d;
         addrdisplay = yss + xs;    
         masked = !(!(data & mask));
-        if ((xs < screen_width) && (ys < screen_height)){
+        if (BIT4CTL || (xs < screen_width && ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
           if(display2[addrdisplay] ^= masked) drw++; 
         }
@@ -382,16 +383,16 @@ uint8_t drawsprite16x16(uint8_t x, uint8_t y){
       data = (((mem[I + c * 2])<<8) | mem[I + c * 2 + 1]);
       mask=32768;
       preret=0;
-      ys = y+c;
-      if (BIT4CTL) ys %= screen_height;
-      if(ys > (screen_height - 1) && BIT6CTL && !BIT8CTL) ret++;
+      if (BIT4CTL) ys = (y+c) % screen_height;
+      else ys = (y % screen_height) + c;
+      if(ys >= screen_height && BIT6CTL && !BIT8CTL) ret++;
       yss = ys * screen_width;
       for (d = 0; d < 16; d++){
-        xs = x + d;
-        if (BIT4CTL) xs %= screen_width;
+        if (BIT4CTL) xs = (x + d) % screen_width;
+        else xs = (x % screen_width) + d;
         addrdisplay = yss + xs;
         masked = !(!(data & mask));
-        if ((xs < screen_width) && (ys < screen_height)){
+        if (BIT4CTL || (xs < screen_width && ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
           if (display2[addrdisplay] ^= masked) drw++;
         }
@@ -583,6 +584,8 @@ void buzz(){
 }
 
 
+
+
 int_fast8_t do_cpu(){
 	uint_fast16_t inst, op2, wr, xxx;
 	uint_fast8_t cr;
@@ -660,8 +663,6 @@ int_fast8_t do_cpu(){
 	case CHIP8_DRW: //draw sprite
     reg[VF] = drawsprite(reg[x], reg[y], z);
 		break;
-
-    
 	case CHIP8_EXT0: //extended instructions chip8/schip
 	{ 
 		switch (zz)
@@ -879,12 +880,13 @@ int_fast8_t do_cpu(){
 			I += reg[x];
       if( I > 0xFFF)
         I %= 0xFFF;
-    /*  if( (I > 0xFFF) && (BIT9CTL)) //it's wrong interpretation
+/* 
+      if( (I > 0xFFF) && (BIT9CTL)) //wrong opcode interpretation
         if (I > 0xFFF)
            reg[VF] = 1;
         else 
            reg[VF] = 0;
-    */
+	*/
 			break;
 		case CHIP8_EXTF_FONT: //fontchip i
 			I = FONTCHIP_OFFSET + (reg[x] * 5);
