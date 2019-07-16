@@ -192,9 +192,11 @@ enum DOCPU_RET_CODES: int_fast8_t{
 
 //opcodes
 enum{
-  CHIP8_JP =          0x1,
-  HIRES_ON =          0x260,
+
+  HIRES_ON =          0x2AC,
+  HIRES_CLS =         0x230,
   
+  CHIP8_JP =          0x1,
   CHIP8_CALL =        0x2,
   CHIP8_SEx =         0x3,
   CHIP8_SNEx =        0x4,
@@ -210,7 +212,6 @@ enum{
   CHIP8_EXT0 =        0x0,
   CHIP8_CLS =         0xE0,
   CHIP8_RTS =         0xEE,
-  HIRES_CLS =         0x30,
   SCHIP_SCD =         0xC,
   SCHIP_SCR =         0xFB,
   SCHIP_SCL =         0xFC,
@@ -313,14 +314,16 @@ void updatedisplay(){
       {
        if (display2[addr])
           drawcolor = foreground_emu;
-        else
+        else 
           drawcolor = background_emu;  
         switch (emumode){
           case CHIP8:
-            tft.fillRect(j*2, i*2+16, 2, 2, colors[drawcolor]);
+            tft.drawFastHLine(j*2, i*2+16, 2, colors[drawcolor]);
+            tft.drawFastHLine(j*2, i*2+17, 2, colors[drawcolor]);
             break;
           case HIRES:
-            tft.fillRect(j*2, i*2, 2, 2, colors[drawcolor]);
+            tft.drawFastHLine(j*2, i*2, 2, colors[drawcolor]);
+            tft.drawFastHLine(j*2, i*2+1, 2, colors[drawcolor]);
             break;
           case SCHIP:
             tft.drawPixel(j, i+16, colors[drawcolor]);
@@ -600,6 +603,8 @@ int_fast8_t do_cpu(){
 	zz = inst & 0x00FF;
 	xxx = inst & 0x0FFF;
 
+
+  
 	switch (op)
 {
 	case CHIP8_CALL: // call xyz
@@ -609,12 +614,6 @@ int_fast8_t do_cpu(){
 		break;
 
 	case CHIP8_JP: // jp xyz
-    if (xxx == HIRES_ON && emumode == CHIP8) 
-    {
-      emumode = HIRES;
-      init_display();
-    }
-    else
       pc = xxx;
 		break;
 
@@ -674,9 +673,6 @@ int_fast8_t do_cpu(){
 			sp = (sp-1) & 0xF;
 			pc = stack[sp] & 0xFFF;
 			break;
-    case HIRES_CLS:
-      init_display();
-      break;
     case SCHIP_SCR:
       for (cr=0; cr<screen_height; cr++)
         {
@@ -713,8 +709,17 @@ int_fast8_t do_cpu(){
         memset (display2, 0, sizeof(uint8_t)*screen_width*(inst&0x000F));
         if (BIT7CTL) updatedisplay();
         break;
-     default:
-         return DOCPU_UNKNOWN_OPCODE_0; 
+    }
+    switch (xxx)
+    {
+      case HIRES_ON:
+        emumode = HIRES;
+        init_display();
+        pc = 0x02BE;
+        break;
+      case HIRES_CLS:
+        init_display();
+        break;
     }
   }
   break;
@@ -880,13 +885,6 @@ int_fast8_t do_cpu(){
 			I += reg[x];
       if( I > 0xFFF)
         I %= 0xFFF;
-/* 
-      if( (I > 0xFFF) && (BIT9CTL)) //wrong opcode interpretation
-        if (I > 0xFFF)
-           reg[VF] = 1;
-        else 
-           reg[VF] = 0;
-	*/
 			break;
 		case CHIP8_EXTF_FONT: //fontchip i
 			I = FONTCHIP_OFFSET + (reg[x] * 5);
@@ -926,10 +924,11 @@ int_fast8_t do_cpu(){
 }
 
 
+
+
 void do_emulation(){
 	uint16_t c = 0;
   uint_fast64_t tme;
-	
 	init_display();
 	while (true)
 	{
