@@ -1,38 +1,44 @@
-8 4 7 9 14 13 8 9
+7 10 13 8 10 10 7 8
+14
+2
 0
-12
-1000
-67
+64
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Car by Klaus von Sengbusch, 1994. Driving game. This game simulates a racing car. The other cars are a big dumb, though. They seem to have all stalled.
+
 
 
 ===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
+Date: Sat, 16 Apr 1994 14:21:08 +0200
+From: Klaus_von_Sengbusch@ks.fido.de (Klaus Von Sengbusch)
+Subject: Games for S-CHIP
+Newsgroups: comp.sys.hp48
 
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
+And here is another game.
+Is is quite simple. You just have to drive a car through a scrolling road and
+prevent being hit by other cars.
+One big advantage for those HP48G Users with 32K memory:
 
-the large square at right-bottom corner is mass scanner
-the hook is target
+                    IT IS VERY SMALL!!!!!
 
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
+The Keys:
+    1: left
+    2: right
+
+If someone is interested in the Sourcecodes of TETRIS.BIN or CAR.BIN just
+write me a mail and I will post them.
+
+--------------------------------------------
+begin 644      car.bin
+
+
 ===============================
 
 
-//filling config file INSTRUCTIONS
+
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -55,7 +61,7 @@ Chip8 keys
 1     2     3       C[12]
 4     5     6       D[13]
 7     8     9       E[14]
-A[10] 0[0]   B[11]  F[15]
+A[10] 0[0]  B[11]   F[15]
 
 2. FOREGROUND COLOR
 no of color according to the list
@@ -108,10 +114,6 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
-
-0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
-bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
-bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

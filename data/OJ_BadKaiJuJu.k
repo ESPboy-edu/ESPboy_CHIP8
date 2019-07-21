@@ -1,38 +1,31 @@
-8 4 7 9 14 13 8 9
-0
-12
-1000
+7 5 8 9 5 5 5 5
+15
+1
+10
 67
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Bad Kaiju Juby by MattBooth. https://github.com/Mattpbooth. CHIP8, 24.08.2015. The year is 1977. 90% of the world's landmass is now underwater and the world is at war... Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/BadKaiJuJu
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
+===========================
 
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
+The year is 1977. 90% of the world's landmass is now underwater and the world is at war. Floating cities are often targets for armoured, explosive-laden ships and there is only one line of defense...
 
-the large square at right-bottom corner is mass scanner
-the hook is target
+Cutting-edge science has managed to breed and control huge jellyfish like monsters, capable of sinking the ships. By implanting cybernetic hardware into the Kaijus' brains the scientists are able to visualise their moves and coordinate strikes.
 
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+As the leading navy commander of PortSheaf, you are responsible for controlling the Kaiju and saving the city.
+
+Using your 1977 COSMAC VIP, will you be able to use your Chip 8 visualisation of the high fidelity visceral world combat and Save The Day?
+
+W to attack (5 key). The boats will stop attacking when you have succeeded.
+
+(Originally created as part of Ludum Dare 33 http://ludumdare.com/compo/ludum-dare-33/?action=preview&uid=41319)
+===========================
 
 
-//filling config file INSTRUCTIONS
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -113,6 +106,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
 bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
+
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67
 

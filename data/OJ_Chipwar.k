@@ -1,38 +1,28 @@
-8 4 7 9 14 13 8 9
-0
-12
-1000
-67
+7 5 8 9 6 4 7 9
+1
+9
+2000
+64
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+ChipWar by JohnEarnest https://github.com/JohnEarnest. CHIP8, 06.06.2014. A (loose) adaptation of the classic DiceWars. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/chipwar
 
 
 ===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
+A (loose) adaptation of the classic Dice Wars.
 
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
+This game takes place on a toroidal field of 16 territories. Each has some number of troops stationed there (1-5). At the beginning of the game, territories are divided between you (white) and an AI opponent (black).
 
-the large square at right-bottom corner is mass scanner
-the hook is target
+You can order your territories to attack adjacent enemy territories provided you have more than one troop available. When you attack, a number of 8-sided dice will be rolled and summed based on the number of attackers and defenders. If the attackers win, they capture the territory and transfer all but one of their troops over. If the defenders win, they destroy all but one of the attackers and lose one troop, or none if they have only a single troop.
 
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+After white has taken a turn, each territory has a 50% chance of producing one new troop. The game ends when black or white has conquered the entire map.
+
+When selecting a territory, ASWD move your cursor, E selects the territory and Q ends your turn. With a territory selected, ASWD choose the direction in which to attack, E confirms the attack and Q cancels. When the game is over press any key to play again.
+================================
 
 
-//filling config file INSTRUCTIONS
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -113,6 +103,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
 bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
+
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67
 

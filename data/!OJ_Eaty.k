@@ -1,38 +1,50 @@
-8 4 7 9 14 13 8 9
+7 5 8 9 6 13 7 9
 0
-12
-1000
-67
-30
+16
+0
+8
+800
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Eaty The Alien by John Earnest https://github.com/JohnEarnest. CHIP8, 31.10.2015. An incredible intergalactic adventure. Details and help: https://github.com/JohnEarnest/chip8Archive/tree/master/src/eaty  
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
-
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
-
-the large square at right-bottom corner is mass scanner
-the hook is target
-
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+=====================
+I recovered this program from a cassette tape I purchased on Ebay. Comments and indentifiers are all mine, 
+obviously- Octo's disassembler was a big help.
+As far as I can tell, "Eaty The Alien" was developed by a crack team at RCA in 1982 following a request from director 
+Steven Spielberg to try adapting his latest film into a video game. Upon seeing the first prototypes he apparently 
+changed his mind and pitched the idea to Atari. The RCA team hastily removed as many references to the original 
+license as possible from their prototype and tried selling the game anyway.
+My research shows that only 73 copies of the game were sold, and this is most likely captured from the last s
+urviving tape. A single page from the manual survived the trip here, but it provides enough explanation to get the 
+basic idea. Playing through it, I can't help but wonder whether Howard Scott Warshaw saw "Eaty" and tried to borrow 
+ideas for his own adaptation...
+=====================
 
 
-//filling config file INSTRUCTIONS
+Eaty The Alien
+#
+#  An incredible intergalactic adventure.
+#
+#  Use ASWD to move Eaty.
+#  Use E to activate Eaty's Magic Neck.
+#
+#  Icons in the lower right corner indicate
+#  when you are standing on a special area.
+#  Find all three parts of Eaty's phone,
+#  activate it at the "C" marker and
+#  be on the marker with 4 arrows by
+#  the time the countdown ends.
+#  Watch your life force- every step you
+#  take on this inhospitable planet drains
+#  your health. Consume Skittles(tm)
+#  candies and drain the essence of flowers
+#  to stay alive.
+
+
+
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color

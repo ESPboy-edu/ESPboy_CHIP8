@@ -1,38 +1,64 @@
-8 4 7 9 14 13 8 9
+4 2 8 6 5 15 4 6
 0
-12
-1000
-67
+16
+500
+64
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+A magic square by David WINTER. SCHIP, 1997. The goal is to turn then BLACK by inverting their color, knowing that inverting the colour of a square will also invert these of the squares placed just on the left, right, up and down of it...
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
-
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
-
-the large square at right-bottom corner is mass scanner
-the hook is target
-
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+=================================
+****************************************************************************
+                     №яяя  №яяя№ џ   џ №яяя№ №яяя№ џяяяя
+                      яяя№ џ  №я џ   џ џяяяџ џяџя  џяя
+                      яяя   яя я  яяя  я   я я  я  яяяяя
+                        A magic square in Super CHIP-8
+                      (C)Copyright 1997 by David WINTER
+****************************************************************************
 
 
-//filling config file INSTRUCTIONS
+       This game, as well as the others for this scene, are FREE
+       and freely ditributable. If you paid to have it, you have
+       been stolen. If you got money to give it, you're a thief.
+
+
+       The rules of this game are very simple: the game is played
+       in a variable size grid made of 3*3 to 8*8 squares, so the
+       level of the game is designated by the width of the grid.
+       Initially, all the squares of the grid are WHITE. The goal
+       is to turn then BLACK by inverting their color, knowing
+       that inverting the colour of a square will also invert these
+       of the squares placed just on the left, right, up and down
+       of it...
+       Some levels are very simple: level 3 can be finished with
+       only 5 inversions, and level 4 needs only 4 inversions to
+       be completed...
+       Once a level is completed, the game is finished. To play
+       again, just reset the emulator.
+
+       I know I could have implemented some sort of inversions
+       counter, and next-level playing after a level is finished,
+       but I missed some time to do this... Anyway, have fun !
+
+       I could also have given the source of this program, but it
+       is not documented, so it would not be interesting to those
+       who are looking for help in programming.
+
+
+       The keys are:
+                   [8] :   UP
+                   [4] :   LEFT (lower level under level selection)
+                   [5] :   INVERT SQUARE (start game under level selection)
+                   [6] :   RIGHT (upper level under level selection)
+                   [2] :   DOWN
+==========================
+
+
+
+
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -108,10 +134,6 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
-
-0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
-bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
-bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

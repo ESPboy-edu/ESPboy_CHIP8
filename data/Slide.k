@@ -1,38 +1,44 @@
-8 4 7 9 14 13 8 9
-0
-12
-1000
+1 2 4 3 0 0 0 0
+10
+2
+500
 67
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Slide by Joyce Weisbecker. CHIP8. Slide is a two-person game.  Each player tries to slide a "puck" over the high-scoring "spots" without hitting the back wall.
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
+==============================
+5. VIP SLIDE
 
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
+Slide is a two-person game.  Each player tries to slide a "puck" over the high-scoring
+"spots" without hitting the back wall.
 
-the large square at right-bottom corner is mass scanner
-the hook is target
+How To Play VIP Slide
 
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+1. Load the CHIP-8 interpretor at 0000-01FF
+   and the game starting at 0200.
+
+2. Turn RUN switch on.
+
+3. The puck moves up and down randomly.  Press "0" key to stop the puck.  The puck
+   will move towards the spots after you release the key.  The longer you hold the
+   key down, the further the puck travels (maximum time approximately 2.5 seconds).
+
+4. You get 2 points for hitting the first spot, 4 points for either of the next two
+   spots and 8 points for either of the last two.  The highest score possible is 216
+   (two spots can be hit on one slide).
+
+5. If you hit the back wall, though, you get zero points for that slide, even though
+   you've hit a spot.
+
+6. Each player gets 3 pucks per turn and 6 turns in a game.
+==============================
 
 
-//filling config file INSTRUCTIONS
+
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color

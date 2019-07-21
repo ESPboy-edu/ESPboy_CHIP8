@@ -1,38 +1,58 @@
-8 4 7 9 14 13 8 9
+7 5 8 9 10 0 7 9
 0
-12
-1000
+16
+0
 67
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Sokoban by hap. SCHIP, 11.04.2006. A port of Sokoban to SCHIP.
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
+=================================
+Sokoban, a port of Sokoban to SCHIP, by hap, April 11th, 2006.
+Original by Thinking Rabbit, 1982.
 
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
+I won't explain the concept of this game, you probably already know. The game
+contains the original floors, all 50 of them, that have been verified against
+the 1984 PC version.
 
-the large square at right-bottom corner is mass scanner
-the hook is target
-
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+It has been tested, and works fine on my CHIP8 emulator, Fish 'n' Chips,
+comfortable gameplay is at about 1.2Khz. It has also been successfully tested
+on HP48 SCHIP, using EMU48.
 
 
-//filling config file INSTRUCTIONS
+HOW TO PLAY
+===========
+
+[x]=CHIP8 hexpad key
+{x}=key in a PC emulator that emulates it on 1234/qwer/asdf/zxcv
+
+Titlescreen:
+Select a floor with [7]{a} and [9]{d}, and enter it with [a]{z}. The floor will
+now be drawn onto the screen.
+
+Game:
+Move with [5]{w}, [8]{s}, [7]{a}, [9]{d}. You can undo moves up to 57 times
+with [a]{z}. To restart, hold [0]{x}, and to exit to the titlescreen, restart
+before making a move.
+
+
+CREDITS
+=======
+
+Floors were converted to textfiles, these are available all over the internet.
+Thanks to whoever converted them in the first place, as I used them to, erm,
+reconvert them. Note that I found some floors containing errors while comparing
+against screenshots made from the original Sokoban, though maybe they were
+intentionally changed(?)
+
+==========================
+
+
+
+
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -108,10 +128,6 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
-
-0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
-bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
-bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

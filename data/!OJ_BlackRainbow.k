@@ -1,38 +1,24 @@
-8 4 7 9 14 13 8 9
+7 5 8 9 0 15 7 9
+8
+7
 0
-12
-1000
-67
+147
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Black Rainbow by John Earnest https://github.com/JohnEarnest. SCHIP, 01.11.2016. Plumb the depths of your subconscious and bring back the motherlode... Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/blackrainbow
+
+============================
+G O O D L U C K ,
+B A R R Y ! B R I N G
+B A C K T H E
+M O T H E R L O D E . . .
+A S W D   M O V E
+X P A U S E
+============================
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
-
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
-
-the large square at right-bottom corner is mass scanner
-the hook is target
-
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
-
-
-//filling config file INSTRUCTIONS
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color

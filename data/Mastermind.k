@@ -1,38 +1,32 @@
-8 4 7 9 14 13 8 9
+1 2 4 3 5 6 0 15
 0
-12
-1000
+14
+7000
 67
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Mastermind by Robert Lindley. CHIP8, 1978. For complete details of the game, please refer to their instructions in "k" file
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
+==============================
+	MASTERMIND
+		   by
+	      Robert Lindley
 
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
-
-the large square at right-bottom corner is mass scanner
-the hook is target
-
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+I have progranmed two versLons of the game Mastermind. This game is distributed by Invicta Plastics, Suite 940, 200 - 5th Ave., New York, NY 10010, and is available most pLaces where toys and games are sold.
+For complete details of the game, please refer to their instructions. The information given here refers to this particular VIP iurplementation.
+The two versions are essentially the same except that the first has a four number code and the second has a five  nr:mber hidden code selected at random..  In the four number version, the digits one through six are used and in the five  number version the diglts zero through seven are used.
+While the game is running, the other hex keys, except key F, have no effect. Key F is used when you change your mind and want to change your input. This key erases the current partial entry.
+The game starts by displaying a series of dashes arranged in rows. As the game progresses, the player attempts to  deduce the hidden code by replacing the dashes with digits entered via the hex keyboard. Each tlme a hex key is used, the selected digit replaces a dash in  one vertical column. This vertical column is one guess of the ten allowed to deduce
+the hidden number. When the bottom dash in any column is replaced by a digit,  that try is imidiately scored. This score appears below the current column. If any digit in the column exactly matches the hidden number digit in the same row, a broken bar will appear. then four or five (one for each row in the game) appear, the hidden number has been deduced
+and it will be revealed at the right end of  the screen. If any digit in the column matches a hidden digit, but in an incorrect erorr, a white bar will appear. Note that the scoring is across all rows. For example, if there are two fives in a column and one of then is in the correct row and there is only one five in the hidden numbers, one broken bar will appear.
+When all allowed ten tries  have been used, the hidden number will be revealed. 
+==============================
 
 
-//filling config file INSTRUCTIONS
+
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color

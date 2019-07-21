@@ -6,7 +6,7 @@
 30
 60
 200
-Ultimate Tic-tac-toe by ????. SCHIP, 01.09.2014. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/ultimatetictactoe
+Ultimate Tic-tac-toe by Unknown. SCHIP, 01.09.2014. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/ultimatetictactoe
 
 
 //INSTRUCTIONS
@@ -85,6 +85,10 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
+
+0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
+bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
+bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

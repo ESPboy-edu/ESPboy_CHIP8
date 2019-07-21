@@ -1,38 +1,58 @@
-8 4 7 9 14 13 8 9
+4 2 8 6 5 15 4 6
+14
 0
-12
 1000
-67
+64
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Reversi by Philip Baltzer. CHIP8. Reversi is a game over 100 years old, which has become popular recently under the name Othello.
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
+==================================
+6. VIP REVERSI
+Reversi is a game over 100 years old, which has become popular recently under the
+name Othello.  The game is played on a 8x8 square, using two kinds of markers.
+In VIP Reversi one player has the open markers and the other player the solid
+markers.  The score for either player at any time is the total number of his markers
+on the square.
 
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
+How to play VIP Reversi
 
-the large square at right-bottom corner is mass scanner
-the hook is target
+1. Load the CHIP-8 interpretor at 0000-01FF
+   and the game starting at 0200.
 
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+2. Turn RUN switch on.
+
+3. The 8x8 square will be formed and the starting marker configuration shown, having
+   two of each kind of marker in the center four locations of the square.  The starting
+   score for each player is shown as 02 above a line of his markers.
+
+4. Your VIP indicates the player's turn by blinking that player's score and also blinking
+   a cursor dot in the 8x8 square.  A player moves the blinking cursor dot in the 8x8
+   square by pressing the direction keys 1-4 and 6-9 as shown. (VIPG1-6.JPG)
+
+5. When the cursor-dot is properly located, the player presses key 5 to place his marker
+   on the square.  You will find that your VIP will not allow you to make a non-valid
+   play.  The only placements allowed are onces for which at least one of the other
+   player's markers is surrounded between an existing marker of your own and your new
+   marker being placed.  All these markers must be in consecutive positions on the
+   square and can be in any horizontal, vertical or diagonal direction.  Once a new
+   marker has been placed, your VIP will change all such surrounded markers of the
+   other player to your kind and change the scores.
+
+6. Sometimes it may not be possible for a player to make a valid move.  If this happens
+   he must forfeit his move by pressing the "F" key! The game ends when neither player
+   can play or when the 8x8 square is completely filled with markers.  The goal is to
+   end the game with the highest score.  Do not be discouraged if during the game you
+   seem to be losing because this is a game with dramatic reversals!  Develop a winning
+   strategem and become a champion!!
+===================================
 
 
-//filling config file INSTRUCTIONS
+
+
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -112,6 +132,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
 bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
 bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
+
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

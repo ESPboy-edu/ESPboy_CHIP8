@@ -1,38 +1,46 @@
-8 4 7 9 14 13 8 9
+7 5 8 9 6 4 7 9
+8
+11
 0
-12
-1000
-67
+64
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Octopeg by Chromatophore https://github.com/Chromatophore. SCHIP, 29.10.2015. A peggle clone.  Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/octopeg
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
+==========================
+OCTOPEG
 
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
+Octopeg is a submission for Octo-ber jam II: http://octojam.com/octojam-ii/games/octopeg It's written for Octo, a high-level assembler for Chip 8, an 8 bit assembly language from the 1970s: https://github.com/JohnEarnest/Octo
 
-the large square at right-bottom corner is mass scanner
-the hook is target
+Game Readme
 
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+OCTOPEG is a game about the destruction of pegs.
+
+Use WSAD to aim the cannon. Press E to fire.
+
+You start each level with a number of shots. You can see these in the top left corner. You will get fewer shots as the game progresses.
+
+When you run out of shots, you will progress to the next level. There are 8 levels. It is not possible to lose.
+
+Your turn ends when your ball falls into a chute. You can also press Q if your ball actually for real gets stuck forever.
+
+If your ball falls into the chute with the moving indicator in it, you will get a FREE BALL, which allows you take an extra shot.
+
+Hitting pegs will fill the bars on the left and right of the screen. The bar on the left is the LIFE BAR. The bar on the right is the COMBO BAR. The COMBO BAR resets every level, the LIFE BAR does not.
+
+Fill the LIFE BAR on the left of the screen to get an extra shot.
+
+Fill the COMBO BAR on the right of the screen to enter FEVER mode. Your COMBO BAR will fill quicker if you achieve a high STREAK. A STREAK is how many pegs you hit in a single turn.
+
+The higher your COMBO BAR is, the more points each peg is worth.
+
+When in FEVER mode, you will get some extra BONUS POINTS depending on which chute you fall into. The chutes in the middle are worth the most. Your COMBO BAR will become empty afterwards. Make it count!
+=========================
 
 
-//filling config file INSTRUCTIONS
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -108,10 +116,6 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
-
-0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
-bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
-bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

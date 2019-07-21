@@ -1,38 +1,21 @@
-8 4 7 9 14 13 8 9
+7 5 8 9 6 4 6 4
 0
-12
+14
 1000
-67
+64
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Cave Explorerby JohnEarnest. https://github.com/JohnEarnest. CHIP8, 22.06.2014. Traverse a sprawling 16-screen overworld, solve puzzles, move crates around and, with a little luck, watch an incredible ending sequence! Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/caveexplorer
 
 
-===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
-
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
-
-the large square at right-bottom corner is mass scanner
-the hook is target
-
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+===========================
+Traverse a sprawling 16-screen overworld, solve puzzles, move crates around and, with a little luck, watch an incredible ending sequence! Move with ASWD, and in platformer levels use E to pick up/drop crates and Q to reset the level.
+Do you have what it takes to be a Cave Explorer?
+===========================
 
 
-//filling config file INSTRUCTIONS
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -113,6 +96,7 @@ bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in 
 bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
 bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
+
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67
 

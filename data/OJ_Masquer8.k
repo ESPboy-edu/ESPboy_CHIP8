@@ -1,38 +1,36 @@
-8 4 7 9 14 13 8 9
-0
+1 2 3 4 15 10 4 6
+15
 12
 1000
-67
+64
 30
 60
 200
-Carbon8 by Chromatophore https://github.com/Chromatophore. Chip8 01.11.2018 A period correct movie tie in game for a popular 1980s franchise. Details and manual: https://github.com/JohnEarnest/chip8Archive/tree/master/src/carbon8
+Masquer8by Chromatophore. https://github.com/Chromatophore. CHIP8 30.10.2015. Cuttlefish pattern matching game for chip8. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/masquer8
 
 
 ===============================
-//GAME DESCRIPTION
-on game screen:
-first gauge - external temp
-second gauge - internal temp
-(goals are market on the gauge rulers in upper end with lines)
-
-the bottom-center gauge is carbonite flow
-small square to the left of this gauge - venting opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner) 
-small square to the right of this gauge - filler opening indicator (min - dot at bottom-left corner / max - dot in the upper-right corner)
-
-the large square at right-bottom corner is mass scanner
-the hook is target
-
-UP/DOWN - controls the Vent dial. Allows warm outside air in to warm up the target
-LEFT/RIGHT - controls the Carbonite flow. This will cool the target down
-ACT/ESC - controls the Filler gas flow. This will allow you to fill the mass needed faster without cooling the target down.
-The Slab will form as Carbonite and Filler flow into the chamber over time. The freezing process is only complete once the entire slab is formed. It is at this time that judgement will be rendered.
-Your goal is to try and match both of the target internal and external temperature goals for the subject being frozen, but this only matters in the same instant that the slab is completed.
-This will achieve the best result and help you move forward to the next round. You will need to master the multiple aspects of the Carbonite Chamber in order to achieve all of your goals.
-===============================
+Masquer8 is another submission for Octo-ber jam II: http://octojam.com/octojam-ii/games/masquer8 It's written for Octo, a high-level assembler for Chip 8, an 8 bit assembly language from the 1970s: https://github.com/JohnEarnest/Octo
+Masquer8 is a game where you control Cammy Cuttlefish, a master of disguise.
+!! Using V on the "Press Key" menu page will continue from the last level you were on !!
+Blend in with your surroundings perfectly so that the Shark can't see you!
+You have a HUD in the bottom right corner.
+You start with access to Vertical Lines on keys 1-4. Every time you change your pattern, the shark will get slightly closer. There is an icon for the Shark in the HUD. If you can see its eyes, it's really close!
+At any time, press V to try and blend in. If you're not quite a perfect match, you will lose a lot of time and the shark will get closer. You must be lined up both horizontally and vertically. This can be very hard with some patterns.
+The HUD has an indicator that shows which patterns you have active. Try cycling them a little bit to see how it works. You can use this to work out how to get back to normal.
+After a few levels you will unlock horizontal lines on keys Q-R.
+After a few more, you will unlock Patterns mode, which is REALLY HARD. These are on keys A-F and Z to C. A pro tip to get started is that, remember these puzzles are only 2 or 3 layered patterns, so, find one you think must be involved and try toggling on other patterns.
+If you get a game over, press V on the title screen (or just navigate all menus with V) to Continue from the level you were on.
+The game has 10 levels.
+After you get the ending screen, you will enter infinite mode, where you will be presented with random puzzles to match. In this mode, the Shark will ignore you. If you can't beat a puzzle, or get your camouflage in a muddle, mash V a bunch and it will give you a game over and allow you get a new puzzle.
+You can press Z on the title screen to jump straight to infinite mode, also.
+Infinite mode is really, really hard, and I often see a puzzle on it and go 'how the hell can you do that??', so, don't feel bad.
+The game was designed to be playable even at 7 cycles / frame. It also has a loading screen where it generates all of the patterns for Cammy, instead of having to program them in yourself. This means that there's about 1K of 0s at the end of the code, which hopefully would have been easier to type in.
+After going back and revising the game a little bit, I have managed to get the memory footprint to be under 3.2k, which hopefully means that this game would have been genuinely playable on original hardware.
+====================================
 
 
-//filling config file INSTRUCTIONS
+//INSTRUCTIONS
 It's important not to change layout of first 9 lines of this file.
 - key mapping separated by spaces
 - foreground color
@@ -108,10 +106,6 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
-
-0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
-bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
-bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67
