@@ -2,10 +2,10 @@
 
 
 >Special thanks for help to:
->Igor (corax89) https://github.com/corax89
->DmitryL (Plague) https://github.com/PlagueRus
->John Earnest https://github.com/JohnEarnest/Octo 
->and Alvaro Alea Fernandez https://github.com/alvaroalea for his Chip-8 emulator 
+* Igor (corax89) https://github.com/corax89
+* DmitryL (Plague) https://github.com/PlagueRus
+* John Earnest https://github.com/JohnEarnest/Octo 
+* and Alvaro Alea Fernandez https://github.com/alvaroalea for his Chip-8 emulator 
 
 Implemented all known quirks to provide wide compatibility
 
@@ -114,6 +114,7 @@ For correct compilation, change settings in file «User_Setup.h» of TFT_eSPI li
 
 ## OCTO JAM GAMES 
 https://johnearnest.github.io/chip8Archive/
+
 | Game | Author
 | ------ | ------
 | RPS | SystemLogoff
@@ -239,46 +240,47 @@ delay in microseconds before each instruction
 are used to turn on/off few emulator tricks
 details https://github.com/Chromatophore/HP48-Superchip
 
---------
-8XY6/8XYE opcode
+
+>8XY6/8XYE opcode
 Bit shifts a register by 1, VIP: shifts rY by one and places in rX, SCHIP: ignores rY field, shifts existing value in rX.
 bit1 = 1    <<= amd >>= takes vx, shifts, puts to vx, ignore vy
 bit1 = 0    <<= and >>= takes vy, shifts, puts to vx
---------
-FX55/FX65 opcode
+
+>FX55/FX65 opcode
 Saves/Loads registers up to X at I pointer - VIP: increases I by X, SCHIP: I remains static.
 bit2 = 1    load and store operations leave i unchaged
 bit2 = 0    I is set to I + X + 1 after operation
---------
-8XY4/8XY5/8XY7/ ??8XY6??and??8XYE??
+
+>8XY4/8XY5/8XY7/ ??8XY6??and??8XYE??
 bit3 = 1    arithmetic results write to vf after status flag
 bit3 = 0    vf write only status flag
---------
-DXYN
+
+
+>DXYN
 bit4 = 1    wrapping sprites
 bit4 = 0    clip sprites at screen edges instead of wrapping
---------
-BNNN (aka jump0)
+
+>BNNN (aka jump0)
 Sets PC to address NNN + v0 - VIP: correctly jumps based on value in v0. SCHIP: also uses highest nibble of address to select register, instead of v0 (high nibble pulls double duty). Effectively, making it jumpN where target memory address is N##. Very awkward quirk.
 bit5 = 1    Jump to CurrentAddress+NN ;4 high bits of target address determines the offset register of jump0 instead of v0.
 bit5 = 0    Jump to address NNN+V0
---------
-DXYN check bit 8
+
+>DXYN check bit 8
 bit6 = 1    drawsprite returns number of collised rows of the sprite + rows out of the screen lines of the sprite (check for bit8)
 bit6 = 0    drawsprite returns 1 if collision/s and 0 if no collision/s
---------
-EMULATOR TFT DRAW
+
+>EMULATOR TFT DRAW
 bit7 = 1    draw to TFT just after changing pixel by drawsprite() not on timer
 bit7 = 0    redraw all TFT from display on timer
---------
-DXYN OUT OF SCREEN check bit 6
+
+>DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value 
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value 
---------
-0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
+
+>0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
 bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
 bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
---------
+
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67 
 
