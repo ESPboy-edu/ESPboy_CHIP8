@@ -1,7 +1,7 @@
 # ESPboy chip8/hires/schip emulator by RomanS
 
 ```sh
-Special thanks for help to:
+Special thanks to:
 - Igor (corax89) https://github.com/corax89
 -  DmitryL (Plague) https://github.com/PlagueRus
 - John Earnest https://github.com/JohnEarnest/Octo 
