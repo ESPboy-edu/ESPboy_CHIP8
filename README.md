@@ -1,11 +1,13 @@
 # ESPboy chip8/hires/schip emulator by RomanS
 
 ```sh
+/*
 Special thanks to:
 - Igor (corax89) https://github.com/corax89
--  DmitryL (Plague) https://github.com/PlagueRus
+- DmitryL (Plague) https://github.com/PlagueRus
 - John Earnest https://github.com/JohnEarnest/Octo 
 and Alvaro Alea Fernandez https://github.com/alvaroalea for his Chip-8 emulator 
+*/
 ```
 
 Implemented all known quirks to provide wide compatibility
@@ -220,10 +222,10 @@ ESPboy keys
 
 ```sh
 Chip8 keys
->1     2     3     C[12]
->4     5     6     D[13]
->7     8     9     E[14]
->A[10] 0[0] B[11]  F[15]
+1     2     3     C[12]
+4     5     6     D[13]
+7     8     9     E[14]
+A[10] 0[0] B[11]  F[15]
 ```
 
 ### 2. FOREGROUND COLOR
