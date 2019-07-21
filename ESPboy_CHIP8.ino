@@ -876,7 +876,7 @@ int_fast8_t do_cpu(){
 			reg[x] = waitanykey();
 			break;
 		case CHIP8_EXTF_SDELAY: //setdelay
-      updatedisplay();
+      if (BIT7CTL) updatedisplay();
 			dtimer = reg[x];
 			break;
 		case CHIP8_EXTF_SSOUND: //setsound
