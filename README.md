@@ -1,13 +1,11 @@
 # ESPboy chip8/hires/schip emulator by RomanS
 
 ```sh
-/*
 Special thanks to:
 - Igor (corax89) https://github.com/corax89
 - DmitryL (Plague) https://github.com/PlagueRus
 - John Earnest https://github.com/JohnEarnest/Octo 
 and Alvaro Alea Fernandez https://github.com/alvaroalea for his Chip-8 emulator 
-*/
 ```
 
 Implemented all known quirks to provide wide compatibility
@@ -33,8 +31,7 @@ For correct compilation, change settings in file «User_Setup.h» of TFT_eSPI li
 ## GAMENAME PREFIXES:
 - SC – super chip game
 - OJ – OCTO JAM game https://johnearnest.github.io/chip8Archive/
-- ! – recommended for play game
-- D – playable demo, not completed game
+- ! – recommended to play
 - HR – hires game
 
 ## CHIP8 GAMES in this package
@@ -202,7 +199,7 @@ Here could be description of the game about 300 symbols
 ```
 
 # CONFIG FILE <gamename.k> INSTRUCTIONS
-It's important not to change layout of first 9 lines of this file.
+Config file is simple txt with following parameters in every new line
 - key mapping separated by spaces
 - foreground color
 - background color
@@ -215,7 +212,7 @@ It's important not to change layout of first 9 lines of this file.
 
 
 ### 1. KEY MAPPING
-first line is the list of chi8 keys separated with spaces corresponded to ESPboy keys
+first line is the list of chi8 keys separated with spaces corresponding to ESPboy keys
 
 ESPboy keys
 0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
@@ -242,7 +239,7 @@ no of color according to the same list
 delay in microseconds before each instruction
 
 ### 5. COMPATIBILITY FLAGS
-are used to turn on/off few emulator tricks
+are used to turn on/off few emulator quircks
 details https://github.com/Chromatophore/HP48-Superchip
 
 
