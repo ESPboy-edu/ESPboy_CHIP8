@@ -1,11 +1,12 @@
 # ESPboy chip8/hires/schip emulator by RomanS
 
-
->Special thanks for help to:
-* Igor (corax89) https://github.com/corax89
-* DmitryL (Plague) https://github.com/PlagueRus
-* John Earnest https://github.com/JohnEarnest/Octo 
-* and Alvaro Alea Fernandez https://github.com/alvaroalea for his Chip-8 emulator 
+```sh
+Special thanks for help to:
+- Igor (corax89) https://github.com/corax89
+-  DmitryL (Plague) https://github.com/PlagueRus
+- John Earnest https://github.com/JohnEarnest/Octo 
+and Alvaro Alea Fernandez https://github.com/alvaroalea for his Chip-8 emulator 
+```
 
 Implemented all known quirks to provide wide compatibility
 
@@ -217,11 +218,13 @@ first line is the list of chi8 keys separated with spaces corresponded to ESPboy
 ESPboy keys
 0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
 
+```sh
 Chip8 keys
 >1     2     3     C[12]
 >4     5     6     D[13]
 >7     8     9     E[14]
 >A[10] 0[0] B[11]  F[15]
+```
 
 ### 2. FOREGROUND COLOR
 no of color according to the list  
