@@ -3,7 +3,7 @@
 16
 0
 8
-800
+50
 60
 200
 Eaty The Alien by John Earnest https://github.com/JohnEarnest. CHIP8, 31.10.2015. An incredible intergalactic adventure. Details and help: https://github.com/JohnEarnest/chip8Archive/tree/master/src/eaty  

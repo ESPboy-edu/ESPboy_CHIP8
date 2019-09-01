@@ -2,8 +2,8 @@
 14
 16
 0
-67
-40
+64
+30
 40
 200
 Piper by Piperby Aeris, JordanMecom, LillianWang. CHIP8, 23.01.2017. Play as a small bird to collect goodies and avoid waves. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/piper
