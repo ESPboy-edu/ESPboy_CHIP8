@@ -121,7 +121,7 @@ bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX
 #define LFT_BUTTONn   6
 #define RGT_BUTTONn   7
 
-#define LHSWAP(w) ( ((uint16_t)(w)>>8) | ((uint16_t)(w)<<8) )
+#define LHSWAP(w) ( ((w)>>8) | ((w)<<8) )
 
 //lib colors table
 uint16_t colors[] = { 
@@ -131,11 +131,11 @@ uint16_t colors[] = {
 };
 
 uint16_t colorsSW[] = { 
-            LHSWAP(TFT_BLACK), LHSWAP(TFT_NAVY), LHSWAP(TFT_DARKGREEN), LHSWAP(TFT_DARKCYAN), LHSWAP(TFT_MAROON),
-            LHSWAP(TFT_PURPLE), LHSWAP(TFT_OLIVE), LHSWAP(TFT_LIGHTGREY), LHSWAP(TFT_DARKGREY), 
-            LHSWAP(TFT_BLUE), LHSWAP(TFT_GREEN), LHSWAP(TFT_CYAN),
-            LHSWAP(TFT_RED), LHSWAP(TFT_MAGENTA), LHSWAP(TFT_YELLOW), LHSWAP(TFT_WHITE), 
-            LHSWAP(TFT_ORANGE), LHSWAP(TFT_GREENYELLOW), LHSWAP(TFT_PINK)
+            LHSWAP((uint16_t)TFT_BLACK), LHSWAP((uint16_t)TFT_NAVY), LHSWAP((uint16_t)TFT_DARKGREEN), LHSWAP((uint16_t)TFT_DARKCYAN), LHSWAP((uint16_t)TFT_MAROON),
+            LHSWAP((uint16_t)TFT_PURPLE), LHSWAP((uint16_t)TFT_OLIVE), LHSWAP((uint16_t)TFT_LIGHTGREY), LHSWAP((uint16_t)TFT_DARKGREY), 
+            LHSWAP((uint16_t)TFT_BLUE), LHSWAP((uint16_t)TFT_GREEN), LHSWAP((uint16_t)TFT_CYAN),
+            LHSWAP((uint16_t)TFT_RED), LHSWAP((uint16_t)TFT_MAGENTA), LHSWAP((uint16_t)TFT_YELLOW), LHSWAP((uint16_t)TFT_WHITE), 
+            LHSWAP((uint16_t)TFT_ORANGE), LHSWAP((uint16_t)TFT_GREENYELLOW), LHSWAP((uint16_t)TFT_PINK)
 };
 
 //emulator vars
@@ -348,15 +348,16 @@ void updatedisplay(){
 
 void updatedisplay(){    
   static uint16_t bufLine[128];
-  static uint16_t drawcolor; 
-  static uint32_t i, j, drawaddr;
+  static uint16_t drawcolor, drawcolorback; 
+  static uint16_t i, j, o, drawaddr;
   static uint32_t addr;
 
   addr=0;
   drawcolor = colorsSW[foreground_emu];
+  drawcolorback = colorsSW[background_emu];
   for (i = 0; i < screen_height; i++)
-  {
-    memset(bufLine,colorsSW[background_emu],sizeof(bufLine));
+  { 
+    for (o = 0; o < 128; o++) bufLine[o] = drawcolorback;
     for (j = 0; j < screen_width; j++) 
       if (display2[addr++]){
        switch (emumode){
