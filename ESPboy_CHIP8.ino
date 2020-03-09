@@ -166,7 +166,7 @@ static const char     *no_config_desc = (char *)"No configuration\nfile found\n\
 static uint_fast16_t  buttonspressed;
 
 //diff vars display
-static uint8_t        display1[128 * 64];
+//static uint8_t        display1[128 * 64];
 static uint8_t        display2[128 * 64];
 static uint_fast8_t   screen_width;
 static uint_fast8_t   screen_height;
@@ -297,7 +297,7 @@ void init_display(){
       break;
   }  
   memset(display2, 0, sizeof(display2));
-  memset(display1, 0, sizeof(display2));
+//  memset(display1, 0, sizeof(display1));
   switch (emumode){
     case CHIP8:
       tft.fillRect(0, 16, 128, 64, colors[background_emu]);
@@ -349,7 +349,7 @@ void updatedisplay(){
 void updatedisplay(){    
   static uint16_t bufLine[128];
   static uint16_t drawcolor, drawcolorback; 
-  static uint16_t i, j, o, drawaddr;
+  static uint32_t i, j, /*o*/, drawaddr;
   static uint32_t addr;
 
   addr=0;
@@ -357,7 +357,7 @@ void updatedisplay(){
   drawcolorback = colorsSW[background_emu];
   for (i = 0; i < screen_height; i++)
   { 
-    for (o = 0; o < 128; o++) bufLine[o] = drawcolorback;
+    //for (o = 0; o < 128; o++) bufLine[o] = drawcolorback;
     for (j = 0; j < screen_width; j++) 
       if (display2[addr++]){
        switch (emumode){
@@ -378,6 +378,25 @@ void updatedisplay(){
             break;
         }
      }
+     else{
+       switch (emumode){
+          case CHIP8:
+            drawaddr = j*2;
+            bufLine[drawaddr] = drawcolorback;
+            drawaddr++;
+            bufLine[drawaddr] = drawcolorback;
+            break;
+          case HIRES:
+            drawaddr = j*2;
+            bufLine[drawaddr] = drawcolorback;
+            drawaddr++;
+            bufLine[drawaddr] = drawcolorback;
+            break;
+          case SCHIP:
+            bufLine[j] = drawcolorback;
+            break;
+       }
+    }
     switch (emumode){
           case CHIP8:
             drawaddr = i*2+16;
