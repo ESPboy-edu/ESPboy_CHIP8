@@ -121,14 +121,22 @@ bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX
 #define LFT_BUTTONn   6
 #define RGT_BUTTONn   7
 
+#define LHSWAP(w) ( ((uint16_t)(w)>>8) | ((uint16_t)(w)<<8) )
 
 //lib colors table
 uint16_t colors[] = { 
             TFT_BLACK, TFT_NAVY, TFT_DARKGREEN, TFT_DARKCYAN, TFT_MAROON,
 					  TFT_PURPLE, TFT_OLIVE, TFT_LIGHTGREY, TFT_DARKGREY, TFT_BLUE, TFT_GREEN, TFT_CYAN,
-					  TFT_RED, TFT_MAGENTA, TFT_YELLOW, TFT_WHITE, TFT_ORANGE, TFT_GREENYELLOW, TFT_PINK 
+					  TFT_RED, TFT_MAGENTA, TFT_YELLOW, TFT_WHITE, TFT_ORANGE, TFT_GREENYELLOW, TFT_PINK
 };
 
+uint16_t colorsSW[] = { 
+            LHSWAP(TFT_BLACK), LHSWAP(TFT_NAVY), LHSWAP(TFT_DARKGREEN), LHSWAP(TFT_DARKCYAN), LHSWAP(TFT_MAROON),
+            LHSWAP(TFT_PURPLE), LHSWAP(TFT_OLIVE), LHSWAP(TFT_LIGHTGREY), LHSWAP(TFT_DARKGREY), 
+            LHSWAP(TFT_BLUE), LHSWAP(TFT_GREEN), LHSWAP(TFT_CYAN),
+            LHSWAP(TFT_RED), LHSWAP(TFT_MAGENTA), LHSWAP(TFT_YELLOW), LHSWAP(TFT_WHITE), 
+            LHSWAP(TFT_ORANGE), LHSWAP(TFT_GREENYELLOW), LHSWAP(TFT_PINK)
+};
 
 //emulator vars
 static uint8_t        mem[0x1000]; 
@@ -304,7 +312,7 @@ void init_display(){
 }
 
 
-
+/*
 void updatedisplay(){    
   static uint_fast8_t drawcolor, i, j;
   static uint_fast16_t addr;
@@ -335,6 +343,58 @@ void updatedisplay(){
     }  
   }
   memcpy(display1, display2, sizeof(display1));
+}*/
+
+
+void updatedisplay(){    
+  static uint16_t bufLine[128];
+  static uint16_t drawcolor; 
+  static uint32_t i, j, drawaddr;
+  static uint32_t addr;
+
+  addr=0;
+  drawcolor = colorsSW[foreground_emu];
+  for (i = 0; i < screen_height; i++)
+  {
+    memset(bufLine,colorsSW[background_emu],sizeof(bufLine));
+    for (j = 0; j < screen_width; j++) 
+      if (display2[addr++]){
+       switch (emumode){
+          case CHIP8:
+            drawaddr = j*2;
+            bufLine[drawaddr] = drawcolor;
+            drawaddr++;
+            bufLine[drawaddr] = drawcolor;
+            break;
+          case HIRES:
+            drawaddr = j*2;
+            bufLine[drawaddr] = drawcolor;
+            drawaddr++;
+            bufLine[drawaddr] = drawcolor;
+            break;
+          case SCHIP:
+            bufLine[j*2] = drawcolor;
+            break;
+        }
+     }
+    switch (emumode){
+          case CHIP8:
+            drawaddr = i*2+16;
+            tft.pushImage(0, drawaddr, 128, 1, bufLine);
+            drawaddr++;
+            tft.pushImage(0, drawaddr, 128, 1, bufLine);
+            break;
+          case HIRES:
+            drawaddr = i*2;
+            tft.pushImage(0, drawaddr, 128, 1, bufLine);
+            drawaddr++;
+            tft.pushImage(0, drawaddr, 128, 1, bufLine);
+            break;
+          case SCHIP:
+            tft.pushImage(0, i+16, 128, 1, bufLine);
+            break;    
+    }  
+  }
 }
 
 
