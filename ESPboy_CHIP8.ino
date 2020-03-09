@@ -373,7 +373,7 @@ void updatedisplay(){
             bufLine[drawaddr] = drawcolor;
             break;
           case SCHIP:
-            bufLine[j*2] = drawcolor;
+            bufLine[j] = drawcolor;
             break;
         }
      }
