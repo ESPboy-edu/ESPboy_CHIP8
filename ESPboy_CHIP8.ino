@@ -353,60 +353,56 @@ void updatedisplay(){
   addr=0;
   drawcolor = colorsSW[foreground_emu];
   drawcolorback = colorsSW[background_emu];
-  for (i = 0; i < screen_height; i++)
-  { 
-    //for (o = 0; o < 128; o++) bufLine[o] = drawcolorback;
-    for (j = 0; j < screen_width; j++) 
-      if (display2[addr++]){
-       switch (emumode){
-          case CHIP8:
-            drawaddr = j*2;
+  switch (emumode){
+    
+    case CHIP8:
+      for (i = 0; i < screen_height; i++){
+        for (j = 0; j < screen_width; j++){ 
+          drawaddr = j*2;
+          if (display2[addr++]){
             bufLine[drawaddr] = drawcolor;
             bufLine[drawaddr+1] = drawcolor;
-            break;
-          case HIRES:
-            drawaddr = j*2;
-            bufLine[drawaddr] = drawcolor;
-            bufLine[drawaddr+1] = drawcolor;
-            break;
-          case SCHIP:
-            bufLine[j] = drawcolor;
-            break;
+          }
+          else{
+            bufLine[drawaddr] = drawcolorback;
+            bufLine[drawaddr+1] = drawcolorback;
+          }
         }
-     }
-     else{
-       switch (emumode){
-          case CHIP8:
-            drawaddr = j*2;
+      memcpy(&bufLine[128], &bufLine[0], 256);
+      tft.pushImage(0, i*2+16, 128, 2, bufLine);
+      }
+      break;
+      
+    case HIRES:
+      for (i = 0; i < screen_height; i++){
+        for (j = 0; j < screen_width; j++){
+          drawaddr = j*2;
+          if (display2[addr++]){
+            bufLine[drawaddr] = drawcolor;
+            bufLine[drawaddr+1] = drawcolor;
+          }
+          else{
             bufLine[drawaddr] = drawcolorback;
             bufLine[drawaddr+1] = drawcolorback;
-            break;
-          case HIRES:
-            drawaddr = j*2;
-            bufLine[drawaddr] = drawcolorback;
-            bufLine[drawaddr+1] = drawcolorback;
-            break;
-          case SCHIP:
+          }
+        }
+      memcpy(&bufLine[128], &bufLine[0], 256);
+      tft.pushImage(0, i*2, 128, 2, bufLine);
+      }
+      break;
+
+    case SCHIP:
+      for (i = 0; i < screen_height; i++){
+        for (j = 0; j < screen_width; j++)
+          if (display2[addr++])
+            bufLine[j] = drawcolor;
+          else
             bufLine[j] = drawcolorback;
-            break;
-       }
-    }
-    switch (emumode){
-          case CHIP8:
-            memcpy(&bufLine[128], &bufLine[0], 256);
-            tft.pushImage(0, i*2+16, 128, 2, bufLine);
-            break;
-          case HIRES:
-            memcpy(&bufLine[128], &bufLine[0], 256);
-            tft.pushImage(0, i*2, 128, 2, bufLine);
-            break;
-          case SCHIP:
-            tft.pushImage(0, i+16, 128, 1, bufLine);
-            break;    
-    }  
+        tft.pushImage(0, i+16, 128, 1, bufLine);
+      }
+      break;
   }
 }
-
 
 
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
