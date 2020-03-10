@@ -360,12 +360,12 @@ void updatedisplay(){
         for (j = 0; j < screen_width; j++){ 
           drawaddr = j*2;
           if (display2[addr++]){
+            bufLine[drawaddr++] = drawcolor;
             bufLine[drawaddr] = drawcolor;
-            bufLine[drawaddr+1] = drawcolor;
           }
           else{
+            bufLine[drawaddr++] = drawcolorback;
             bufLine[drawaddr] = drawcolorback;
-            bufLine[drawaddr+1] = drawcolorback;
           }
         }
       memcpy(&bufLine[128], &bufLine[0], 256);
@@ -378,12 +378,12 @@ void updatedisplay(){
         for (j = 0; j < screen_width; j++){
           drawaddr = j*2;
           if (display2[addr++]){
+            bufLine[drawaddr++] = drawcolor;
             bufLine[drawaddr] = drawcolor;
-            bufLine[drawaddr+1] = drawcolor;
           }
           else{
+            bufLine[drawaddr++] = drawcolorback;
             bufLine[drawaddr] = drawcolorback;
-            bufLine[drawaddr+1] = drawcolorback;
           }
         }
       memcpy(&bufLine[128], &bufLine[0], 256);
