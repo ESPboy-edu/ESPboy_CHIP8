@@ -347,10 +347,8 @@ void updatedisplay(){
 
 
 void updatedisplay(){    
-  static uint16_t bufLine[128];
-  static uint16_t drawcolor, drawcolorback; 
-  static uint32_t i, j, /*o*/, drawaddr;
-  static uint32_t addr;
+  static uint16_t bufLine[256], drawcolor, drawcolorback; 
+  static uint32_t i, j, addr, drawaddr;
 
   addr=0;
   drawcolor = colorsSW[foreground_emu];
@@ -364,14 +362,12 @@ void updatedisplay(){
           case CHIP8:
             drawaddr = j*2;
             bufLine[drawaddr] = drawcolor;
-            drawaddr++;
-            bufLine[drawaddr] = drawcolor;
+            bufLine[drawaddr+1] = drawcolor;
             break;
           case HIRES:
             drawaddr = j*2;
             bufLine[drawaddr] = drawcolor;
-            drawaddr++;
-            bufLine[drawaddr] = drawcolor;
+            bufLine[drawaddr+1] = drawcolor;
             break;
           case SCHIP:
             bufLine[j] = drawcolor;
@@ -383,14 +379,12 @@ void updatedisplay(){
           case CHIP8:
             drawaddr = j*2;
             bufLine[drawaddr] = drawcolorback;
-            drawaddr++;
-            bufLine[drawaddr] = drawcolorback;
+            bufLine[drawaddr+1] = drawcolorback;
             break;
           case HIRES:
             drawaddr = j*2;
             bufLine[drawaddr] = drawcolorback;
-            drawaddr++;
-            bufLine[drawaddr] = drawcolorback;
+            bufLine[drawaddr+1] = drawcolorback;
             break;
           case SCHIP:
             bufLine[j] = drawcolorback;
@@ -399,16 +393,12 @@ void updatedisplay(){
     }
     switch (emumode){
           case CHIP8:
-            drawaddr = i*2+16;
-            tft.pushImage(0, drawaddr, 128, 1, bufLine);
-            drawaddr++;
-            tft.pushImage(0, drawaddr, 128, 1, bufLine);
+            memcpy(&bufLine[128], &bufLine[0], 256);
+            tft.pushImage(0, i*2+16, 128, 2, bufLine);
             break;
           case HIRES:
-            drawaddr = i*2;
-            tft.pushImage(0, drawaddr, 128, 1, bufLine);
-            drawaddr++;
-            tft.pushImage(0, drawaddr, 128, 1, bufLine);
+            memcpy(&bufLine[128], &bufLine[0], 256);
+            tft.pushImage(0, i*2, 128, 2, bufLine);
             break;
           case SCHIP:
             tft.pushImage(0, i+16, 128, 1, bufLine);
