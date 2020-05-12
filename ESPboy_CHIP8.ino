@@ -21,6 +21,7 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 //pins
 #define LEDPIN    D4
 #define SOUNDPIN  D3
+#define LEDLOCK   9
 
 //system
 #define FONTCHIP_OFFSET       0x38 //small chip8 font 8x5
@@ -68,7 +69,7 @@ DXYN
 bit4 = 1    wrapping sprites
 bit4 = 0    clip sprites at screen edges instead of wrapping
 
-BNNN (aka jump0)
+BNNN (aka jump0)ыуе
 Sets PC to address NNN + v0 - VIP: correctly jumps based on value in v0. SCHIP: also uses highest nibble of address to select register, instead of v0 (high nibble pulls double duty). Effectively, making it jumpN where target memory address is N##. Very awkward quirk.
 bit5 = 1    Jump to CurrentAddress+NN ;4 high bits of target address determines the offset register of jump0 instead of v0.
 bit5 = 0    Jump to address NNN+V0
@@ -120,6 +121,7 @@ bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX
 #define ESC_BUTTONn   5
 #define LFT_BUTTONn   6
 #define RGT_BUTTONn   7
+
 
 #define LHSWAP(w) ( ((w)>>8) | ((w)<<8) )
 
@@ -1100,6 +1102,8 @@ void setup(){
 	draw_loading();
 
 	//LED init
+  mcp.pinMode(LEDLOCK, OUTPUT);
+  mcp.digitalWrite(LEDLOCK, HIGH);
 	pinMode(LEDPIN, OUTPUT);
 	pixels.begin();
 	delay(100);
