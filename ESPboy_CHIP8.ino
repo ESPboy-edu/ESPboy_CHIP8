@@ -6,8 +6,12 @@ ESPboy project page:
 https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 */
 
+#include "ROM1.h" //AstroDodge SCHIP
+//#include "ROM2.h" //Sub-Terr8nia SCHIP
+//#include "ROM3.h" // Turnover77 SCHIP
+//#include "ROM4.h" // Ant SCHIP
+
 #include "ESPboyCHIP8fonts.h"
-#include "ROM1.h"
 #include <FS.h>
 #include "lib/ESPboyInit.h"
 #include "lib/ESPboyInit.cpp"
