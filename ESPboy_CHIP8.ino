@@ -1137,7 +1137,8 @@ void loop(){
 	case APP_EMULATE: //chip8 emulation
 		myESPboy.tft.fillScreen(TFT_BLACK);
 		do_emulation();
-		emustate = APP_SHOW_DIR;
+		myESPboy.tft.fillScreen(TFT_BLACK);
+    emustate = APP_HELP;
 		break;
 	}
 }
