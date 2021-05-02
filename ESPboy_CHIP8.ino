@@ -7,6 +7,7 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 */
 
 #include "ESPboyCHIP8fonts.h"
+#include "ROM1.h"
 #include <FS.h>
 #include "lib/ESPboyInit.h"
 #include "lib/ESPboyInit.cpp"
@@ -117,6 +118,7 @@ uint16_t colors[] = {
 
 
 ESPboyInit myESPboy;
+
 
 //emulator vars
 static uint8_t        mem[0x1000]; 
@@ -970,7 +972,7 @@ void do_emulation(){
 
 void setup(){
 
-  //Init ESPboy
+  //Init ESPboy  
   myESPboy.begin("CHIP8/SCHIP");
   
   myESPboy.tft.setTextColor(TFT_GREEN);
@@ -1030,13 +1032,28 @@ void loop(){
 			emustate = APP_SHOW_DIR;
     else{
         myESPboy.tft.fillScreen(TFT_BLACK);
-        myESPboy.tft.setCursor(0, 60);
+        myESPboy.tft.setCursor(0, 0);
         myESPboy.tft.setTextColor(TFT_MAGENTA);
-        myESPboy.tft.print(F(" Chip8 ROMs not found"));
-        myESPboy.tft.setCursor(0, 70);
-        myESPboy.tft.print(F("  upload to SPIFFS"));
-        while (1) 
-            delay(5000);
+        myESPboy.tft.println(F("Chip8 ROMs not found"));
+        myESPboy.tft.println(F("upload to SPIFFS"));
+        myESPboy.tft.println("");
+        delay(1000);
+        myESPboy.tft.println(F("Loading default..."));
+        delay(2000);
+
+        memcpy_P(&mem[0x200], &ROM[0], sizeof(ROM));
+        for (uint8_t i = 0; i < 8; i++) keys[i] = atoi(ROMCFG[i]);
+        foreground_emu = atoi(ROMCFG[8]);
+        background_emu = atoi(ROMCFG[9]);
+        delay_emu = atoi(ROMCFG[10]);
+        compatibility_emu = atoi(ROMCFG[11]);
+        opcodesperframe_emu = atoi(ROMCFG[12]);
+        timers_emu = atoi(ROMCFG[13]);
+        soundtone_emu = atoi(ROMCFG[14]);
+        description_emu = ((String)ROMCFG[14]).substring(0, 314);
+
+        chip8_reset();
+        emustate = APP_EMULATE;
     }
 		break;
 	case APP_SHOW_DIR:
