@@ -6,10 +6,10 @@ ESPboy project page:
 https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 */
 
-#include "ROM1.h" //AstroDodge SCHIP
+//#include "ROM1.h" //AstroDodge SCHIP
 //#include "ROM2.h" //Sub-Terr8nia SCHIP
 //#include "ROM3.h" // Turnover77 SCHIP
-//#include "ROM4.h" // Ant SCHIP
+#include "ROM4.h" // Ant SCHIP
 
 #include "ESPboyCHIP8fonts.h"
 #include <FS.h>
@@ -124,8 +124,9 @@ uint16_t colors[] = {
 ESPboyInit myESPboy;
 
 
+
 //emulator vars
-static uint8_t        mem[0x1000]; 
+uint8_t *mem; 
 static int16_t        stack[0x10]; 
 static uint8_t        reg[0x10];    
 static uint8_t        schip_reg[0x10];
@@ -978,6 +979,10 @@ void setup(){
 
   //Init ESPboy  
   myESPboy.begin("CHIP8/SCHIP");
+
+
+
+  mem = new (uint8_t[0x1000]);
   
   myESPboy.tft.setTextColor(TFT_GREEN);
   myESPboy.tft.setCursor(0, 0);
@@ -1141,8 +1146,8 @@ void loop(){
 	case APP_EMULATE: //chip8 emulation
 		myESPboy.tft.fillScreen(TFT_BLACK);
 		do_emulation();
-		myESPboy.tft.fillScreen(TFT_BLACK);
-    emustate = APP_HELP;
+    myESPboy.tft.fillScreen(TFT_BLACK);
+		emustate = APP_HELP;
 		break;
 	}
 }
