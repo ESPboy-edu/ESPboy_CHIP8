@@ -1,12 +1,12 @@
-7 5 8 9 6 4 7 9
+7 5 8 9 6 13 7 9
 18
-0
-2000
-64
+5
+500
+67
 30
 60
 200
-ChipWar by JohnEarnest, 2019. A (loose) adaptation of the classic DiceWars. 
+Br8kout by SharpenedSpoon, 2014. Classic breakout port. 
 
 
 

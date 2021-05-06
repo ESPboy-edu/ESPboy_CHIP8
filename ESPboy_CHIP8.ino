@@ -6,32 +6,24 @@ ESPboy project page:
 https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 */
 
-#include "ESPboyLogo.h"
+#pragma GCC optimize ("-Ofast")
+#pragma GCC push_options
+
+#include "ROM1.h" //AstroDodge SCHIP
+//#include "ROM2.h" //Sub-Terr8nia SCHIP
+//#include "ROM3.h" // Turnover77 SCHIP
+//#include "ROM4.h" // Ant SCHIP
+
 #include "ESPboyCHIP8fonts.h"
 #include <FS.h>
-#include <TFT_eSPI.h>
-#include <Wire.h>
-#include <Adafruit_NeoPixel.h>
-#include <Adafruit_MCP23017.h>
-#include <Adafruit_MCP4725.h>
-#include <ESP8266WiFi.h>
-#include <pgmspace.h>
+#include "lib/ESPboyInit.h"
+#include "lib/ESPboyInit.cpp"
 
-
-//pins
-#define LEDPIN    D4
-#define SOUNDPIN  D3
-#define LEDLOCK   9
 
 //system
 #define FONTCHIP_OFFSET       0x38 //small chip8 font 8x5
 #define FONTSUPERCHIP_OFFSET  0x88 //large super chip font 8x10
 #define NLINEFILES            14 //no of files in menu
-#define csTFTMCP23017pin      8
-#define LEDquantity           1
-#define MCP23017address       0 // actually it's 0x20 but in <Adafruit_MCP23017.h> lib there is (x|0x20) :)
-#define MCP4725dacresolution  8
-#define MCP4725address        0
 
 //default emu parameters
 #define DEFAULTCOMPATIBILITY    0b0000000001000011 //compatibility bits: bit16,...bit8,bit7...bit1;
@@ -40,6 +32,9 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 #define DEFAULTBACKGROUND       0  // check colors []
 #define DEFAULTDELAY            1000
 #define DEFAULTSOUNDTONE        300
+
+#define MAX_FPS_PART_DRAW 20
+#define MAX_FPS_FULL_DRAW 8
 
 //default keymapping
 //0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
@@ -123,7 +118,6 @@ bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX
 #define RGT_BUTTONn   7
 
 
-#define LHSWAP(w) ( ((w)>>8) | ((w)<<8) )
 
 //lib colors table
 uint16_t colors[] = { 
@@ -132,19 +126,15 @@ uint16_t colors[] = {
 					  TFT_RED, TFT_MAGENTA, TFT_YELLOW, TFT_WHITE, TFT_ORANGE, TFT_GREENYELLOW, TFT_PINK
 };
 
-uint16_t colorsSW[] = { 
-            LHSWAP((uint16_t)TFT_BLACK), LHSWAP((uint16_t)TFT_NAVY), LHSWAP((uint16_t)TFT_DARKGREEN), LHSWAP((uint16_t)TFT_DARKCYAN), LHSWAP((uint16_t)TFT_MAROON),
-            LHSWAP((uint16_t)TFT_PURPLE), LHSWAP((uint16_t)TFT_OLIVE), LHSWAP((uint16_t)TFT_LIGHTGREY), LHSWAP((uint16_t)TFT_DARKGREY), 
-            LHSWAP((uint16_t)TFT_BLUE), LHSWAP((uint16_t)TFT_GREEN), LHSWAP((uint16_t)TFT_CYAN),
-            LHSWAP((uint16_t)TFT_RED), LHSWAP((uint16_t)TFT_MAGENTA), LHSWAP((uint16_t)TFT_YELLOW), LHSWAP((uint16_t)TFT_WHITE), 
-            LHSWAP((uint16_t)TFT_ORANGE), LHSWAP((uint16_t)TFT_GREENYELLOW), LHSWAP((uint16_t)TFT_PINK)
-};
+
+ESPboyInit myESPboy;
+
 
 //emulator vars
-static uint8_t        mem[0x1000]; 
-static int16_t        stack[0x10]; 
-static uint8_t        reg[0x10];    
-static uint8_t        schip_reg[0x10];
+uint8_t *mem; 
+static int16_t        stack[0x10]     __attribute__ ((aligned));; 
+static uint8_t        reg[0x10]       __attribute__ ((aligned));;    
+static uint8_t        schip_reg[0x10] __attribute__ ((aligned));;
 static uint_fast8_t   sp, VF = 0xF; 
 static uint_fast8_t   stimer, dtimer;
 static uint_fast64_t  emutimer;
@@ -152,14 +142,19 @@ static uint_fast16_t  pc, I;
 static uint_fast8_t   schip_exit_flag = false;
 
 //loaded parameters
-static uint_fast8_t   keys[8]={0};
-static uint_fast8_t   foreground_emu;
-static uint_fast8_t   background_emu;
-static uint_fast16_t  compatibility_emu;   // look above
-static uint_fast8_t   opcodesperframe_emu; // how many opcodes should be done before screen updates
-static uint_fast8_t   timers_emu;          // freq of timers. standart 60hz
-static uint_fast16_t  soundtone_emu;       // sound base tone check buzz();
-static uint_fast16_t  delay_emu;           // delay in microseconds before next opcode done
+static uint8_t   keys[8]={0};
+static uint8_t   foreground_emu;
+static uint8_t   background_emu;
+static uint16_t  compatibility_emu;   // look above
+static uint16_t  opcodesperframe_emu; // how many opcodes should be done before screen updates
+static uint8_t   timers_emu;          // freq of timers. standart 60hz
+static uint16_t  soundtone_emu;       // sound base tone check buzz();
+static uint16_t  delay_emu;           // delay in microseconds before next opcode done
+
+static uint32_t opcodescounter=0;
+static uint32_t opcodesafterlastdrawcounter=0;
+static uint8_t updatedisplayflag=0;
+
 
 String                description_emu;     // file description
 static const char     *no_config_desc = (char *)"No configuration\nfile found\n\nUsing unoptimal\ndefault parameters";
@@ -168,8 +163,7 @@ static const char     *no_config_desc = (char *)"No configuration\nfile found\n\
 static uint_fast16_t  buttonspressed;
 
 //diff vars display
-//static uint8_t        display1[128 * 64];
-static uint8_t        display2[128 * 64];
+static uint8_t        display2[128 * 64]  __attribute__ ((aligned));
 static uint_fast8_t   screen_width;
 static uint_fast8_t   screen_height;
 
@@ -265,12 +259,6 @@ enum{
 
 
 
-TFT_eSPI tft = TFT_eSPI();
-Adafruit_MCP23017 mcp;
-Adafruit_NeoPixel pixels(LEDquantity, LEDPIN);
-Adafruit_MCP4725 dac;
-
-
 
 void update_timers(){
     if ((millis()-emutimer) > (1000 / timers_emu))
@@ -302,96 +290,52 @@ void init_display(){
 //  memset(display1, 0, sizeof(display1));
   switch (emumode){
     case CHIP8:
-      tft.fillRect(0, 16, 128, 64, colors[background_emu]);
+      myESPboy.tft.fillRect(0, 16, 128, 64, colors[background_emu]);
       break;
     case HIRES:
-      tft.fillRect(0, 0, 128, 128, colors[background_emu]);
+      myESPboy.tft.fillRect(0, 0, 128, 128, colors[background_emu]);
       break;
     case SCHIP:
-      tft.fillRect(0, 16, 128, 64, colors[background_emu]);
+      myESPboy.tft.fillRect(0, 16, 128, 64, colors[background_emu]);
       break;
   }
 }
 
 
-/*
-void updatedisplay(){    
-  static uint_fast8_t drawcolor, i, j;
-  static uint_fast16_t addr;
-  for (i = 0; i < screen_height; i++)
-  {
-    addr = i * screen_width;
-    for (j = 0; j < screen_width; j++) 
-    {
-      if (display1[addr] ^ display2[addr])
-      {
-       if (display2[addr])
-          drawcolor = foreground_emu;
-        else 
-          drawcolor = background_emu;  
-        switch (emumode){
-          case CHIP8:
-            tft.fillRect(j*2, i*2+16, 2, 2, colors[drawcolor]);
-            break;
-          case HIRES:
-            tft.fillRect(j*2, i*2, 2, 2, colors[drawcolor]);
-            break;
-          case SCHIP:
-            tft.drawPixel(j, i+16, colors[drawcolor]);
-            break;
-        }
-      }
-    addr++;
-    }  
-  }
-  memcpy(display1, display2, sizeof(display1));
-}*/
-
 
 void updatedisplay(){    
-  static uint16_t bufLine[256], drawcolor, drawcolorback; 
+  static uint16_t bufLine[256] __attribute__ ((aligned));
+  static uint16_t drawcolor, drawcolorback;
   static uint32_t i, j, addr, drawaddr;
 
   addr=0;
-  drawcolor = colorsSW[foreground_emu];
-  drawcolorback = colorsSW[background_emu];
+  drawcolor = colors[foreground_emu];
+  drawcolorback = colors[background_emu];
+  
   switch (emumode){
     
     case CHIP8:
-      for (i = 0; i < screen_height; i++){
-        for (j = 0; j < screen_width; j++){ 
-          drawaddr = j*2;
-          if (display2[addr++]){
-            bufLine[drawaddr++] = drawcolor;
-            bufLine[drawaddr] = drawcolor;
-          }
-          else{
-            bufLine[drawaddr++] = drawcolorback;
-            bufLine[drawaddr] = drawcolorback;
-          }
-        }
-      memcpy(&bufLine[128], &bufLine[0], 256);
-      tft.pushImage(0, i*2+16, 128, 2, bufLine);
-      }
-      break;
-      
     case HIRES:
       for (i = 0; i < screen_height; i++){
-        for (j = 0; j < screen_width; j++){
-          drawaddr = j*2;
+        drawaddr = 0;
+        for (j = 0; j < screen_width; j++){ 
           if (display2[addr++]){
             bufLine[drawaddr++] = drawcolor;
-            bufLine[drawaddr] = drawcolor;
+            bufLine[drawaddr++] = drawcolor;
           }
           else{
             bufLine[drawaddr++] = drawcolorback;
-            bufLine[drawaddr] = drawcolorback;
+            bufLine[drawaddr++] = drawcolorback;
           }
         }
+        
       memcpy(&bufLine[128], &bufLine[0], 256);
-      tft.pushImage(0, i*2, 128, 2, bufLine);
+      if (emumode == CHIP8)
+        myESPboy.tft.pushImage(0, i*2+16, 128, 2, bufLine);
+      else
+        myESPboy.tft.pushImage(0, i*2, 128, 2, bufLine);
       }
-      break;
+    break;
 
     case SCHIP:
       for (i = 0; i < screen_height; i++){
@@ -400,7 +344,7 @@ void updatedisplay(){
             bufLine[j] = drawcolor;
           else
             bufLine[j] = drawcolorback;
-        tft.pushImage(0, i+16, 128, 1, bufLine);
+        myESPboy.tft.pushImage(0, i+16, 128, 1, bufLine);
       }
       break;
   }
@@ -410,6 +354,11 @@ void updatedisplay(){
 uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
  static uint_fast8_t data, mask, masked, xs, ys, yss, c, d, ret, preret;
  static uint_fast16_t addrdisplay, drw;
+ static uint32_t timepassed;
+
+ opcodesafterlastdrawcounter=0;
+ updatedisplayflag=1;
+ 
  if (!size)
       return (drawsprite16x16(x, y));
  else   
@@ -438,7 +387,10 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
       }
       if (preret) ret++;
     }
-    if (BIT7CTL && drw) updatedisplay();
+    if (BIT7CTL && drw && millis()-timepassed > 1000/MAX_FPS_PART_DRAW) {
+      timepassed = millis();
+      updatedisplay();
+    }
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
   }
@@ -448,6 +400,7 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
 uint8_t drawsprite16x16(uint8_t x, uint8_t y){
   static uint_fast8_t xs, ys, yss, c, d, ret, preret, drw;
   static uint_fast16_t addrdisplay, mask, masked, data;
+  static uint32_t timepassed;
     ret = 0; 
     preret = 0;
     drw = 0;
@@ -472,7 +425,10 @@ uint8_t drawsprite16x16(uint8_t x, uint8_t y){
       }
       if (preret) ret++;
     }
-    if (BIT7CTL && drw) updatedisplay();
+    if (BIT7CTL && drw && millis()-timepassed > 1000/MAX_FPS_PART_DRAW) {
+      timepassed = millis();
+      updatedisplay();
+    }
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
 }
@@ -494,7 +450,7 @@ void chip8_reset(){
 
 
 uint_fast16_t checkbuttons(){
-  buttonspressed = ~mcp.readGPIOAB() & 255;
+  buttonspressed = myESPboy.getKeys();
   return (buttonspressed);
 }
 
@@ -642,16 +598,14 @@ void buzz(){
 	if (stimer > 1 && !flagbuzz)
 	{
 		flagbuzz++;
-		tone(SOUNDPIN, soundtone_emu);
-		pixels.setPixelColor(0, pixels.Color(30, 0, 0));
-		pixels.show();
+		myESPboy.playTone(soundtone_emu);
+    myESPboy.myLED.setRGB(10, 0, 0);
 	}
 	if (stimer < 1 && flagbuzz)
 	{
 		flagbuzz = 0;
-		noTone(SOUNDPIN);
-		pixels.setPixelColor(0, pixels.Color(0, 0, 0));
-		pixels.show();
+		myESPboy.noPlayTone();
+		myESPboy.myLED.setRGB(0, 0, 0);
 	}
 }
 
@@ -944,7 +898,7 @@ int_fast8_t do_cpu(){
 			reg[x] = waitanykey();
 			break;
 		case CHIP8_EXTF_SDELAY: //setdelay
-      if (BIT7CTL) updatedisplay();
+      //if (BIT7CTL) updatedisplay();
 			dtimer = reg[x];
 			break;
 		case CHIP8_EXTF_SSOUND: //setsound
@@ -999,32 +953,83 @@ int_fast8_t do_cpu(){
 
 
 void do_emulation(){
-	uint16_t c = 0;
-  uint_fast64_t tme;
+  static uint_fast64_t tme;
+  static uint32_t updatelasttime;
+
+  myESPboy.tft.setTextColor(TFT_MAGENTA, TFT_BLACK);
+
 	init_display();
+	
 	while (true)
 	{
 			do_cpu();
       update_timers();
 			buzz();
-      tme = micros();
-      do 
-        yield();
-      while ((micros() - tme) < delay_emu);
-			if (!BIT7CTL and c > opcodesperframe_emu)
-			{
-        c = 0;
+
+      delay(0);
+      
+      if(delay_emu) {
+        tme = micros(); 
+        while ((micros() - tme) < delay_emu) delay(0);}
+        
+			if (!BIT7CTL &&  opcodescounter++ > opcodesperframe_emu){
+        opcodescounter = 0;
 			  updatedisplay();
 			}
-      c++;
-     
+
+
+      if (BIT7CTL && updatedisplayflag && (opcodesafterlastdrawcounter++ > opcodesperframe_emu) && millis()-updatelasttime > 1000/MAX_FPS_FULL_DRAW){
+        updatelasttime = millis();
+        updatedisplay();
+        updatedisplayflag=0;
+      }
+          
       checkbuttons();
-		  if (LFT_BUTTON && RGT_BUTTON)
-		  {
+		  if (LFT_BUTTON && RGT_BUTTON){
 			    chip8_reset();
 			    if (waitkeyunpressed() > 300)
 				  break;
 		  }
+
+      if (ACT_BUTTON && LFT_BUTTON){
+        if(opcodesperframe_emu)opcodesperframe_emu--;
+        myESPboy.tft.setCursor(0,0);
+        myESPboy.tft.print(opcodesperframe_emu);
+        myESPboy.tft.print(" ");
+        delay(20);
+      }
+        
+      if (ACT_BUTTON && RGT_BUTTON){
+        opcodesperframe_emu++;
+        myESPboy.tft.setCursor(0,0);
+        myESPboy.tft.print(opcodesperframe_emu);
+        myESPboy.tft.print(" ");
+        delay(20);
+      }
+
+
+      if (ACT_BUTTON && ESC_BUTTON){
+        compatibility_emu ^= 64;
+        myESPboy.tft.setCursor(0,8);
+        myESPboy.tft.print("BIT7 ");
+        myESPboy.tft.print(!(!(compatibility_emu & 64)));
+        myESPboy.tft.print(" ");
+        delay(500);
+      }
+    
+      if (ESC_BUTTON && LFT_BUTTON){
+        background_emu++;
+        if(background_emu > 19) background_emu = 0;
+        delay(200);
+      }
+        
+      if (ESC_BUTTON && RGT_BUTTON){
+        foreground_emu++;
+        if(foreground_emu > 19) foreground_emu = 0;
+        delay(200);
+      }
+
+     
       if (schip_exit_flag)
       {
           schip_exit_flag = false;
@@ -1035,100 +1040,23 @@ void do_emulation(){
 
 
 
-void draw_loading(bool reset = false){
-	static bool firstdraw = true;
-	static uint8_t index = 0;
-	int32_t pos, next_pos;
-	constexpr auto x = 29, y = 96, w = 69, h = 8, cnt = 5, padding = 3;
-	if (reset)
-	{
-		firstdraw = true;
-		index = 0;
-	}
-	if (firstdraw)
-	{
-		tft.fillRect(x+1, y+1, w-2, h-2, TFT_BLACK);
-		tft.drawRect(x, y, w, h, TFT_YELLOW);
-		firstdraw = false;
-	}
-	pos = ((index * (w - padding - 1)) / cnt);
-	index++;
-	next_pos = ((index * (w - padding - 1)) / cnt);
-	tft.fillRect(x + padding + pos, y + padding, next_pos - pos - padding + 1, h - padding*2, TFT_YELLOW);
-}
-
-
 
 void setup(){
 
-//wifi stack off
-  WiFi.mode(WIFI_OFF);
+  //Init ESPboy  
+  myESPboy.begin("CHIP8/SCHIP");
 
-  //serial init
-  Serial.begin(115200);
+
+  mem = new (uint8_t[0x1000]);
   
-	//buttons on mcp23017 init
-	mcp.begin(MCP23017address);
-	//delay(10);
-	for (int i = 0; i < 8; i++)
-	{
-		mcp.pinMode(i, INPUT);
-		mcp.pullUp(i, HIGH);
-	}
+  myESPboy.tft.setTextColor(TFT_GREEN);
+  myESPboy.tft.setCursor(0, 0);
+  myESPboy.tft.println(F("FILE SYSTEM INIT..."));
+	SPIFFS.begin();
+  myESPboy.tft.println(F("DONE"));
+  delay(1000);
+  myESPboy.tft.fillScreen(TFT_BLACK);
 
-	//TFT init
-	mcp.pinMode(csTFTMCP23017pin, OUTPUT);
-	mcp.digitalWrite(csTFTMCP23017pin, LOW);
-	tft.init();
-	tft.setRotation(0);
-	tft.fillScreen(TFT_BLACK);
-
-	draw_loading();
-
-	//draw ESPboylogo
-	tft.drawXBitmap(30, 24, ESPboyLogo, 68, 64, TFT_YELLOW);
-	tft.setTextSize(1);
-	tft.setTextColor(TFT_YELLOW);
-	tft.setCursor(4, 118);
-	tft.print("Chip8/Schip emulator");
-
-	if (!SPIFFS.begin())
-	{
-		SPIFFS.format();
-		SPIFFS.begin();
-	}
-	delay(100);
-	WiFi.mode(WIFI_OFF); // to safe some battery power
-	draw_loading();
-
-	//LED init
-  mcp.pinMode(LEDLOCK, OUTPUT);
-  mcp.digitalWrite(LEDLOCK, HIGH);
-	pinMode(LEDPIN, OUTPUT);
-	pixels.begin();
-	delay(100);
-	pixels.setPixelColor(0, pixels.Color(0, 0, 0));
-	pixels.show();
-	draw_loading();
-
-	//sound init and test
-	pinMode(SOUNDPIN, OUTPUT);
-	tone(SOUNDPIN, 200, 100);
-	delay(100);
-	tone(SOUNDPIN, 100, 100);
-	delay(100);
-	noTone(SOUNDPIN);
-	draw_loading();
-
-	//DAC init
-	dac.begin(0x60);
-	delay(100);
-	dac.setVoltage(4095, true);
-	draw_loading();
-
-	//clear TFT
-	delay(1500);
-	tft.fillScreen(TFT_BLACK);
 }
 
 
@@ -1151,11 +1079,11 @@ void loop(){
 	switch (emustate)
 	{
 	case APP_HELP:
-		tft.setTextColor(TFT_YELLOW);
-		tft.setTextSize(1);
-		tft.setCursor(0, 0);
-		tft.print(
-			"upload .ch8 to spiffs\n"
+		myESPboy.tft.setTextColor(TFT_YELLOW);
+		myESPboy.tft.setTextSize(1);
+		myESPboy.tft.setCursor(0, 0);
+		myESPboy.tft.print(F(
+			"upload .ch8 to SPIFFS\n"
 			"\n"
 			"add config file for\n"
 			" - keys remap\n"
@@ -1169,7 +1097,7 @@ void loop(){
 			"during the play press\n"
 			"both side buttons for\n"
 			" - RESET - shortpress\n"
-			" - EXIT  - longpress");
+			" - EXIT  - longpress"));
 		waitkeyunpressed();
 		waitanykey();
 		waitkeyunpressed();
@@ -1177,14 +1105,29 @@ void loop(){
 		if (maxfilesch8)
 			emustate = APP_SHOW_DIR;
     else{
-        tft.fillScreen(TFT_BLACK);
-        tft.setCursor(0, 60);
-        tft.setTextColor(TFT_MAGENTA);
-        tft.print(" Chip8 ROMs not found");
-        tft.setCursor(0, 70);
-        tft.print("   upload to SPIFFS");
-        while (1) 
-            delay(5000);
+        myESPboy.tft.fillScreen(TFT_BLACK);
+        myESPboy.tft.setCursor(0, 0);
+        myESPboy.tft.setTextColor(TFT_MAGENTA);
+        myESPboy.tft.println(F("Chip8 ROMs not found"));
+        myESPboy.tft.println(F("upload to SPIFFS"));
+        myESPboy.tft.println("");
+        delay(1000);
+        myESPboy.tft.println(F("Loading default..."));
+        delay(2000);
+
+        memcpy_P(&mem[0x200], &ROM[0], sizeof(ROM));
+        for (uint8_t i = 0; i < 8; i++) keys[i] = atoi(ROMCFG[i]);
+        foreground_emu = atoi(ROMCFG[8]);
+        background_emu = atoi(ROMCFG[9]);
+        delay_emu = atoi(ROMCFG[10]);
+        compatibility_emu = atoi(ROMCFG[11]);
+        opcodesperframe_emu = atoi(ROMCFG[12]);
+        timers_emu = atoi(ROMCFG[13]);
+        soundtone_emu = atoi(ROMCFG[14]);
+        description_emu = ((String)ROMCFG[14]).substring(0, 314);
+
+        chip8_reset();
+        emustate = APP_EMULATE;
     }
 		break;
 	case APP_SHOW_DIR:
@@ -1198,11 +1141,11 @@ void loop(){
 			if (filename.lastIndexOf(String(".ch8")) > 0)
 				countfilesch8++;
 		}
-		tft.fillScreen(TFT_BLACK);
-		tft.setCursor(0, 0);
-		tft.setTextColor(TFT_YELLOW);
-		tft.print("SELECT GAME:");
-		tft.setTextColor(TFT_MAGENTA);
+		myESPboy.tft.fillScreen(TFT_BLACK);
+		myESPboy.tft.setCursor(0, 0);
+		myESPboy.tft.setTextColor(TFT_YELLOW);
+		myESPboy.tft.print("SELECT GAME:");
+		myESPboy.tft.setTextColor(TFT_MAGENTA);
 		countfilesonpage = 0;
 		while (dir.next() && (countfilesonpage < NLINEFILES))
 		{
@@ -1223,22 +1166,23 @@ void loop(){
 					selectedfilech8name = filename;
 					filename.trim();
 					filename = String("> " + filename);
-					tft.setTextColor(TFT_YELLOW);
+					myESPboy.tft.setTextColor(TFT_YELLOW);
 				}
 				else
 				{
-					tft.setTextColor(TFT_MAGENTA);
+					myESPboy.tft.setTextColor(TFT_MAGENTA);
 				}
-				tft.setCursor(0, countfilesonpage * 8 + 12);
-				tft.print(filename);
+				myESPboy.tft.setCursor(0, countfilesonpage * 8 + 12);
+				myESPboy.tft.print(filename);
 				countfilesonpage++;
 			}
 		}
 		emustate = APP_CHECK_KEY;
 		break;
 	case APP_CHECK_KEY:
-		waitkeyunpressed();
+		//waitkeyunpressed();
 		waitanykey();
+    delay(100);
 		if (UP_BUTTON && selectedfilech8 > 1)
 			selectedfilech8--;
 		if (DOWN_BUTTON && (selectedfilech8 < maxfilesch8))
@@ -1248,26 +1192,27 @@ void loop(){
 			chip8_reset();
 			selectedfilech8name.trim();
 			loadrom("/" + selectedfilech8name + ".ch8");
-      tft.fillScreen(TFT_BLACK);
-			tft.setCursor((((21 - selectedfilech8name.length())) / 2) * 6, 0);
-			tft.setTextColor(TFT_YELLOW);
-			tft.print(selectedfilech8name);
-			tft.setCursor(0, 12);
-			tft.setTextColor(TFT_MAGENTA);
-			tft.print(description_emu);
-			waitkeyunpressed();
+      myESPboy.tft.fillScreen(TFT_BLACK);
+			myESPboy.tft.setCursor((((21 - selectedfilech8name.length())) / 2) * 6, 0);
+			myESPboy.tft.setTextColor(TFT_YELLOW);
+			myESPboy.tft.print(selectedfilech8name);
+			myESPboy.tft.setCursor(0, 12);
+			myESPboy.tft.setTextColor(TFT_MAGENTA);
+			myESPboy.tft.print(description_emu);
+			//waitkeyunpressed();
 			waitanykey();
-			waitkeyunpressed();
+			//waitkeyunpressed();
 			emustate = APP_EMULATE;
 		}
 		else
 			emustate = APP_SHOW_DIR;
-		waitkeyunpressed();
+		//waitkeyunpressed();
 		break;
 	case APP_EMULATE: //chip8 emulation
-		tft.fillScreen(TFT_BLACK);
+		myESPboy.tft.fillScreen(TFT_BLACK);
 		do_emulation();
-		emustate = APP_SHOW_DIR;
+    myESPboy.tft.fillScreen(TFT_BLACK);
+		emustate = APP_HELP;
 		break;
 	}
 }

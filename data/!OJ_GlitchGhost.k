@@ -1,28 +1,16 @@
-7 5 8 9 6 4 6 4
-14
-16
-0
-0
-6
-60
+7 5 8 9 6 6 6 6
+7
+8
 100
-Piper by Piperby Aeris, JordanMecom, LillianWang. CHIP8, 23.01.2017. Play as a small bird to collect goodies and avoid waves. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/piper
+200
+30
+60
+200
+GlitchGhost by  Jackie Kircher 2014. Game for Octojam VII developed in Octo for CHIP8. Scare man and let him run to the grave
 
 
-============================
-Piper | Global Game Jam 2017
-Piper is a little bird who is learning to collect shells and goodies on the beach. But when the wave comes in, she needs to hide in the sand to avoid getting wet. The waves wash in new goodies for Piper to pick up. Collect as many goodies as you can and don't get wet!
-By Lillian Wang, Jordan Mecom, and Alice Wang.
-Background
-This game is inspired by Pixar's short film of the same name. This is a Chip8 game made with Octo. Chip8 is a virtual machine designed in 1977 for programming video games. Octo is a high level assembler, disassembler and simulator for Chip8.
-Controls
-Movement: W, A, S, D
-Hide: E
-Settings
-Background color #444444
-Foreground color #cccccc
-Run at 200 Cycles/frame
-==============================
+
+
 
 
 //INSTRUCTIONS
@@ -51,7 +39,6 @@ Chip8 keys
 A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
-no of color according to the list
 0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW

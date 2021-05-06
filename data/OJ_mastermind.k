@@ -1,12 +1,12 @@
-7 5 8 9 6 4 7 9
+7 5 8 9 15 13 4 12
 18
+5
 0
-2000
 64
 30
 60
 200
-ChipWar by JohnEarnest, 2019. A (loose) adaptation of the classic DiceWars. 
+Chipcross by WilliamDonnely, 2015. The classic puzzle game of deduction.
 
 
 

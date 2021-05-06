@@ -1,14 +1,12 @@
-7 5 8 9 6 4 6 4
-12
-2
-700
-64
+5 5 5 5 5 5 5 5
+1
+7
+0
+147
 30
 60
-200
-Outlaw by JohnEarnest https://github.com/JohnEarnest. CHIP8, 17.07.2014. An adaptation of the Atari 2600 game "Outlaw" for the Chip8.
-
-
+50
+Floppy bird by ???. SCHIP game fo OCTO JAM 6
 
 
 //INSTRUCTIONS
@@ -87,6 +85,10 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
+
+0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
+bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
+bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

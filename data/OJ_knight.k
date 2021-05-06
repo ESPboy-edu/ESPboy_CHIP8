@@ -1,12 +1,15 @@
-4 2 5 6 1 1 7 9
-10
-8
-500
-72
+7 5 8 9 4 6 13 13
+14
+16
+0
+200
 30
 60
 200
-Snake by TimoTriisa https://boringreallife.com. CHIP8, 11.10.2014. Yet another port of the classic snake game.
+KNIGHT by Simon Klit-Johnson 2016. Game for Octojam III developed in Octo for CHIP8.
+
+
+
 
 
 
@@ -36,7 +39,6 @@ Chip8 keys
 A[10] 0[0]   B[11]  F[15]
 
 2. FOREGROUND COLOR
-no of color according to the list
 0-BLACK  1-NAVY  2-DARKGREEN  3-DARKCYAN  4-MAROON
 5-PURPLE  6-OLIVE  7-LIGHTGREY  8-DARKGREY  9-BLUE
 10-GREEN  11-CYAN  12-RED  13-MAGENTA  14-YELLOW
@@ -86,10 +88,6 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
-
-0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
-bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
-bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

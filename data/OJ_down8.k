@@ -1,12 +1,12 @@
-7 5 8 9 6 4 7 9
+7 5 8 9 6 10 7 9
 18
-0
-2000
+5
+500
 64
 30
 60
 200
-ChipWar by JohnEarnest, 2019. A (loose) adaptation of the classic DiceWars. 
+down8 by tinaun, 2015. You fall down an endless hole and then you die! 
 
 
 

@@ -1,28 +1,13 @@
-7 5 8 9 6 4 6 4
-14
-16
-0
-0
-6
+7 5 8 9 1 1 7 9
+10
+8
+500
+72
+30
 60
-100
-Piper by Piperby Aeris, JordanMecom, LillianWang. CHIP8, 23.01.2017. Play as a small bird to collect goodies and avoid waves. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/piper
+200
+Snake by TimoTriisa https://boringreallife.com. CHIP8, 11.10.2014. Yet another port of the classic snake game.
 
-
-============================
-Piper | Global Game Jam 2017
-Piper is a little bird who is learning to collect shells and goodies on the beach. But when the wave comes in, she needs to hide in the sand to avoid getting wet. The waves wash in new goodies for Piper to pick up. Collect as many goodies as you can and don't get wet!
-By Lillian Wang, Jordan Mecom, and Alice Wang.
-Background
-This game is inspired by Pixar's short film of the same name. This is a Chip8 game made with Octo. Chip8 is a virtual machine designed in 1977 for programming video games. Octo is a high level assembler, disassembler and simulator for Chip8.
-Controls
-Movement: W, A, S, D
-Hide: E
-Settings
-Background color #444444
-Foreground color #cccccc
-Run at 200 Cycles/frame
-==============================
 
 
 //INSTRUCTIONS
@@ -101,6 +86,10 @@ bit7 = 0    redraw all TFT from display on timer
 DXYN OUT OF SCREEN check bit 6
 bit8 = 1    drawsprite does not add "number of out of the screen lines of the sprite" in returned value
 bit8 = 0    drawsprite add "number of out of the screen lines of the sprite" in returned value
+
+0x1E ADI I = I + VX. SET reg I OVERFLOW BIT IN reg VF OR NOT
+bit9 = 1 set VF=1 in case of I ovelflow, overwise VF=0
+bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX 
 */
 
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67

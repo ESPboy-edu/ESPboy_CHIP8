@@ -1,12 +1,12 @@
-7 5 8 9 6 4 7 9
+7 5 8 9 6 10 7 9
 18
-0
-2000
+5
+3000
 64
 30
 60
 200
-ChipWar by JohnEarnest, 2019. A (loose) adaptation of the classic DiceWars. 
+Chipcross by buffi, 2018. 16 levels of Picross implemented in CHIP8. 800 bytes of fun.. 
 
 
 

@@ -1,28 +1,14 @@
 7 5 8 9 6 4 6 4
 14
 16
-0
-0
-6
+300
+64
+30
 60
-100
-Piper by Piperby Aeris, JordanMecom, LillianWang. CHIP8, 23.01.2017. Play as a small bird to collect goodies and avoid waves. Details: https://github.com/JohnEarnest/chip8Archive/tree/master/src/piper
+200
+Outlaw by JohnEarnest https://github.com/JohnEarnest. CHIP8, 17.07.2014. An adaptation of the Atari 2600 game "Outlaw" for the Chip8.
 
 
-============================
-Piper | Global Game Jam 2017
-Piper is a little bird who is learning to collect shells and goodies on the beach. But when the wave comes in, she needs to hide in the sand to avoid getting wet. The waves wash in new goodies for Piper to pick up. Collect as many goodies as you can and don't get wet!
-By Lillian Wang, Jordan Mecom, and Alice Wang.
-Background
-This game is inspired by Pixar's short film of the same name. This is a Chip8 game made with Octo. Chip8 is a virtual machine designed in 1977 for programming video games. Octo is a high level assembler, disassembler and simulator for Chip8.
-Controls
-Movement: W, A, S, D
-Hide: E
-Settings
-Background color #444444
-Foreground color #cccccc
-Run at 200 Cycles/frame
-==============================
 
 
 //INSTRUCTIONS

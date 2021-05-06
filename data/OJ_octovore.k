@@ -1,12 +1,12 @@
-7 5 8 9 6 4 7 9
+4 2 5 6 10 8 0 11
 18
+5
 0
-2000
-64
+67
 30
 60
 200
-ChipWar by JohnEarnest, 2019. A (loose) adaptation of the classic DiceWars. 
+Octovore by JackieKircher, 2015. A game of hungry hungry octopods. 
 
 
 
