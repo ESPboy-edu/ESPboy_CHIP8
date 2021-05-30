@@ -6,8 +6,8 @@ ESPboy project page:
 https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 */
 
-#pragma GCC optimize ("-Ofast")
-#pragma GCC push_options
+//#pragma GCC optimize ("-Ofast")
+//#pragma GCC push_options
 
 #include "ROM1.h" //AstroDodge SCHIP
 //#include "ROM2.h" //Sub-Terr8nia SCHIP
@@ -260,7 +260,7 @@ enum{
 
 
 
-void update_timers(){
+void IRAM_ATTR update_timers(){
     if ((millis()-emutimer) > (1000 / timers_emu))
     {
       emutimer = millis();
@@ -303,7 +303,7 @@ void init_display(){
 
 
 
-void updatedisplay(){    
+void IRAM_ATTR updatedisplay(){    
   static uint16_t bufLine[256] __attribute__ ((aligned));
   static uint16_t drawcolor, drawcolorback;
   static uint32_t i, j, addr, drawaddr;
@@ -351,7 +351,44 @@ void updatedisplay(){
 }
 
 
-uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
+uint8_t IRAM_ATTR drawsprite16x16(uint8_t x, uint8_t y){
+  static uint_fast8_t xs, ys, yss, c, d, ret, preret, drw;
+  static uint_fast16_t addrdisplay, mask, masked, data;
+  static uint32_t timepassed;
+    ret = 0; 
+    preret = 0;
+    drw = 0;
+    for(c = 0; c < 16; c++){
+      data = (((mem[I + c * 2])<<8) | mem[I + c * 2 + 1]);
+      mask=32768;
+      preret=0;
+      if (BIT4CTL) ys = (y+c) % screen_height;
+      else ys = (y % screen_height) + c;
+      if(ys >= screen_height && BIT6CTL && !BIT8CTL) ret++;
+      yss = ys * screen_width;
+      for (d = 0; d < 16; d++){
+        if (BIT4CTL) xs = (x + d) % screen_width;
+        else xs = (x % screen_width) + d;
+        addrdisplay = yss + xs;
+        masked = !(!(data & mask));
+        if (BIT4CTL || (xs < screen_width && ys < screen_height)){
+          if (masked && display2[addrdisplay]) preret++;
+          if (display2[addrdisplay] ^= masked) drw++;
+        }
+        mask >>= 1;
+      }
+      if (preret) ret++;
+    }
+    if (BIT7CTL && drw && millis()-timepassed > 1000/MAX_FPS_PART_DRAW) {
+      timepassed = millis();
+      updatedisplay();
+    }
+    if (BIT6CTL) return (ret);
+    else return (ret?1:0);
+}
+
+
+uint8_t IRAM_ATTR drawsprite(uint8_t x, uint8_t y, uint8_t size){
  static uint_fast8_t data, mask, masked, xs, ys, yss, c, d, ret, preret;
  static uint_fast16_t addrdisplay, drw;
  static uint32_t timepassed;
@@ -396,42 +433,6 @@ uint8_t drawsprite(uint8_t x, uint8_t y, uint8_t size){
   }
 }
 
-
-uint8_t drawsprite16x16(uint8_t x, uint8_t y){
-  static uint_fast8_t xs, ys, yss, c, d, ret, preret, drw;
-  static uint_fast16_t addrdisplay, mask, masked, data;
-  static uint32_t timepassed;
-    ret = 0; 
-    preret = 0;
-    drw = 0;
-    for(c = 0; c < 16; c++){
-      data = (((mem[I + c * 2])<<8) | mem[I + c * 2 + 1]);
-      mask=32768;
-      preret=0;
-      if (BIT4CTL) ys = (y+c) % screen_height;
-      else ys = (y % screen_height) + c;
-      if(ys >= screen_height && BIT6CTL && !BIT8CTL) ret++;
-      yss = ys * screen_width;
-      for (d = 0; d < 16; d++){
-        if (BIT4CTL) xs = (x + d) % screen_width;
-        else xs = (x % screen_width) + d;
-        addrdisplay = yss + xs;
-        masked = !(!(data & mask));
-        if (BIT4CTL || (xs < screen_width && ys < screen_height)){
-          if (masked && display2[addrdisplay]) preret++;
-          if (display2[addrdisplay] ^= masked) drw++;
-        }
-        mask >>= 1;
-      }
-      if (preret) ret++;
-    }
-    if (BIT7CTL && drw && millis()-timepassed > 1000/MAX_FPS_PART_DRAW) {
-      timepassed = millis();
-      updatedisplay();
-    }
-    if (BIT6CTL) return (ret);
-    else return (ret?1:0);
-}
 
 
 
