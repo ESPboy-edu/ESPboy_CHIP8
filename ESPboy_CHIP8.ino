@@ -31,9 +31,9 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 #define DEFAULTBACKGROUND       0  // check colors []
 #define DEFAULTDELAY            2
 #define DEFAULTSOUNDTONE        300
-#define DEFAULTDELAYMICROSECONDS 0
+#define DEFAULTDELAYMICROSECONDS 50
 
-#define REDRAWFPS 30
+#define REDRAWFPS 60
 
 //default keymapping
 //0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
@@ -973,6 +973,7 @@ void do_emulation(){
 		  if (LFT_BUTTON && RGT_BUTTON){
 			    chip8_reset();
 			    if (waitkeyunpressed() > 300)
+				  delay(200);
 				  break;
 		  }
 
@@ -989,7 +990,28 @@ void do_emulation(){
         delay(200);
       }
 
-     
+      if (UP_BUTTON && ACT_BUTTON && ESC_BUTTON){
+        myESPboy.tft.setTextColor(TFT_BLACK);
+        myESPboy.tft.setCursor(3,3);
+        myESPboy.tft.print(delay_emu);
+        delay_emu+=50;
+        myESPboy.tft.setTextColor(TFT_GREEN);
+        myESPboy.tft.setCursor(3,3);
+        myESPboy.tft.print(delay_emu);
+        delay(100);
+       }
+      
+      if (DOWN_BUTTON && ACT_BUTTON && ESC_BUTTON){
+        myESPboy.tft.setTextColor(TFT_BLACK);
+        myESPboy.tft.setCursor(3,3);
+        myESPboy.tft.print(delay_emu);
+        delay_emu-=50;
+        myESPboy.tft.setTextColor(TFT_GREEN);
+        myESPboy.tft.setCursor(3,3);
+        myESPboy.tft.print(delay_emu);
+        delay(100);
+      }
+          
       if (schip_exit_flag)
       {
           schip_exit_flag = false;
@@ -1043,20 +1065,24 @@ void loop(){
 		myESPboy.tft.setTextSize(1);
 		myESPboy.tft.setCursor(0, 0);
 		myESPboy.tft.print(F(
-			"upload .ch8 to SPIFFS\n"
+			"Upload .ch8 to SPIFFS\n"
+			"Add config file for\n"
+			"  - keys remap\n"
+			"  - fore/back color\n"
+			"  - compatibility ops\n"
+			"  - timers freq hz\n"
+			"  - sound tone\n"
+			"  - description\n"
+      "\n"
+			"During the play\n"
+			" LGT+RGT to\n"
+			"   - shortpress-RESET\n"
+			"   - longpress-EXIT"
 			"\n"
-			"add config file for\n"
-			" - keys remap\n"
-			" - fore/back color\n"
-			" - compatibility ops\n"
-			" - timers freq hz\n"
-			" - sound tone\n"
-			" - description\n"
-			"\n"
-			"during the play press\n"
-			"both side buttons for\n"
-			" - RESET - shortpress\n"
-			" - EXIT  - longpress"));
+      " ACT+ESC+UP/DOWN to\n" 
+      "         change speed\n"
+      " LGT/RGT change color"
+			));
 		waitkeyunpressed();
 		waitanykey();
 		waitkeyunpressed();

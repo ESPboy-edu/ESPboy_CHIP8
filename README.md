@@ -18,15 +18,7 @@ https://github.com/Chromatophore/HP48-Superchip
 The games should be with extention ".ch8" as <gamename.ch8> 
 To upload games to SPIFFS check: https://www.youtube.com/watch?v=25eLIdLKgHs
 
-For correct compilation, change settings in file «User_Setup.h» of TFT_eSPI library
-* 50 #define TFT_WIDTH 128
-* 53 #define TFT_HEIGHT 128
-* 67 #define ST7735_GREENTAB3
-* 149 #define TFT_CS -1
-* 150 #define TFT_DC PIN_D8
-* 152 #define TFT_RST -1
-* 224 #define LOAD_GLCD
-* 255 #define SPI_FREQUENCY 27000000
+For correct compilation, use recommended Arduino IDE [libs](https://github.com/ESPboy-edu/ESPboy_ArduinoIDE_Libraries) and [settings](https://github.com/ESPboy-edu/ESPboy_FirstTest/blob/master/settings.png)
 
 ## GAMENAME PREFIXES:
 - SC – super chip game
