@@ -1,9 +1,8 @@
 /*
-ESPboy chip8/schip emulator by RomanS
+ESPboy chip8/schip emulator for ESPboy
 Special thanks to Igor (corax69), DmitryL (Plague), John Earnest (https://github.com/JohnEarnest/Octo/tree/gh-pages/docs) for help, Alvaro Alea Fernandez for his Chip-8 emulator
 
-ESPboy project page:
-https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
+ESPboy project: www.espboy.com
 */
 
 //#pragma GCC optimize ("-Ofast")
@@ -15,15 +14,16 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 //#include "ROM4.h" // Ant SCHIP
 
 #include "ESPboyCHIP8fonts.h"
-#include <FS.h>
+#include <LittleFS.h>
 #include "lib/ESPboyInit.h"
 #include "lib/ESPboyInit.cpp"
 
+ESPboyInit myESPboy;
+#include "lib/WiFiFileManager.h"
 
 //system
 #define FONTCHIP_OFFSET       0x38 //small chip8 font 8x5
 #define FONTSUPERCHIP_OFFSET  0x88 //large super chip font 8x10
-#define NLINEFILES            14 //no of files in menu
 
 //default emu parameters
 #define DEFAULTCOMPATIBILITY    0b0000000001000011 //compatibility bits: bit16,...bit8,bit7...bit1;
@@ -32,11 +32,11 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 #define DEFAULTSOUNDTONE        300
 #define DEFAULTDELAYMICROSECONDS 50
 
-#define REDRAWFPS 60
+#define REDRAWFPS 40
 
 //default keymapping
 //0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
-static uint8_t default_buttons[8] = { 4, 2, 8, 6, 5, 11, 4, 6 };
+static uint8_t default_buttons[8] PROGMEM = { 4, 2, 8, 6, 5, 11, 4, 6 };
 //1     2    3     C[12]
 //4     5    6     D[13]
 //7     8    9     E[14]
@@ -125,8 +125,6 @@ uint16_t colors[] = {
 };
 
 
-ESPboyInit myESPboy;
-
 
 //emulator vars
 uint8_t *mem; 
@@ -158,19 +156,10 @@ static const char     *no_config_desc = (char *)"No configuration\nfile found\n\
 static uint_fast16_t  buttonspressed;
 
 //diff vars display
-static uint8_t        display1[128 * 64]  __attribute__ ((aligned));
-static uint8_t        display2[128 * 64]  __attribute__ ((aligned));
+static uint8_t        *display1 __attribute__ ((aligned));
+static uint8_t        *display2 __attribute__ ((aligned));
 static uint_fast8_t   screen_width;
 static uint_fast8_t   screen_height;
-
-
-enum EMUSTATE {
-  APP_HELP,
-  APP_SHOW_DIR,
-  APP_CHECK_KEY,
-  APP_EMULATE
-};
-EMUSTATE emustate = APP_HELP;
 
 
 enum EMUMODE {
@@ -282,8 +271,8 @@ void init_display(){
       screen_height = 64;
       break;
   }  
-  memset(display2, 0, sizeof(display2));
-  memset(display1, 0, sizeof(display1));
+  memset(display2, 0, 128*64);
+  memset(display1, 0, 128*64);
   switch (emumode){
     case CHIP8:
       myESPboy.tft.fillRect(0, 16, 128, 64, colors[background_emu]);
@@ -526,14 +515,14 @@ void loadrom(String filename){
 	File f;
 	String data;
 	uint16_t c;
-	f = SPIFFS.open(filename, "r");
+	f = LittleFS.open(filename, "r");
 	f.read(&mem[0x200], f.size());
 	f.close();
 	filename.setCharAt(filename.length() - 3, 'k');
 	filename = filename.substring(0, filename.length() - 2);
-	if (SPIFFS.exists(filename))
+	if (LittleFS.exists(filename))
 	{
-		f = SPIFFS.open(filename, "r");
+		f = LittleFS.open(filename, "r");
 		for (c = 0; c < 7; c++)
 		{
 			data = f.readStringUntil(' ');
@@ -718,10 +707,10 @@ int_fast8_t do_cpu(){
     switch (y)
     {
       case SCHIP_SCD: //scroll display n lines down
-        memmove (&display2[screen_width*(inst&0x000F)], display2, sizeof(display2)-sizeof(uint8_t)*screen_width*(inst&0x000F));
+        memmove (&display2[screen_width*(inst&0x000F)], display2, 128*64-sizeof(uint8_t)*screen_width*(inst&0x000F));
         memset (display2, 0, sizeof(uint8_t)*screen_width*(inst&0x000F));
 
-        memmove (&display1[screen_width*(inst&0x000F)], display1, sizeof(display1)-sizeof(uint8_t)*screen_width*(inst&0x000F));
+        memmove (&display1[screen_width*(inst&0x000F)], display1, 128*64-sizeof(uint8_t)*screen_width*(inst&0x000F));
         memset (display1, 0, sizeof(uint8_t)*screen_width*(inst&0x000F));        
         break;
     }
@@ -965,7 +954,7 @@ void do_emulation(){
       if (millis()-updatelasttime > 1000/REDRAWFPS){
         updatelasttime = millis();
         updatedisplay();
-        memcpy(&display1, &display2, sizeof(display2));
+        memcpy(display1, display2, 128*64);
       }
           
       checkbuttons();
@@ -1020,183 +1009,262 @@ void do_emulation(){
 }
 
 
+void appHelp(){
+    myESPboy.tft.fillScreen(TFT_BLACK);
+    myESPboy.tft.setTextColor(TFT_GREEN);
+    myESPboy.tft.setTextSize(1);
+    myESPboy.tft.setCursor(0, 0);
+    myESPboy.tft.print(F(
+      "\nUpload .ch8 files\n\n"
+      "Add config files\n\n"
+      "LGT/RGT for WiFi\n\n"
+      "During the play\n"
+      " LGT+RGT to\n"
+      "   - shortpress-RESET\n"
+      "   - longpress-EXIT\n"
+      " ACT+ESC+UP/DOWN to\n" 
+      "         change speed\n"
+      " LGT/RGT change color"
+      ));
+    waitkeyunpressed();
+    waitanykey();
+    if ((myESPboy.getKeys() & PAD_RGT) || (myESPboy.getKeys() & PAD_LFT)) 
+      WiFiFileManager();
+    waitkeyunpressed();
+    myESPboy.tft.fillScreen(TFT_BLACK);
+}
 
-
-void setup(){
-
-  //Init ESPboy  
-  myESPboy.begin("CHIP8/SCHIP");
-
-
-  mem = new (uint8_t[0x1000]);
-  
-  myESPboy.tft.setTextColor(TFT_GREEN);
+void loadDefault(){
+  myESPboy.tft.fillScreen(TFT_BLACK);
   myESPboy.tft.setCursor(0, 0);
-  myESPboy.tft.println(F("FILE SYSTEM INIT..."));
-	SPIFFS.begin();
-  myESPboy.tft.println(F("DONE"));
-  delay(1000);
+  myESPboy.tft.setTextColor(TFT_MAGENTA);
+  myESPboy.tft.println(F("Chip8 ROMs not found"));
+  myESPboy.tft.println(F("upload to LittleFS"));
+  myESPboy.tft.println("");
+  myESPboy.tft.println(F("Loading default..."));
+  delay(1500);
+
+  memcpy_P(&mem[0x200], &ROM[0], sizeof(ROM));
+  for (uint8_t i = 0; i < 8; i++) keys[i] = atoi(ROMCFG[i]);
+  foreground_emu = atoi(ROMCFG[8]);
+  background_emu = atoi(ROMCFG[9]);
+  delay_emu = atoi(ROMCFG[10]);
+  compatibility_emu = atoi(ROMCFG[11]);
+  timers_emu = atoi(ROMCFG[13]);
+  soundtone_emu = atoi(ROMCFG[14]);
+  description_emu = ((String)ROMCFG[14]).substring(0, 314);
+  chip8_reset();
+  //start emulation
+}
+
+
+#define FILE_HEIGHT    14
+#define FILE_FILTER   "ch8"
+#define MAX_FILES 100
+
+
+uint8_t file_browser_ext(const char* name)
+{
+  while (1) if (*name++ == '.') break;
+  return (strcasecmp(name, FILE_FILTER) == 0) ? 1 : 0;
+}
+
+
+char file_name[32];
+
+int16_t file_browser(){
+  int16_t file_cursor=0;
+  int16_t i, j, sy, pos, off, frame, file_count, control_type;
+  uint8_t change, filter;
+  fs::Dir dir;
+  fs::File entry;
+  char name[sizeof(file_name)];
+  const char* str;
+  char *namesList;
+
+  memset(file_name, 0, sizeof(file_name));
+  memset(name, 0, sizeof(name));
+
+  myESPboy.tft.fillScreen(TFT_BLACK);
+  myESPboy.tft.setTextColor(TFT_GREEN, TFT_BLACK);
+  myESPboy.tft.drawString(F("Init files..."), 0, 0);
+
+  file_count = 0;
+  control_type = 0;
+
+  namesList = (char *)malloc(sizeof(file_name) * MAX_FILES);
+ 
+  dir = LittleFS.openDir("/");
+  while (dir.next() && file_count < MAX_FILES){
+    entry = dir.openFile("r");
+    filter = file_browser_ext(entry.name());
+    if (filter) {
+      String str = entry.name();
+      strcpy(&namesList[file_count*sizeof(file_name)], str.c_str());
+      file_count++;}
+    entry.close();
+  }
+
   myESPboy.tft.fillScreen(TFT_BLACK);
 
+  if (!file_count){
+    file_cursor = -1;
+  }
+  else
+  {
+  myESPboy.tft.setTextColor(TFT_GREEN, TFT_BLACK);
+  myESPboy.tft.drawString(F("Select file:"), 4, 4);
+  myESPboy.tft.drawFastHLine(0, 12, 128, TFT_WHITE);
+
+  change = 1;
+  frame = 0;
+
+  while (1)
+  {
+    if (change)
+    {
+      pos = file_cursor - FILE_HEIGHT / 2;
+      if (pos > file_count - FILE_HEIGHT) pos = file_count - FILE_HEIGHT;
+      if (pos < 0) pos = 0;
+
+
+      sy = 14;
+      i = 0;
+
+      while (1)
+      {
+        {
+          str = &namesList[pos*sizeof(file_name)];
+
+          for (j = 0; j < sizeof(name) - 1; ++j)
+          {
+            if (*str != 0 && *str != '.') name[j] = *str++; else name[j] = ' ';
+          }
+          myESPboy.tft.setTextColor(TFT_WHITE, TFT_BLACK);
+          myESPboy.tft.drawString(name, 8, sy);
+          myESPboy.tft.setTextColor(TFT_BLACK, TFT_BLACK);
+          myESPboy.tft.drawString(">" , 2, sy);
+
+          if (pos == file_cursor)
+          {
+            strncpy(file_name, &namesList[pos*sizeof(file_name)], sizeof(file_name));
+
+            if (!(frame & 128)) 
+               {
+                 myESPboy.tft.setTextColor(TFT_WHITE, TFT_BLACK);
+                 myESPboy.tft.drawString(">" , 2, sy);
+               }
+          }
+        }
+
+
+        if (pos > file_count) break;
+
+        if (filter)
+        {
+          sy += 8;
+          ++pos;
+          ++i;
+          if (i >= FILE_HEIGHT) break;
+        }
+      }
+
+      change = 0;
+    }
+
+
+    if (myESPboy.getKeys() & PAD_UP)
+    {
+      --file_cursor;
+
+      if (file_cursor < 0) file_cursor = file_count - 1;
+
+      change = 1;
+      frame = 0;
+      delay(100); 
+    }
+
+    if (myESPboy.getKeys() & PAD_DOWN)
+    {
+      ++file_cursor;
+
+      if (file_cursor >= file_count) file_cursor = 0;
+
+      change = 1;
+      frame = 0;
+      delay(100); 
+    }
+
+    if (myESPboy.getKeys() & PAD_ACT) {
+      delay(100); 
+      waitkeyunpressed();
+      break;
+    }
+
+    if ((myESPboy.getKeys() & PAD_ESC)) {
+      myESPboy.tft.fillScreen(TFT_BLACK);
+      waitkeyunpressed();
+      WiFiFileManager();
+      break;
+    }
+
+    ESP.wdtFeed();
+    ++frame;
+
+    if (!(frame & 127)) change = 1;
+  }
+
+ }
+  myESPboy.tft.fillScreen(TFT_BLACK);
+  delete (namesList);
+  return (file_cursor);
 }
 
 
 
+
+
+void setup(){
+  //Init ESPboy  
+  myESPboy.begin("CHIP8/SCHIP");
+  mem = new (uint8_t[0x1000]);
+  //Serial.begin(115200);
+  myESPboy.tft.setTextColor(TFT_GREEN);
+  myESPboy.tft.setCursor(0, 0);
+  myESPboy.tft.println(F("File system init..."));
+	if(!LittleFS.begin()) LittleFS.format();
+  myESPboy.tft.println(F("DONE"));
+  myESPboy.tft.fillScreen(TFT_BLACK);
+  appHelp();
+  display1 = (uint8_t *)malloc(128 * 64);
+  display2 = (uint8_t *)malloc(128 * 64);
+}
+
+
 void loop(){
-	static uint16_t selectedfilech8, countfilesonpage, countfilesch8, maxfilesch8;
-	Dir dir;
-	static String filename, selectedfilech8name;
-	dir = SPIFFS.openDir("/");
-	maxfilesch8 = 0;
-	while (dir.next())
-	{
-		filename = String(dir.fileName());
-		filename.toLowerCase();
-
-		if (filename.lastIndexOf(String(".ch8")) > 0)
-			maxfilesch8++;
-	}
-
-	switch (emustate)
-	{
-	case APP_HELP:
-		myESPboy.tft.setTextColor(TFT_YELLOW);
-		myESPboy.tft.setTextSize(1);
-		myESPboy.tft.setCursor(0, 0);
-		myESPboy.tft.print(F(
-			"Upload .ch8 to SPIFFS\n"
-			"Add config file for\n"
-			"  - keys remap\n"
-			"  - fore/back color\n"
-			"  - compatibility ops\n"
-			"  - timers freq hz\n"
-			"  - sound tone\n"
-			"  - description\n"
-      "\n"
-			"During the play\n"
-			" LGT+RGT to\n"
-			"   - shortpress-RESET\n"
-			"   - longpress-EXIT"
-			"\n"
-      " ACT+ESC+UP/DOWN to\n" 
-      "         change speed\n"
-      " LGT/RGT change color"
-			));
-		waitkeyunpressed();
-		waitanykey();
-		waitkeyunpressed();
-   
-		selectedfilech8 = 1;
-		if (maxfilesch8)
-			emustate = APP_SHOW_DIR;
+  int16_t selectedFile;
+  
+    selectedFile = file_browser();
+    if (selectedFile == -1)
+      loadDefault();
     else{
-        myESPboy.tft.fillScreen(TFT_BLACK);
-        myESPboy.tft.setCursor(0, 0);
-        myESPboy.tft.setTextColor(TFT_MAGENTA);
-        myESPboy.tft.println(F("Chip8 ROMs not found"));
-        myESPboy.tft.println(F("upload to SPIFFS"));
-        myESPboy.tft.println("");
-        delay(1000);
-        myESPboy.tft.println(F("Loading default..."));
-        delay(2000);
-
-        memcpy_P(&mem[0x200], &ROM[0], sizeof(ROM));
-        for (uint8_t i = 0; i < 8; i++) keys[i] = atoi(ROMCFG[i]);
-        foreground_emu = atoi(ROMCFG[8]);
-        background_emu = atoi(ROMCFG[9]);
-        delay_emu = atoi(ROMCFG[10]);
-        compatibility_emu = atoi(ROMCFG[11]);
-        timers_emu = atoi(ROMCFG[13]);
-        soundtone_emu = atoi(ROMCFG[14]);
-        description_emu = ((String)ROMCFG[14]).substring(0, 314);
-
-        chip8_reset();
-        emustate = APP_EMULATE;
-    }
-		break;
-	case APP_SHOW_DIR:
-		dir = SPIFFS.openDir("/");
-		countfilesch8 = 0;
-		while (countfilesch8+1 < ((selectedfilech8 / (NLINEFILES)) * (NLINEFILES)))
-		{
-			dir.next();
-			filename = String(dir.fileName());
-			filename.toLowerCase();
-			if (filename.lastIndexOf(String(".ch8")) > 0)
-				countfilesch8++;
-		}
-		myESPboy.tft.fillScreen(TFT_BLACK);
-		myESPboy.tft.setCursor(0, 0);
-		myESPboy.tft.setTextColor(TFT_YELLOW);
-		myESPboy.tft.print("SELECT GAME:");
-		myESPboy.tft.setTextColor(TFT_MAGENTA);
-		countfilesonpage = 0;
-		while (dir.next() && (countfilesonpage < NLINEFILES))
-		{
-			filename = String(dir.fileName());
-			String tfilename = filename;
-			tfilename.toLowerCase();
-
-			if (tfilename.lastIndexOf(String(".ch8")) > 0)
-			{
-				if (filename.indexOf(".") < 17)
-					filename = filename.substring(1, filename.indexOf("."));
-				else
-					filename = filename.substring(1, 16);
-				filename = "  " + filename;
-				countfilesch8++;
-				if (countfilesch8 == selectedfilech8)
-				{
-					selectedfilech8name = filename;
-					filename.trim();
-					filename = String("> " + filename);
-					myESPboy.tft.setTextColor(TFT_YELLOW);
-				}
-				else
-				{
-					myESPboy.tft.setTextColor(TFT_MAGENTA);
-				}
-				myESPboy.tft.setCursor(0, countfilesonpage * 8 + 12);
-				myESPboy.tft.print(filename);
-				countfilesonpage++;
-			}
-		}
-		emustate = APP_CHECK_KEY;
-		break;
-	case APP_CHECK_KEY:
-		//waitkeyunpressed();
-		waitanykey();
-    delay(100);
-		if (UP_BUTTON && selectedfilech8 > 1)
-			selectedfilech8--;
-		if (DOWN_BUTTON && (selectedfilech8 < maxfilesch8))
-			selectedfilech8++;
-		if (ACT_BUTTON)
-		{
-			chip8_reset();
-			selectedfilech8name.trim();
-			loadrom("/" + selectedfilech8name + ".ch8");
+      chip8_reset();
+      String selectedfilech8name = file_name;
+      selectedfilech8name.trim();
+      loadrom("/" + selectedfilech8name);
       myESPboy.tft.fillScreen(TFT_BLACK);
-			myESPboy.tft.setCursor((((21 - selectedfilech8name.length())) / 2) * 6, 0);
-			myESPboy.tft.setTextColor(TFT_YELLOW);
-			myESPboy.tft.print(selectedfilech8name);
-			myESPboy.tft.setCursor(0, 12);
-			myESPboy.tft.setTextColor(TFT_MAGENTA);
-			myESPboy.tft.print(description_emu);
-			//waitkeyunpressed();
-			waitanykey();
-			//waitkeyunpressed();
-			emustate = APP_EMULATE;
-		}
-		else
-			emustate = APP_SHOW_DIR;
-		//waitkeyunpressed();
-		break;
-	case APP_EMULATE: //chip8 emulation
+      myESPboy.tft.setCursor((((21 - selectedfilech8name.length())) / 2) * 6, 0);
+      myESPboy.tft.setTextColor(TFT_YELLOW);
+      myESPboy.tft.print(selectedfilech8name);
+      myESPboy.tft.setCursor(0, 12);
+      myESPboy.tft.setTextColor(TFT_MAGENTA);
+      myESPboy.tft.print(description_emu);
+      waitkeyunpressed();
+      waitanykey();
+      waitkeyunpressed();
+    }  
+
 		myESPboy.tft.fillScreen(TFT_BLACK);
 		do_emulation();
-    myESPboy.tft.fillScreen(TFT_BLACK);
-		emustate = APP_HELP;
-		break;
-	}
+    chip8_reset();
 }
