@@ -27,14 +27,13 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 
 //default emu parameters
 #define DEFAULTCOMPATIBILITY    0b0000000001000011 //compatibility bits: bit16,...bit8,bit7...bit1;
-#define DEFAULTOPCODEPERFRAME   40
 #define DEFAULTTIMERSFREQ       60 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
-#define DEFAULTDELAY            1000
+#define DEFAULTDELAY            2
 #define DEFAULTSOUNDTONE        300
+#define DEFAULTDELAYMICROSECONDS 0
 
-#define MAX_FPS_PART_DRAW 20
-#define MAX_FPS_FULL_DRAW 8
+#define REDRAWFPS 30
 
 //default keymapping
 //0-LEFT, 1-UP, 2-DOWN, 3-RIGHT, 4-ACT, 5-ESC, 6-LFT side button, 7-RGT side button
@@ -64,7 +63,7 @@ DXYN
 bit4 = 1    wrapping sprites
 bit4 = 0    clip sprites at screen edges instead of wrapping
 
-BNNN (aka jump0)ыуе
+BNNN (aka jump0)
 Sets PC to address NNN + v0 - VIP: correctly jumps based on value in v0. SCHIP: also uses highest nibble of address to select register, instead of v0 (high nibble pulls double duty). Effectively, making it jumpN where target memory address is N##. Very awkward quirk.
 bit5 = 1    Jump to CurrentAddress+NN ;4 high bits of target address determines the offset register of jump0 instead of v0.
 bit5 = 0    Jump to address NNN+V0
@@ -93,7 +92,7 @@ bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX
 #define BIT4CTL (compatibility_emu & 8)
 #define BIT5CTL (compatibility_emu & 16)
 #define BIT6CTL (compatibility_emu & 32)
-#define BIT7CTL (compatibility_emu & 64)
+//#define BIT7CTL (compatibility_emu & 64)
 #define BIT8CTL (compatibility_emu & 128)
 #define BIT9CTL (compatibility_emu & 256)
 
@@ -146,14 +145,11 @@ static uint8_t   keys[8]={0};
 static uint8_t   foreground_emu;
 static uint8_t   background_emu;
 static uint16_t  compatibility_emu;   // look above
-static uint16_t  opcodesperframe_emu; // how many opcodes should be done before screen updates
 static uint8_t   timers_emu;          // freq of timers. standart 60hz
 static uint16_t  soundtone_emu;       // sound base tone check buzz();
 static uint16_t  delay_emu;           // delay in microseconds before next opcode done
 
 static uint32_t opcodescounter=0;
-static uint32_t opcodesafterlastdrawcounter=0;
-static uint8_t updatedisplayflag=0;
 
 
 String                description_emu;     // file description
@@ -163,6 +159,7 @@ static const char     *no_config_desc = (char *)"No configuration\nfile found\n\
 static uint_fast16_t  buttonspressed;
 
 //diff vars display
+static uint8_t        display1[128 * 64]  __attribute__ ((aligned));
 static uint8_t        display2[128 * 64]  __attribute__ ((aligned));
 static uint_fast8_t   screen_width;
 static uint_fast8_t   screen_height;
@@ -287,7 +284,7 @@ void init_display(){
       break;
   }  
   memset(display2, 0, sizeof(display2));
-//  memset(display1, 0, sizeof(display1));
+  memset(display1, 0, sizeof(display1));
   switch (emumode){
     case CHIP8:
       myESPboy.tft.fillRect(0, 16, 128, 64, colors[background_emu]);
@@ -313,13 +310,17 @@ void IRAM_ATTR updatedisplay(){
   drawcolorback = colors[background_emu];
   
   switch (emumode){
-    
     case CHIP8:
     case HIRES:
+      if (emumode == CHIP8)
+        myESPboy.tft.setWindow(0, 16, 127, 128);
+      else
+        myESPboy.tft.setWindow(0, 0, 127, 128);
+        
       for (i = 0; i < screen_height; i++){
         drawaddr = 0;
         for (j = 0; j < screen_width; j++){ 
-          if (display2[addr++]){
+          if (display1[addr++]){
             bufLine[drawaddr++] = drawcolor;
             bufLine[drawaddr++] = drawcolor;
           }
@@ -330,21 +331,19 @@ void IRAM_ATTR updatedisplay(){
         }
         
       memcpy(&bufLine[128], &bufLine[0], 256);
-      if (emumode == CHIP8)
-        myESPboy.tft.pushImage(0, i*2+16, 128, 2, bufLine);
-      else
-        myESPboy.tft.pushImage(0, i*2, 128, 2, bufLine);
+      myESPboy.tft.pushPixels(bufLine, 256);
       }
     break;
 
     case SCHIP:
+      myESPboy.tft.setWindow(0, 16, 127, 128);
       for (i = 0; i < screen_height; i++){
         for (j = 0; j < screen_width; j++)
-          if (display2[addr++])
+          if (display1[addr++])
             bufLine[j] = drawcolor;
           else
             bufLine[j] = drawcolorback;
-        myESPboy.tft.pushImage(0, i+16, 128, 1, bufLine);
+        myESPboy.tft.pushPixels(bufLine, 128);
       }
       break;
   }
@@ -352,12 +351,10 @@ void IRAM_ATTR updatedisplay(){
 
 
 uint8_t IRAM_ATTR drawsprite16x16(uint8_t x, uint8_t y){
-  static uint_fast8_t xs, ys, yss, c, d, ret, preret, drw;
+  static uint_fast8_t xs, ys, yss, c, d, ret, preret;
   static uint_fast16_t addrdisplay, mask, masked, data;
-  static uint32_t timepassed;
     ret = 0; 
     preret = 0;
-    drw = 0;
     for(c = 0; c < 16; c++){
       data = (((mem[I + c * 2])<<8) | mem[I + c * 2 + 1]);
       mask=32768;
@@ -373,15 +370,12 @@ uint8_t IRAM_ATTR drawsprite16x16(uint8_t x, uint8_t y){
         masked = !(!(data & mask));
         if (BIT4CTL || (xs < screen_width && ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
-          if (display2[addrdisplay] ^= masked) drw++;
+           display2[addrdisplay] ^= masked;
+           display1[addrdisplay] |= masked;
         }
         mask >>= 1;
       }
       if (preret) ret++;
-    }
-    if (BIT7CTL && drw && millis()-timepassed > 1000/MAX_FPS_PART_DRAW) {
-      timepassed = millis();
-      updatedisplay();
     }
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
@@ -390,17 +384,13 @@ uint8_t IRAM_ATTR drawsprite16x16(uint8_t x, uint8_t y){
 
 uint8_t IRAM_ATTR drawsprite(uint8_t x, uint8_t y, uint8_t size){
  static uint_fast8_t data, mask, masked, xs, ys, yss, c, d, ret, preret;
- static uint_fast16_t addrdisplay, drw;
- static uint32_t timepassed;
+ static uint_fast16_t addrdisplay;
 
- opcodesafterlastdrawcounter=0;
- updatedisplayflag=1;
  
  if (!size)
       return (drawsprite16x16(x, y));
  else   
   {
-    drw = 0;
     ret = 0; 
     preret = 0;
     for(c = 0; c < size; c++){
@@ -418,20 +408,18 @@ uint8_t IRAM_ATTR drawsprite(uint8_t x, uint8_t y, uint8_t size){
         masked = !(!(data & mask));
         if (BIT4CTL || (xs < screen_width && ys < screen_height)){
           if (masked && display2[addrdisplay]) preret++;
-          if(display2[addrdisplay] ^= masked) drw++; 
+          display2[addrdisplay] ^= masked;
+          display1[addrdisplay] |= masked;
         }
         mask >>= 1;
       }
       if (preret) ret++;
     }
-    if (BIT7CTL && drw && millis()-timepassed > 1000/MAX_FPS_PART_DRAW) {
-      timepassed = millis();
-      updatedisplay();
-    }
     if (BIT6CTL) return (ret);
     else return (ret?1:0);
   }
 }
+
 
 
 
@@ -482,7 +470,7 @@ uint_fast8_t iskeypressed(uint8_t key){
 uint_fast8_t waitanykey(){
 	uint8_t ret = 0;
 	while (!checkbuttons())
-		delay(5);
+		delay(1);
 	if (LEFT_BUTTON)
 		ret = keys[LEFT_BUTTONn];
 	if (UP_BUTTON)
@@ -506,7 +494,7 @@ uint_fast8_t waitanykey(){
 uint_fast16_t waitkeyunpressed(){
 	unsigned long starttime = millis();
 	while (checkbuttons())
-		delay(5);
+		delay(1);
 	return (millis() - starttime);
 }
 
@@ -563,7 +551,6 @@ void loadrom(String filename){
 		data = f.readStringUntil('\n');
 		compatibility_emu = data.toInt();
 		data = f.readStringUntil('\n');
-		opcodesperframe_emu = data.toInt();
 		data = f.readStringUntil('\n');
 		timers_emu = data.toInt();
 		data = f.readStringUntil('\n');
@@ -584,8 +571,7 @@ void loadrom(String filename){
 		foreground_emu = random(10) + 9;
 		background_emu = DEFAULTBACKGROUND;
 		compatibility_emu = DEFAULTCOMPATIBILITY;
-		delay_emu = DEFAULTDELAY;
-		opcodesperframe_emu = DEFAULTOPCODEPERFRAME;
+		delay_emu = DEFAULTDELAYMICROSECONDS;
 		timers_emu = DEFAULTTIMERSFREQ;
 		soundtone_emu = DEFAULTSOUNDTONE;
 		description_emu = no_config_desc;
@@ -702,16 +688,20 @@ int_fast8_t do_cpu(){
         {
           memmove(&display2[cr*screen_width+4], &display2[cr*screen_width], sizeof(uint8_t)*screen_width-4);
           memset(&display2[cr*screen_width], 0, sizeof(uint8_t)*4);
+
+          memmove(&display1[cr*screen_width+4], &display1[cr*screen_width], sizeof(uint8_t)*screen_width-4);
+          memset(&display1[cr*screen_width], 0, sizeof(uint8_t)*4);
         }
-      if (BIT7CTL) updatedisplay();  
       break;  
     case SCHIP_SCL:
       for (cr=0; cr<screen_height; cr++)
       {
           memmove(&display2[cr*screen_width], &display2[cr*screen_width+4], sizeof(uint8_t)*screen_width-4);
           memset(&display2[cr*screen_width+screen_width-4], 0, sizeof(uint8_t)*4);
-      }
-      if (BIT7CTL) updatedisplay();   
+
+          memmove(&display1[cr*screen_width], &display1[cr*screen_width+4], sizeof(uint8_t)*screen_width-4);
+          memset(&display1[cr*screen_width+screen_width-4], 0, sizeof(uint8_t)*4);
+      }   
       break;  
     case SCHIP_EXIT:
       schip_exit_flag = true;
@@ -731,7 +721,9 @@ int_fast8_t do_cpu(){
       case SCHIP_SCD: //scroll display n lines down
         memmove (&display2[screen_width*(inst&0x000F)], display2, sizeof(display2)-sizeof(uint8_t)*screen_width*(inst&0x000F));
         memset (display2, 0, sizeof(uint8_t)*screen_width*(inst&0x000F));
-        if (BIT7CTL) updatedisplay();
+
+        memmove (&display1[screen_width*(inst&0x000F)], display1, sizeof(display1)-sizeof(uint8_t)*screen_width*(inst&0x000F));
+        memset (display1, 0, sizeof(uint8_t)*screen_width*(inst&0x000F));        
         break;
     }
     switch (xxx)
@@ -891,15 +883,12 @@ int_fast8_t do_cpu(){
 		switch (zz)
 		{
 		case CHIP8_EXTF_GDELAY: // getdelay
-      //updatedisplay();
 			reg[x] = dtimer;
 			break;
 		case CHIP8_EXTF_KEY: //waitkey
-      //updatedisplay();
 			reg[x] = waitanykey();
 			break;
 		case CHIP8_EXTF_SDELAY: //setdelay
-      //if (BIT7CTL) updatedisplay();
 			dtimer = reg[x];
 			break;
 		case CHIP8_EXTF_SSOUND: //setsound
@@ -955,7 +944,7 @@ int_fast8_t do_cpu(){
 
 void do_emulation(){
   static uint_fast64_t tme;
-  static uint32_t updatelasttime;
+  static uint32_t updatelasttime, timelastdelay;
 
   myESPboy.tft.setTextColor(TFT_MAGENTA, TFT_BLACK);
 
@@ -967,22 +956,17 @@ void do_emulation(){
       update_timers();
 			buzz();
 
-      delay(0);
+      delayMicroseconds(delay_emu); //slowdawn CPU
+
+      if (millis()-timelastdelay > 1000){ //avoid WDT reset
+        timelastdelay = millis();
+        delay(DEFAULTDELAY);
+      }
       
-      if(delay_emu) {
-        tme = micros(); 
-        while ((micros() - tme) < delay_emu) delay(0);}
-        
-			if (!BIT7CTL &&  opcodescounter++ > opcodesperframe_emu){
-        opcodescounter = 0;
-			  updatedisplay();
-			}
-
-
-      if (BIT7CTL && updatedisplayflag && (opcodesafterlastdrawcounter++ > opcodesperframe_emu) && millis()-updatelasttime > 1000/MAX_FPS_FULL_DRAW){
+      if (millis()-updatelasttime > 1000/REDRAWFPS){
         updatelasttime = millis();
         updatedisplay();
-        updatedisplayflag=0;
+        memcpy(&display1, &display2, sizeof(display2));
       }
           
       checkbuttons();
@@ -992,39 +976,14 @@ void do_emulation(){
 				  break;
 		  }
 
-      if (ACT_BUTTON && LFT_BUTTON){
-        if(opcodesperframe_emu)opcodesperframe_emu--;
-        myESPboy.tft.setCursor(0,0);
-        myESPboy.tft.print(opcodesperframe_emu);
-        myESPboy.tft.print(" ");
-        delay(20);
-      }
-        
-      if (ACT_BUTTON && RGT_BUTTON){
-        opcodesperframe_emu++;
-        myESPboy.tft.setCursor(0,0);
-        myESPboy.tft.print(opcodesperframe_emu);
-        myESPboy.tft.print(" ");
-        delay(20);
-      }
-
-
-      if (ACT_BUTTON && ESC_BUTTON){
-        compatibility_emu ^= 64;
-        myESPboy.tft.setCursor(0,8);
-        myESPboy.tft.print("BIT7 ");
-        myESPboy.tft.print(!(!(compatibility_emu & 64)));
-        myESPboy.tft.print(" ");
-        delay(500);
-      }
     
-      if (ESC_BUTTON && LFT_BUTTON){
+      if (LFT_BUTTON){
         background_emu++;
         if(background_emu > 19) background_emu = 0;
         delay(200);
       }
         
-      if (ESC_BUTTON && RGT_BUTTON){
+      if (RGT_BUTTON){
         foreground_emu++;
         if(foreground_emu > 19) foreground_emu = 0;
         delay(200);
@@ -1090,7 +1049,6 @@ void loop(){
 			" - keys remap\n"
 			" - fore/back color\n"
 			" - compatibility ops\n"
-			" - opcodes per redraw\n"
 			" - timers freq hz\n"
 			" - sound tone\n"
 			" - description\n"
@@ -1122,7 +1080,6 @@ void loop(){
         background_emu = atoi(ROMCFG[9]);
         delay_emu = atoi(ROMCFG[10]);
         compatibility_emu = atoi(ROMCFG[11]);
-        opcodesperframe_emu = atoi(ROMCFG[12]);
         timers_emu = atoi(ROMCFG[13]);
         soundtone_emu = atoi(ROMCFG[14]);
         description_emu = ((String)ROMCFG[14]).substring(0, 314);
