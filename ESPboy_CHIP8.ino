@@ -27,9 +27,8 @@ https://hackaday.io/project/164830-espboy-beyond-the-games-platform-with-wifi
 
 //default emu parameters
 #define DEFAULTCOMPATIBILITY    0b0000000001000011 //compatibility bits: bit16,...bit8,bit7...bit1;
-#define DEFAULTTIMERSFREQ       60 // freq herz
+#define DEFAULTTIMERSFREQ       40 // freq herz
 #define DEFAULTBACKGROUND       0  // check colors []
-#define DEFAULTDELAY            2
 #define DEFAULTSOUNDTONE        300
 #define DEFAULTDELAYMICROSECONDS 50
 
@@ -960,7 +959,7 @@ void do_emulation(){
 
       if (millis()-timelastdelay > 1000){ //avoid WDT reset
         timelastdelay = millis();
-        delay(DEFAULTDELAY);
+        ESP.wdtFeed();
       }
       
       if (millis()-updatelasttime > 1000/REDRAWFPS){
@@ -1086,6 +1085,7 @@ void loop(){
 		waitkeyunpressed();
 		waitanykey();
 		waitkeyunpressed();
+   
 		selectedfilech8 = 1;
 		if (maxfilesch8)
 			emustate = APP_SHOW_DIR;
