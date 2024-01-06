@@ -972,24 +972,24 @@ void do_emulation(){
       checkbuttons();
 		  if (LFT_BUTTON && RGT_BUTTON){
 			    chip8_reset();
-			    if (waitkeyunpressed() > 300)
-				  delay(200);
-				  break;
-		  }
-
+			    if (waitkeyunpressed() > 500){
+				    delay(200);
+				    break;}
+		  }else
+        {
     
-      if (LFT_BUTTON){
-        background_emu++;
-        if(background_emu > 19) background_emu = 0;
-        delay(200);
+        if (LFT_BUTTON){
+          background_emu++;
+          if(background_emu > 19) background_emu = 0;
+          delay(200);
+        }
+        if (RGT_BUTTON){
+          foreground_emu++;
+          if(foreground_emu > 19) foreground_emu = 0;
+          delay(200);
+        }
       }
-        
-      if (RGT_BUTTON){
-        foreground_emu++;
-        if(foreground_emu > 19) foreground_emu = 0;
-        delay(200);
-      }
-
+      
       if (UP_BUTTON && ACT_BUTTON && ESC_BUTTON){
         myESPboy.tft.setTextColor(TFT_BLACK);
         myESPboy.tft.setCursor(3,3);
