@@ -205,7 +205,7 @@ Config file is simple txt with following parameters in every new line
 - background color
 - delay
 - compatibility flags
-- quantity of opcodes run before TFT updates
+- (depricated but still here to provide back comatibility) quantity of opcodes run before TFT updates
 - timers frequency
 - sound tone frequency
 - .ch8 file description about 300 symbols
@@ -271,7 +271,7 @@ bit5 = 0    Jump to address NNN+V0
 bit6 = 1    drawsprite returns number of collised rows of the sprite + rows out of the screen lines of the sprite (check for bit8)
 bit6 = 0    drawsprite returns 1 if collision/s and 0 if no collision/s
 
->EMULATOR TFT DRAW
+>(DEPRICATED) EMULATOR TFT DRAW
 bit7 = 1    draw to TFT just after changing pixel by drawsprite() not on timer
 bit7 = 0    redraw all TFT from display on timer
 
@@ -287,6 +287,7 @@ bit9 = 0 VX stay unchanged after oveflowing reg I operation I = I + VX
 for example for AstroDodge game should be set as (binary)01000011 = (decimal)67 
 
 ### 6. Quantity of opcodes 
+DEPRICATED
 Quantity of opcodes runs till screen update. Works if you don't use TFT_DRAW bit7 of COMPATIBILITY FLAGS
 
 ### 7. TIMERS FREQUENCY
