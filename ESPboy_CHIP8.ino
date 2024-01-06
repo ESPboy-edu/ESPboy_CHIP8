@@ -1011,13 +1011,15 @@ void do_emulation(){
 
 void appHelp(){
     myESPboy.tft.fillScreen(TFT_BLACK);
-    myESPboy.tft.setTextColor(TFT_GREEN);
+    myESPboy.tft.setTextColor(TFT_YELLOW);
     myESPboy.tft.setTextSize(1);
     myESPboy.tft.setCursor(0, 0);
     myESPboy.tft.print(F(
-      "\nUpload .ch8 files\n\n"
+      "Upload .ch8 files-use\n"
+      " -LittleFS uploader\n"
+      " -or press side buttn\n"
+      "  for WiFi file mangr\n\n"
       "Add config files\n\n"
-      "LGT/RGT for WiFi\n\n"
       "During the play\n"
       " LGT+RGT to\n"
       "   - shortpress-RESET\n"
@@ -1092,7 +1094,7 @@ int16_t file_browser(){
   file_count = 0;
   control_type = 0;
 
-  namesList = (char *)malloc(sizeof(file_name) * MAX_FILES);
+  namesList = new (char[sizeof(file_name) * MAX_FILES]);
  
   dir = LittleFS.openDir("/");
   while (dir.next() && file_count < MAX_FILES){
@@ -1216,7 +1218,7 @@ int16_t file_browser(){
 
  }
   myESPboy.tft.fillScreen(TFT_BLACK);
-  delete (namesList);
+  delete [] namesList;
   return (file_cursor);
 }
 
@@ -1227,7 +1229,6 @@ int16_t file_browser(){
 void setup(){
   //Init ESPboy  
   myESPboy.begin("CHIP8/SCHIP");
-  mem = new (uint8_t[0x1000]);
   //Serial.begin(115200);
   myESPboy.tft.setTextColor(TFT_GREEN);
   myESPboy.tft.setCursor(0, 0);
@@ -1236,8 +1237,9 @@ void setup(){
   myESPboy.tft.println(F("DONE"));
   myESPboy.tft.fillScreen(TFT_BLACK);
   appHelp();
-  display1 = (uint8_t *)malloc(128 * 64);
-  display2 = (uint8_t *)malloc(128 * 64);
+  mem = new (uint8_t[0x1000]); 
+  display1 = new (uint8_t[128 * 64]);
+  display2 = new (uint8_t[128 * 64]);
 }
 
 
