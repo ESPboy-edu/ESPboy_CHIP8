@@ -1,4 +1,5 @@
-# ESPboy chip8/hires/schip emulator by RomanS
+# ESPboy chip8/hires/schip emulator for ESPboy
+www.espboy.com
 
 ```sh
 Special thanks to:
